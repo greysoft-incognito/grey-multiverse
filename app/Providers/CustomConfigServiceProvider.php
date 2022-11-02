@@ -14,7 +14,8 @@ use PDO;
 
 defined('DB_VERSION') || define('DB_VERSION', str($dbv = request()->header('db-version'))->prepend($dbv ? 'v' : null)->toString());
 defined('API_VERSION') || define('API_VERSION', str(request()->path())->explode('/')->skip(1)->first());
-defined('USER_MODEL') || define('USER_MODEL', 'App\Models\\'.API_VERSION.'\\User');
+$preUserModel = request()->ajax() ? API_VERSION . '\\User' : 'User';
+defined('USER_MODEL') || define('USER_MODEL', 'App\\Models\\' . $preUserModel);
 
 class CustomConfigServiceProvider extends ServiceProvider
 {
