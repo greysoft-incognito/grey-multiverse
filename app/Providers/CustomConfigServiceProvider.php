@@ -12,10 +12,11 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 use PDO;
 
+$isApi = request()->isXmlHttpRequest() && str(request()->path())->explode('/')->first() === 'api';
+$getVersion = $isApi ? str(request()->path())->explode('/')->skip(1)->first() : '1';
 defined('DB_VERSION') || define('DB_VERSION', str($dbv = request()->header('db-version'))->prepend($dbv ? 'v' : null)->toString());
-defined('API_VERSION') || define('API_VERSION', str(request()->path())->explode('/')->skip(1)->first());
-$preUserModel = request()->ajax() ? API_VERSION . '\\User' : 'User';
-defined('USER_MODEL') || define('USER_MODEL', 'App\\Models\\' . $preUserModel);
+defined('API_VERSION') || define('API_VERSION', $getVersion);
+defined('USER_MODEL') || define('USER_MODEL', ! $isApi ? \App\Models\User::class : 'App\Models\\'.API_VERSION.'\\User');
 
 class CustomConfigServiceProvider extends ServiceProvider
 {
