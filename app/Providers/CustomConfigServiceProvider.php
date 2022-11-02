@@ -10,7 +10,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
-use PDO;
 
 $isApi = request()->isXmlHttpRequest() && str(request()->path())->explode('/')->first() === 'api';
 $getVersion = $isApi ? str(request()->path())->explode('/')->skip(1)->first() : '1';
@@ -84,7 +83,7 @@ class CustomConfigServiceProvider extends ServiceProvider
                     'strict' => true,
                     'engine' => null,
                     'options' => extension_loaded('pdo_mysql') ? array_filter([
-                        PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                        \PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
                     ]) : [],
                 ] : (env('DB_DRIVER', 'mysql') === 'pgsql' ? [
                     'charset' => 'utf8',
