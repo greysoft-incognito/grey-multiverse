@@ -36,6 +36,8 @@ Route::get('/{type}/data/qr/{id}', function ($type, $id) {
     } elseif ($type === 'reservation') {
         $data = Reservation::findOrFail($id);
         $encoded = "grey:multiverse:reservation={$data->id}:space={$data->space_id}";
+    } else {
+        abort(HttpStatus::BAD_REQUEST, 'Invalid type');
     }
 
     $qr = QrCode::eyeColor(2, 141, 53, 74, 125, 115, 118)
