@@ -36,7 +36,7 @@ class ScanHistoryController extends Controller
     public function show(ScanHistory $scanHistory)
     {
         // Check if logged user is the owner of the scan history
-        if ($scanHistory->user_id != auth()->user()->id) {
+        if ($scanHistory->user_id != auth()->user('sanctum')->id || auth('sanctum')->user()->role == 'admin') {
             return response()->json([
                 'message' => HttpStatus::message(HttpStatus::UNAUTHORIZED),
                 'status' => 'error',
