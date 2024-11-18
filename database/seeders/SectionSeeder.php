@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\v1\Portal\Section;
+use App\Models\Portal\Section;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
 
@@ -31,7 +31,7 @@ class SectionSeeder extends Seeder
                 'background' => null,
                 'image_position' => 'right',
                 'component' => 'Slider',
-                'link' => json_encode(['title' => 'Join the Hotcake Community', 'url' => '#', 'target' => '_blank', 'type' => 'primary'], ),
+                'link' => json_encode(['title' => 'Join the Hotcake Community', 'url' => '#', 'target' => '_blank', 'type' => 'primary']),
                 'content' => '',
                 'video_link' => '',
                 'list' => json_encode([]),

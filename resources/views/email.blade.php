@@ -1,266 +1,287 @@
-<!doctype html>
-<html>
+@php
+    use App\Helpers\Providers;
+@endphp
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
+    xmlns:o="urn:schemas-microsoft-com:office:office">
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Simple Transactional Email
-    </title>
-    <style>
-        @media only screen and (max-width: 620px) {
-            table.body h1 {
-                font-size: 28px !important;
-                margin-bottom: 10px !important;
-            }
+    <title> {{ $subject }} </title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type="text/css">
+        #outlook a {
+            padding: 0;
+        }
 
-            table.body p,
-            table.body ul,
-            table.body ol,
-            table.body td,
-            table.body span,
-            table.body a {
-                font-size: 16px !important;
-            }
+        body {
+            margin: 0;
+            padding: 0;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
 
-            table.body .wrapper,
-            table.body .article {
-                padding: 10px !important;
-            }
+        table,
+        td {
+            border-collapse: collapse;
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
 
-            table.body .content {
-                padding: 0 !important;
-            }
+        img {
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+            -ms-interpolation-mode: bicubic;
+        }
 
-            table.body .container {
-                padding: 0 !important;
+        p {
+            display: block;
+            margin: 13px 0;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        @import url(https://fonts.googleapis.com/css?family=Lato:300,400,700);
+    </style>
+    <!--<![endif]-->
+    <style type="text/css">
+        @media only screen and (min-width:480px) {
+            .mj-column-per-100 {
+                width: 100% !important;
+                max-width: 100%;
+            }
+        }
+    </style>
+    <style type="text/css">
+        @media only screen and (max-width:480px) {
+            table.mj-full-width-mobile {
                 width: 100% !important;
             }
 
-            table.body .main {
-                border-left-width: 0 !important;
-                border-radius: 0 !important;
-                border-right-width: 0 !important;
-            }
-
-            table.body .btn table {
-                width: 100% !important;
-            }
-
-            table.body .btn a {
-                width: 100% !important;
-            }
-
-            table.body .img-responsive {
-                height: auto !important;
-                max-width: 100% !important;
+            td.mj-full-width-mobile {
                 width: auto !important;
             }
         }
-
-        @media all {
-            .ExternalClass {
-                width: 100%;
-            }
-
-            .ExternalClass,
-            .ExternalClass p,
-            .ExternalClass span,
-            .ExternalClass font,
-            .ExternalClass td,
-            .ExternalClass div {
-                line-height: 100%;
-            }
-
-            .apple-link a {
-                color: inherit !important;
-                font-family: inherit !important;
-                font-size: inherit !important;
-                font-weight: inherit !important;
-                line-height: inherit !important;
-                text-decoration: none !important;
-            }
-
-            #MessageViewBody a {
-                color: inherit;
-                text-decoration: none;
-                font-size: inherit;
-                font-family: inherit;
-                font-weight: inherit;
-                line-height: inherit;
-            }
-
-            .btn-primary table td:hover {
-                background-color: #34495e !important;
-            }
-
-            .btn-primary a:hover {
-                background-color: #34495e !important;
-                border-color: #34495e !important;
-            }
+    </style>
+    <style type="text/css">
+        a,
+        span,
+        td,
+        th {
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
         }
     </style>
 </head>
 
-<body
-    style="background-color: #f6f6f6; font-family: sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">
-    @isset($message_line1)
-        <span class="preheader"
-            style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;">{{ Str::of($message_line1)->words(50) }}
-        </span>
-    @endisset
-    <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body"
-        style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #f6f6f6; width: 100%;"
-        width="100%" bgcolor="#f6f6f6">
-        <tr>
-            <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">&nbsp;
-            </td>
-            <td class="container"
-                style="font-family: sans-serif; font-size: 14px; vertical-align: top; display: block; max-width: 580px; padding: 10px; width: 580px; margin: 0 auto;"
-                width="580" valign="top">
-                <div class="content"
-                    style="box-sizing: border-box; display: block; margin: 0 auto; max-width: 580px; padding: 10px;">
-                    <!-- START CENTERED WHITE CONTAINER -->
-                    <table role="presentation" class="main"
-                        style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; background: #ffffff; border-radius: 3px; width: 100%;"
-                        width="100%">
-                        <!-- START MAIN CONTENT AREA -->
-                        <tr>
-                            <td class="wrapper"
-                                style="font-family: sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; padding: 20px;"
-                                valign="top">
-                                <table role="presentation" border="0" cellpadding="0" cellspacing="0"
-                                    style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;"
-                                    width="100%">
-                                    <tr>
-                                        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;"
-                                            valign="top">
-                                            <p
-                                                style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; margin-bottom: 15px;">
-                                                Hi <b>{{ $name ?? 'there' }}</b>,
-                                            </p>
-                                            @isset($message_line1)
-                                                <p
-                                                    style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; margin-bottom: 15px;">
-                                                    {!! $message_line1 !!}
-                                                </p>
-                                            @endisset
-                                            @isset($cta)
-                                                <table role="presentation" border="0" cellpadding="0" cellspacing="0"
-                                                    class="btn {{ empty($cta['code']) ? 'btn-primary' : '' }}"
-                                                    style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; box-sizing: border-box; width: 100%;"
-                                                    width="100%">
+<body style="background-color:#ffffff;" data-new-gr-c-s-check-loaded="14.1167.0" data-gr-ext-installed="">
+    <div
+        style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">
+        {!! str(collect($lines)->filter(fn($l) => is_string($l))->join(' '))->limit(100) ?: $subject !!} </div>
+    <div style="background-color:#ffffff;">
+        <div style="margin:0px auto;max-width:600px;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                style="width:100%;">
+                <tbody>
+                    <tr>
+                        <td style="direction:ltr;font-size:0px;padding:20px 0;padding-bottom:0px;text-align:center;">
+                            <div class="mj-column-per-100 mj-outlook-group-fix"
+                                style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                                <table border="0" cellpadding="0" cellspacing="0" role="presentation"
+                                    style="vertical-align:top;" width="100%">
+                                    <tbody>
+                                        <tr>
+                                            <td align="left"
+                                                style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                                                <table border="0" cellpadding="0" cellspacing="0"
+                                                    role="presentation"
+                                                    style="border-collapse:collapse;border-spacing:0px;">
                                                     <tbody>
                                                         <tr>
-                                                            <td align="left"
-                                                                style="font-family: sans-serif; font-size: 14px; vertical-align: top; padding-bottom: 15px;"
-                                                                valign="top">
-                                                                <table role="presentation" border="0" cellpadding="0"
-                                                                    cellspacing="0"
-                                                                    style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: auto; display: flex; justify-content: center;">
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            @isset($cta['code'])
-                                                                                <td style="font-family: sans-serif; font-size: 1.3em; vertical-align: top; border-radius: 5px; text-align: center; background-color: #fff;display: flex;"
-                                                                                    valign="top" align="center"
-                                                                                    bgcolor="#3498db">
-                                                                                    <h1
-                                                                                        style="margin-top: 3px;margin-bottom: 3px;">
-                                                                                        {{ $cta['code'] }}
-                                                                                    </h1>
-                                                                                </td>
-                                                                            @endisset
-                                                                            @isset($cta['qrcode'])
-                                                                                <td style="font-family: sans-serif; font-size: 1.3em; vertical-align: top; border-radius: 5px; text-align: center; background-color: #fff;display: flex;"
-                                                                                    valign="top" align="center"
-                                                                                    bgcolor="#3498db">
-                                                                                    <img src="{{ route('form.data.qr', ['form', $cta['qrcode']]) }}"
-                                                                                        alt="QR Code" style="width: 150px;">
-                                                                                </td>
-                                                                            @endisset
-                                                                            @isset($cta['link'])
-                                                                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; border-radius: 5px; text-align: center; background-color: #3498db;"
-                                                                                    valign="top" align="center"
-                                                                                    bgcolor="#3498db">
-                                                                                    <a href="{{ $cta['link'] }}"
-                                                                                        target="_blank"
-                                                                                        style="border: solid 1px #3498db; border-radius: 5px; box-sizing: border-box; cursor: pointer; display: inline-block; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-decoration: none; text-transform: capitalize; background-color: #3498db; border-color: #3498db; color: #ffffff;">
-                                                                                        {{ $cta['title'] ?? 'Click Here' }}
-                                                                                    </a>
-                                                                                </td>
-                                                                            @endisset
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
+                                                            <td style="width:100px;"> <img alt="Logo" height="auto"
+                                                                    src="{{ asset('logo.png') }}?v=2"
+                                                                    style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;"
+                                                                    width="100" /> </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-size:0px;word-break:break-word;">
+                                                <div style="height:20px;">   </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center" style="font-size:0px;padding:0;word-break:break-word;">
+                                                <table border="0" cellpadding="0" cellspacing="0"
+                                                    role="presentation"
+                                                    style="border-collapse:collapse;border-spacing:0px;">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td style="width:600px;">
+                                                                <a href="https://app.5minutes.ng" target="_blank"
+                                                                    style="color: #2e58ff; text-decoration: none;"> <img
+                                                                        alt="image description" height="200"
+                                                                        src="{{ $banner ?? asset('hero.jpg') }}?v=2"
+                                                                        style="border:0;display:block;outline:none;text-decoration:none;height:200px;width:100%;font-size:13px;object-fit:cover;"
+                                                                        width="auto" /> </a>
                                                             </td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                            @endisset
-                                            @isset($message_line2)
-                                                <p
-                                                    style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; margin-bottom: 15px;">
-                                                    {!! $message_line2 !!}
-                                                </p>
-                                            @endisset
-                                            @isset($message_line3)
-                                                <p
-                                                    style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; margin-bottom: 15px;">
-                                                    {!! $message_line3 !!}
-                                                </p>
-                                            @endisset
-                                            <p
-                                                style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; margin-bottom: 15px;">
-                                                {!! $close_greeting ?? 'Good luck! Hope it works.' !!}
-                                            </p>
-                                            @isset($message_help)
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="margin:0px auto;max-width:600px;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                style="width:100%;">
+                <tbody>
+                    <tr>
+                        <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;">
+                            <div class="mj-column-per-100 mj-outlook-group-fix"
+                                style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                                <table border="0" cellpadding="0" cellspacing="0" role="presentation"
+                                    style="vertical-align:top;" width="100%">
+                                    <tbody>
+                                        <tr>
+                                            <td align="center"
+                                                style="font-size:0px;padding:10px 25px;word-break:break-word;">
                                                 <div
-                                                    style="color: #073e7a;font-size: 0.96em;border-top: #f0f2f4 solid;padding-top: 7px;margin-top: 2em;">
-                                                    {!! $message_help !!}
+                                                    style="font-family:Lato,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:24px;font-weight:700;line-height:32px;text-align:center;color:#434245;">
+                                                    <h1
+                                                        style="margin: 0; font-size: 24px; line-height: normal; font-weight: bold;">
+                                                        {{ $subject }}
+                                                    </h1>
                                                 </div>
-                                            @endisset
+                                            </td>
+                                        </tr>
+                                        @foreach ($lines as $line)
+                                            @if (is_string($line))
+                                                <tr>
+                                                    <td align="left"
+                                                        style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                                                        <div
+                                                            style="font-family:Lato,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:18px;font-weight:400;line-height:24px;text-align:left;color:#434245;">
+                                                            {!! str($line)->replace('<a ', '<a style="color: #ff8800; text-decoration: none"') !!}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @elseif (is_array($line) && isset($line['link']))
+                                                <tr>
+                                                    <td align="center" vertical-align="middle"
+                                                        style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                                                        <table border="0" cellpadding="0" cellspacing="0"
+                                                            role="presentation"
+                                                            style="border-collapse:separate;line-height:100%;">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td align="center" bgcolor="#2e58ff"
+                                                                        role="presentation"
+                                                                        style="border:none;border-radius:3px;cursor:auto;mso-padding-alt:10px 25px;background:#ff8800;"
+                                                                        valign="middle">
+                                                                        <a href="{{ $line['link'] }}"
+                                                                            style="display: inline-block; background: #ff8800; color: white; font-family: Lato,'Helvetica Neue ',Helvetica,Arial,sans-serif; font-size: 14px; font-weight: bold; line-height: 40px; margin: 0; text-decoration: none; text-transform: uppercase; padding: 10px 25px; mso-padding-alt: 0px; border-radius: 3px;"
+                                                                            target="_blank"> {{ $line['title'] }}
+                                                                        </a>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            @else
+                                            @endif
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+            style="background:#fafafa;background-color:#fafafa;width:100%;">
+            <tbody>
+                <tr>
+                    <td>
+                        <div style="margin:0px auto;max-width:600px;">
+                            <table align="center" border="0" cellpadding="0" cellspacing="0"
+                                role="presentation" style="width:100%;">
+                                <tbody>
+                                    <tr>
+                                        <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;">
+                                            <div style="margin:0px auto;max-width:600px;">
+                                                <table align="center" border="0" cellpadding="0" cellspacing="0"
+                                                    role="presentation" style="width:100%;">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td
+                                                                style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;">
+                                                                <div class="mj-column-per-100 mj-outlook-group-fix"
+                                                                    style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                                                                    <table border="0" cellpadding="0"
+                                                                        cellspacing="0" role="presentation"
+                                                                        style="vertical-align:top;" width="100%">
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td align="left"
+                                                                                    style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                                                                                    <div
+                                                                                        style="font-family:Lato,'Helvetica Neue ',Helvetica,Arial,sans-serif;font-size:18px;font-weight:400;line-height:24px;text-align:center;color:#434245;">
+                                                                                        You are recieving this message
+                                                                                        because you are registered on
+                                                                                        {{ Providers::config('app_name') }}.
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td align="center"
+                                                                                    style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                                                                                    <div
+                                                                                        style="font-family:Lato,'Helvetica Neue ',Helvetica,Arial,sans-serif;font-size:15px;font-weight:400;line-height:20px;text-align:center;color:#bfbfbf;">
+                                                                                        &copy;{{ now()->format('Y') }}
+                                                                                        {{ Providers::config('app_name') }}.,
+                                                                                        All Rights Reserved.
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td
+                                                                                    style="font-size:0px;word-break:break-word;">
+                                                                                    <div style="height:20px;">   </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </td>
                                     </tr>
-                                </table>
-                            </td>
-                        </tr>
-                        <!-- END MAIN CONTENT AREA -->
-                    </table>
-                    <!-- END CENTERED WHITE CONTAINER -->
-                    <!-- START FOOTER -->
-                    <div class="footer" style="clear: both; margin-top: 10px; text-align: center; width: 100%;">
-                        <table role="presentation" border="0" cellpadding="0" cellspacing="0"
-                            style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;"
-                            width="100%">
-                            <tr>
-                                <td class="content-block"
-                                    style="font-family: sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; color: #999999; font-size: 12px; text-align: center;"
-                                    valign="top" align="center">
-                                    <span class="apple-link"
-                                        style="color: #999999; font-size: 12px; text-align: center;">
-                                        Greysoft Technologies, 31 Gwari Avenue, Barnawa, Kaduna.
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="content-block powered-by"
-                                    style="font-family: sans-serif; vertical-align: top; padding-bottom: 10px; padding-top: 10px; color: #999999; font-size: 12px; text-align: center;"
-                                    valign="top" align="center">
-                                    Powered by
-                                    <a href="#"
-                                        style="color: #999999; font-size: 12px; text-align: center; text-decoration: none;">Greysoft
-                                        Technologies
-                                    </a>.
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                    <!-- END FOOTER -->
-                </div>
-            </td>
-            <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">&nbsp;
-            </td>
-        </tr>
-    </table>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </body>
 
 </html>

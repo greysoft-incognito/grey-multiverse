@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\v1\Portal\Blog;
+use App\Models\Portal\Blog;
 use Illuminate\Database\Seeder;
 
 class BlogSeeder extends Seeder

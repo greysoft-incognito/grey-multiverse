@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\v1\Portal\Section;
-use App\Models\v1\Portal\Slider;
+use App\Models\Portal\Section;
+use App\Models\Portal\Slider;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
 

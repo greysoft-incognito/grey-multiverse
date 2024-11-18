@@ -1,7 +1,0 @@
-2022_07_22_004235_create_generic_form_data_table
-user_id := integer := index := null
-
-2022_07_21_012352_create_forms_table
-dont_notify := boolean := false
-data_emails := text := null
-portal_id := integer := foreignId-portals := null

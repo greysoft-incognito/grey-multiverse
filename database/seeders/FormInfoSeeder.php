@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\v1\Form;
+use App\Models\Form;
 use Illuminate\Database\Seeder;
 
 class FormInfoSeeder extends Seeder

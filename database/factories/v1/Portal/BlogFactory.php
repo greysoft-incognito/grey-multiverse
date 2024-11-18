@@ -2,14 +2,19 @@
 
 namespace Database\Factories\v1\Portal;
 
-use App\Models\v1\Portal\Portal;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use V1\Models\Portal\Portal;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Model>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\V1\Models\Portal\Blog>
  */
 class BlogFactory extends Factory
 {
+    /**
+     * The name of the factory's corresponding model.
+     */
+    protected $model = \V1\Models\Portal\Blog::class;
+
     /**
      * Define the model's default state.
      *

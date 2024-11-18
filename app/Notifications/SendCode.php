@@ -2,14 +2,15 @@
 
 namespace App\Notifications;
 
+use App\Enums\SmsProvider;
+use App\Helpers\Providers;
+use App\Helpers\Url;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use NotificationChannels\Twilio\TwilioChannel;
-use NotificationChannels\Twilio\TwilioSmsMessage;
 
-class SendCode extends Notification //implements ShouldQueue
+class SendCode extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -18,99 +19,112 @@ class SendCode extends Notification //implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($token = null, $type = 'reset')
-    {
-        $this->type = $type;
-        $this->token = $token;
+    public function __construct(
+        public ?string $code = null,
+        public string $type = 'reset',
+        public ?string $token = null
+    ) {
         $this->afterCommit();
     }
 
     /**
      * Get the notification's delivery channels.
      *
-     * @param  mixed  $notifiable
      * @return array
      */
     public function via($notifiable)
     {
-        $pref = config('settings.prefered_notification_channels', ['mail', 'sms']);
-        $channels = in_array('sms', $pref) && in_array('mail', $pref)
-            ? ['mail', TwilioChannel::class]
-            : (in_array('sms', $pref)
-                ? [TwilioChannel::class]
-                : ['mail']);
+        $channels = str($this->type)->after('verify-')->is('phone')
+            ? [SmsProvider::getChannel()]
+            : (
+                str($this->type)->is('verify')
+                ? ['mail']
+                : Providers::config('prefered_notification_channels', ['mail', 'sms'])
+            );
 
-        return collect($channels)->filter(fn ($ch) => $this->type !== 'verify-phone' || $ch !== 'mail')->filter(fn ($ch) => $this->type !== 'verify' || $ch !== TwilioChannel::class)->toArray();
+        return collect($channels)->map(fn ($ch) => $ch == 'sms' ? SmsProvider::getChannel() : $ch)->toArray();
     }
 
     /**
      * Get the mail representation of the notification.
      *
-     * @param  mixed  $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail($notifiable)
     {
-        $message = [
-            'reset' => [
-                'name' => $notifiable->firstname,
-                'cta' => ['code' => $this->token],
-                'message_line1' => 'You are receiving this email because we received a password reset request for your account.',
-                'message_line2' => __('This password reset code will expire in 30 minutes.', [config('settings.token_lifespan', 30)]),
-                'message_line3' => 'If you did not request a password reset, no further action is required.',
-                'close_greeting' => __('Regards, <br/>:0', [config('settings.site_name')]),
-                'message_help' => 'Please use the code above to recover your account ',
-            ],
-            'verify' => [
-                'name' => $notifiable->firstname,
-                'cta' => ['code' => $this->token],
-                'message_line1' => __('You are receiving this email because you created an account on <b>:0</b> and we need to verify that you own this email addrress. <br /> use the code below to verify your email address.', [config('settings.site_name')]),
-                'message_line2' => __('This verification code will expire in :0 minutes.', [config('settings.token_lifespan', 30)]),
-                'message_line3' => 'If you do not recognize this activity, no further action is required as the associated account will be deleted in few days if left unverified.',
-                'close_greeting' => __('Regards, <br/>', [config('settings.site_name')]),
-                'message_help' => 'Please use the code above to verify your account ',
-            ],
-        ];
+        $this->code ??= $notifiable->code;
+        $this->token ??= $notifiable->token ?? Url::base64urlEncode($this->code.'|'.md5(time()));
+        $notifiable = $notifiable->user ?? $notifiable;
 
-        if (isset($message[$this->type])) {
-            return (new MailMessage)->view(
-                ['email', 'email-plain'], $message[$this->type]
-            )
-            ->subject(__($this->type === 'reset' ? 'Reset your :0 password.' : 'Verify your account at :0', [config('settings.site_name')]));
-        }
+        /** @var \Carbon\Carbon */
+        $datetime = $notifiable->last_attempt;
+
+        $dateAdd = $datetime?->addSeconds(Providers::config('token_lifespan', 30));
+
+        $message = Providers::messageParser(
+            "send_code::$this->type",
+            $notifiable,
+            [
+                'type' => $this->type,
+                'code' => $this->code,
+                'token' => $this->token,
+                'label' => 'email address',
+                'app_url' => config('app.frontend_url', config('app.url')),
+                'app_name' => Providers::config('app_name'),
+                'duration' => $dateAdd->longAbsoluteDiffForHumans(),
+            ]
+        );
+
+        return (new MailMessage())
+            ->subject($message->subject)
+            ->view(['email', 'email-plain'], [
+                'subject' => $message->subject,
+                'lines' => $message->lines,
+            ]);
     }
 
     /**
      * Get the sms representation of the notification.
      *
-     * @param  mixed  $n    notifiable
-     * @return \NotificationChannels\Twilio\TwilioSmsMessage
+     * @param  mixed  $n  notifiable
      */
-    public function toTwilio($n)
+    public function toSms($n)
     {
+        $this->code ??= $n->code;
+        $this->token ??= $n->token;
+        $n ??= $n->user ?? $n;
+
+        /** @var \Carbon\Carbon */
+        $datetime = $n->last_attempt;
+        $dateAdd = $datetime?->addSeconds(Providers::config('token_lifespan', 30));
+
         $message = [
-            'reset' => __("Use this code {$this->token} to reset your :0 password, It expires in :1 minutes.", [config('settings.site_name'), config('settings.token_lifespan', 30)]),
-            'verify-phone' => __("use this code {$this->token} to verify your :0 phone number, It expires in :1 minutes.", [config('settings.site_name'), config('settings.token_lifespan', 30)]),
+            'reset' => __('Use this code :0 to reset your :1 password, It expires in :2.', [
+                $this->code,
+                Providers::config('app_name'),
+                $dateAdd->longAbsoluteDiffForHumans(),
+            ]),
+            'verify-phone' => __('use this code :0 to verify your :1 phone number, It expires in :2.', [
+                $this->code,
+                Providers::config('app_name'),
+                $dateAdd->longAbsoluteDiffForHumans(),
+            ]),
         ];
 
         if (isset($message[$this->type])) {
             $message = __('Hi :0, ', [$n->firstname]).$message[$this->type];
 
-            return (new TwilioSmsMessage())
-                ->content($message);
+            return SmsProvider::getMessage($message);
         }
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
-    public function toArray($notifiable)
+    public function toTwilio($n): \NotificationChannels\Twilio\TwilioSmsMessage
     {
-        return [
-            //
-        ];
+        return $this->toSms($n);
+    }
+
+    public function toKudiSms($n): \ToneflixCode\KudiSmsNotification\KudiSmsMessage
+    {
+        return $this->toSms($n);
     }
 }

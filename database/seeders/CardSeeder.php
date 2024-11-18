@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\v1\Portal\Card;
+use App\Models\Portal\Card;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
 

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\v1\Guest;
-use App\Models\v1\Portal\Portal;
+use App\Models\Guest;
+use App\Models\Portal\Portal;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
 

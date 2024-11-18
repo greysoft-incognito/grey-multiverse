@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\v1\GenericFormField;
+use App\Models\GenericFormField;
 use Illuminate\Database\Seeder;
 
 class GenericFormFieldSeeder extends Seeder

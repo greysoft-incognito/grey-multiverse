@@ -2,30 +2,34 @@
 
 namespace App\Http\Middleware;
 
-use App\Http\Controllers\Controller;
-use App\Traits\Permissions;
 use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class IsAdmin
 {
-    use Permissions;
-
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  string|null  $redirectToRoute
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|null
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle($request, Closure $next, $redirectToRoute = null)
+    public function handle(Request $request, Closure $next): Response
     {
-        if (! $this->setPermissionsUser($request->user())->hasPermission('admin')) {
-            return (new Controller)->buildResponse([
-                'message' => 'You do not have permision to view this page.',
-                'status' => 'error',
-                'status_code' => 403,
-            ]);
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        if (! $user || ! $user->hasAnyRole(config('permission-defs.admin_roles'))) {
+            return (new Controller())->buildResponse(
+                [
+                    'data' => UserResource::make($request->user()),
+                    'status' => 'error',
+                    'message' => 'You do not have permision to complete this action.',
+                    'status_code' => 403,
+                ],
+                [
+                    'response' => [],
+                ]
+            );
         }
 
         return $next($request);

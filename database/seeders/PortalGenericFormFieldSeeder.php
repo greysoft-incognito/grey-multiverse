@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\v1\GenericFormField;
-use App\Models\v1\Portal\Portal;
+use App\Models\GenericFormField;
+use App\Models\Portal\Portal;
 use Illuminate\Database\Seeder;
 
 class PortalGenericFormFieldSeeder extends Seeder

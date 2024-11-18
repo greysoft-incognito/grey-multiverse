@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\v1\Portal\Portal;
+use App\Models\Portal\Portal;
 use Illuminate\Database\Seeder;
 
 class PortalFormSeeder extends Seeder

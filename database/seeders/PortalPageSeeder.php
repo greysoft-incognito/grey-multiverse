@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\v1\Portal\PortalPage;
+use App\Models\Portal\PortalPage;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
 

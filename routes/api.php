@@ -1,26 +1,21 @@
 <?php
 
-use App\Services\AppInfo;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use V1\Services\AppInfo;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
+foreach ([null, 1, 2] as $v) {
+    Route::get($v ? "v{$v}" : '', function () use ($v) {
+        return [
+            'api' => config('app.name'),
+            'Welcome to the GreyMultiverse API'.($v ? " v{$v}" : '') => AppInfo::basic($v),
+        ];
+    });
+}
 
-Route::get('/', function () {
-    return [
-        'Welcome to the GreyMultiverse API v1' => AppInfo::basic(),
-    ];
-});
+Route::middleware('api')->prefix('v1')->group(base_path('routes/routes-v1/api.php'));
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+$files = glob(__DIR__.'/routes-v2/*.php');
+
+foreach ($files as $file) {
+    Route::middleware('api')->prefix('v2')->group($file);
+}

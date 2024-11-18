@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\v1\Form;
-use App\Models\v1\Portal\LearningPath;
-use App\Models\v1\Portal\Portal;
+use App\Models\Form;
+use App\Models\Portal\LearningPath;
+use App\Models\Portal\Portal;
 use Illuminate\Database\Seeder;
 
 class LearningPathSeeder extends Seeder

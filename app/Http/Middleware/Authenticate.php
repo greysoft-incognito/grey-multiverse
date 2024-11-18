@@ -2,20 +2,22 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\HttpStatus;
+use App\Helpers\Providers;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
+use Illuminate\Http\Request;
 
 class Authenticate extends Middleware
 {
     /**
      * Get the path the user should be redirected to when they are not authenticated.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return string|null
      */
-    protected function redirectTo($request)
+    protected function redirectTo(Request $request): ?string
     {
-        if (! $request->expectsJson()) {
-            return route('login');
-        }
+        return $request->expectsJson()
+        ? Providers::response()->error([
+            'message' => 'please login to continue.',
+        ], HttpStatus::FORBIDDEN)
+        : route('login');
     }
 }
