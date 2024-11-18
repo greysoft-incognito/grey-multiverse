@@ -22,7 +22,7 @@ class AppointmentController extends Controller
         $user = $request->user('sanctum');
 
         $query = $user->appointments()->getQuery();
-        $query->withAll($user->id);
+        $query->forUser($user->id);
 
         $data = $query->paginate($request->input('limit', 30));
 
@@ -79,7 +79,7 @@ class AppointmentController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user('sanctum');
 
-        $appointment = $user->appointments()->findOrFail($appointment_id);
+        $appointment = Appointment::forUser($user->id)->findOrFail($appointment_id);
 
         return (new AppointmentResource($appointment))->additional([
             'status' => 'success',

@@ -85,11 +85,14 @@ class Appointment extends Model
         });
     }
 
-    public function scopeWithAll($query, $userId): void
+    public function scopeForUser($query, $userId): void
     {
         $query->orWhere(function($query) use ($userId) {
             $query->where('invitee_id', $userId);
             $query->whereNotNull('invitee_id');
+        })->orWhere(function ($query) use ($userId) {
+            $query->where('requestor_id', $userId);
+            $query->whereNotNull('requestor_id');
         });
     }
 }
