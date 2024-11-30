@@ -73,6 +73,8 @@ class FormController extends Controller
             'socials' => 'nullable|array',
             'deadline' => 'nullable|string',
             'template' => 'nullable',
+            'success_message' => 'nullable|string',
+            'failure_message' => 'nullable|string',
             'dont_notify' => 'nullable|boolean',
             'require_auth' => 'nullable|boolean',
             'data_emails' => 'nullable|array',
@@ -90,6 +92,8 @@ class FormController extends Controller
         $form->socials = $request->socials;
         $form->deadline = $request->deadline;
         $form->template = $request->template;
+        $form->success_message = $request->success_message;
+        $form->failure_message = $request->failure_message;
         $form->dont_notify = $request->boolean('dont_notify');
         $form->require_auth = $request->boolean('require_auth');
         $form->data_emails = Arr::join($request->data_emails ?? [], ',');
@@ -140,6 +144,8 @@ class FormController extends Controller
             'socials' => 'nullable|array',
             'deadline' => 'nullable|string',
             'template' => 'nullable',
+            'success_message' => 'nullable|string',
+            'failure_message' => 'nullable|string',
             'dont_notify' => 'nullable|boolean',
             'require_auth' => 'nullable|boolean',
             'data_emails' => 'nullable|array',
@@ -156,6 +162,8 @@ class FormController extends Controller
         $form->socials = $request->socials;
         $form->deadline = $request->deadline;
         $form->template = $request->template;
+        $form->success_message = $request->success_message;
+        $form->failure_message = $request->failure_message;
         $form->dont_notify = $request->boolean('dont_notify');
         $form->require_auth = $request->boolean('require_auth');
         $form->data_emails = Arr::join($request->data_emails ?? $form->data_emails->toArray(), ',');

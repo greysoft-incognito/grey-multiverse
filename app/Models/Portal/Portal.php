@@ -12,6 +12,10 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use ToneflixCode\LaravelFileable\Traits\Fileable;
 
+/**
+ * @property Form $regForm
+ * @property \Illuminate\Database\Eloquent\Collection<int,Form> $form
+ */
 class Portal extends Model
 {
     use Fileable, HasFactory;

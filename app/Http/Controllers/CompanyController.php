@@ -37,6 +37,8 @@ class CompanyController extends Controller
 
         /** @var \App\Models\BizMatch\Company $company */
         $company = $user->company()->firstOrNew();
+        $user->reg_status = 'ongoing';
+        $user->saveQuietly();
 
         return $this->update($request, $company);
     }

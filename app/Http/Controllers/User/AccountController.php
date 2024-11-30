@@ -229,6 +229,10 @@ class AccountController extends Controller
             $user->last_attempt = null;
         }
 
+        if (in_array($request->reg_status, ['complete', 'pending', 'ongoing'])) {
+            $user->reg_status = $request->reg_status;
+        }
+
         $user->save();
 
         return (new UserResource($user))->additional([

@@ -27,7 +27,7 @@ class PortalUserController extends Controller
             'password' => 'required|string|confirmed',
         ]);
 
-        $data = (new FormDataController)->store($request, $portal->reg_form_id, true);
+        $data = (new FormDataController)->store($request, $portal->regForm, true);
 
         $name = str($data['name'] ?? $data['fullname'] ?? $data['full_name'] ?? $request->email)->explode(' ');
 

@@ -11,6 +11,19 @@ use Illuminate\Validation\Validator;
 
 class SaveFormdataRequest extends FormRequest
 {
+    protected int|string|null $user_id;
+
+    /**
+     *
+     * @var string<'*.'|''>
+     */
+    protected string $mult;
+
+    public function getMult(): string
+    {
+        return $this->mult;
+    }
+
     /**
      * The form fields
      *
@@ -18,11 +31,21 @@ class SaveFormdataRequest extends FormRequest
      */
     protected \Illuminate\Database\Eloquent\Collection $fields;
 
-    public function load(Form $form)
+    /**
+     * The form
+     *
+     * @var \App\Models\Form
+     */
+    protected Form $form;
+
+    public function load()
     {
-        $this->fields = $form->fields->map(function ($field) use ($form) {
-            if ($field->alias === 'learning_paths' && (bool) $form->learningPaths) {
-                $field->options = collect($form->learningPaths)->map(function ($path) {
+        $this->form ??= $this->route()->parameter('form');
+        $this->user_id ??= $this->input('user_id', $this->input('user'));
+
+        $this->fields ??= $this->form->fields->map(function ($field) {
+            if ($field->alias === 'learning_paths' && (bool) $this->form->learningPaths) {
+                $field->options = collect($this->form->learningPaths)->map(function ($path) {
                     $path->label = $path->title;
                     $path->value = $path->id;
 
@@ -32,7 +55,8 @@ class SaveFormdataRequest extends FormRequest
 
             return $field;
         });
-        dd($this->fields, $this->route());
+
+        $this->mult ??= collect($this->input('data'))->keys()->every(fn($key) => is_int($key)) ? '*.' : '';
     }
 
     /**
@@ -48,10 +72,9 @@ class SaveFormdataRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(string $form): array
+    public function rules(): array
     {
-        dd($form);
-        $this->load($form);
+        $this->load();
 
         return $this->fields->mapWithKeys(function ($field) {
 
@@ -64,10 +87,10 @@ class SaveFormdataRequest extends FormRequest
             }
 
             if ($field->required_if) {
-                $rules[] = 'nullable';
+                // $rules[] = 'nullable';
                 foreach (explode(',', $field->required_if) as $cond) {
                     if (str($cond)->contains('=')) {
-                        $rules[] = 'required_if:data.' . str($cond)->replace('=', ',');
+                        $rules[] = 'required_if:data.' . $this->mult  . str($cond)->replace('=', ',');
                     }
                 }
             } elseif ($field->required) {
@@ -98,8 +121,12 @@ class SaveFormdataRequest extends FormRequest
                 $rules[] = 'in:' . collect($field->options)->pluck('value')->implode(',');
             }
 
-            return ['data.' . $field->name => $rules];
-        })->toArray();
+            return ['data.' . $this->mult  . $field->name => $rules];
+        })->merge([
+            'data' => 'required',
+            'user' => 'nullable|exists:users,id',
+            'user_id' => 'nullable|exists:users,id',
+        ])->toArray();
     }
 
     /**
@@ -109,15 +136,23 @@ class SaveFormdataRequest extends FormRequest
      */
     public function messages(): array
     {
-        return $this->fields->filter(fn($form) => $form->custom_error)->mapWithKeys(function ($field) {
+        $this->load();
+
+        return $this->fields->mapWithKeys(function ($field) {
             if ($field->required_if) {
-                return ["data.$field->name.required_if" => $field->custom_error];
+                if ($field->custom_error) {
+                    return ["data.{$this->mult}{$field->name}.required_if" => $field->custom_error];
+                } else {
+                    return ["data.{$this->mult}{$field->name}.required_if" => 'The ' . $field->label . ' field is required.'];
+                }
             }
 
-            if ($field->required) {
-                return ["data.$field->name.required" => $field->custom_error];
+            if ($field->required && $field->custom_error) {
+                return ["data.{$this->mult}{$field->name}.required" => $field->custom_error];
             }
-        })->toArray();
+
+            return [];
+        })->filter()->toArray();
     }
 
     /**
@@ -127,8 +162,10 @@ class SaveFormdataRequest extends FormRequest
      */
     public function attributes(): array
     {
-        return $this->fields->mapWithKeys(function ($field) {
-            return ['data.' . $field->name => $field->label];
+        $this->load();
+
+        return $this->fields->mapWithKeys(function ($field, $index) {
+            return ['data.' . $this->mult  . $field->name => $field->label];
         })->toArray();
     }
 
@@ -138,11 +175,39 @@ class SaveFormdataRequest extends FormRequest
      */
     public function after(): array
     {
+        $this->load();
         $errors = collect([]);
 
-        foreach ($this->get('data', []) as $key => $value) {
+        if ($this->mult === '*.') {
+            foreach ($this->get('data', []) as $i => $data) {
+                $errors->push($this->postRules($data, $i));
+            }
+            $errors = $errors->collapse();
+        } else {
+            $errors = $this->postRules($this->get('data', []));
+        }
+
+        return [
+            function (Validator $validator) use ($errors) {
+                if ($errors->count() > 0) {
+                    foreach ($errors->toArray() as $error) {
+                        $validator->errors()->add(collect($error)->keys()->first(), collect($error)->first());
+                    }
+                }
+            }
+        ];
+    }
+
+    protected function postRules(array $data, int $index = null)
+    {
+        $errors = collect([]);
+        $ind = !is_null($index) ? $index . '.' : '';
+        $failed = [];
+
+        foreach ($data as $key => $value) {
             if ($this->fields->pluck('name')->doesntContain($key)) {
-                $errors->push([$key => "$key is not a valid input."]);
+                $errors->push(['data.' . $ind . $key => "$key is not a valid input."]);
+                $failed['data.' . $index] = true;
             }
 
             if ($this->fields->pluck('name')->contains($key)) {
@@ -159,8 +224,7 @@ class SaveFormdataRequest extends FormRequest
                     $diff = $date->diffInYears($compare);
 
                     if ($field->min && $diff < $field->min) {
-                        $errors->push([
-                            'data.' . $key => __(
+                        $errors->push(['data.' . $ind  .  $key => __(
                                 'The minimum :1 requirement for this application is :0, your :2 puts you at :3 by :4.',
                                 [
                                     $field->max,
@@ -171,11 +235,11 @@ class SaveFormdataRequest extends FormRequest
                                 ]
                             )
                         ]);
+                        $failed['data.' . $index] = true;
                     }
 
                     if ($field->max && $diff > $field->max) {
-                        $errors->push([
-                            'data.' . $key => __(
+                        $errors->push(['data.' . $ind  . $key => __(
                                 'The :1 limit for this application is :0, your :2 puts you at :3 by :4.',
                                 [
                                     $field->max,
@@ -186,25 +250,62 @@ class SaveFormdataRequest extends FormRequest
                                 ]
                             )
                         ]);
+                        $failed['data.' . $index] = true;
                     }
                 }
 
                 if ($field->key && GenericFormData::whereJsonContains("data->{$key}", $value)->exists()) {
-                    $errors->push([
-                        'data.' . $key => __('The :0 has already been taken.', [$field->label])
+                    $errors->push(['data.' . $ind  . $key => __('The :0 has already been taken.', [$field->label])
                     ]);
+                    $failed['data.' . $index] = true;
                 }
             }
         }
 
-        return [
-            function (Validator $validator) use ($errors) {
-                if ($errors->count() > 0) {
-                    foreach ($errors->toArray() as $error) {
-                        $validator->errors()->add(collect($error)->keys()->first(), collect($error)->first());
-                    }
-                }
-            }
-        ];
+        if (count($failed)) {
+            $errors->push($failed);
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        $this->load();
+
+        if ($this->user_id) {
+            GenericFormData::whereFormId($this->form->id)
+                ->whereUserId($this->user_id)
+                ->delete();
+            // $data = GenericFormData::whereFormId($this->form->id)->whereFormId($user_id)->first();
+        }
+    }
+
+    /**
+     * Handle a passed validation attempt.
+     */
+    protected function passedValidation(): void
+    {
+        $key = $this->fields->firstWhere('key', true)->name ?? '';
+        $data = $this->validated('data');
+
+        if ($this->mult === '*.') {
+            $data = collect($data)->map(fn($v, $i) => [
+                'user_id' => $this->user_id,
+                'data' => $data[$i],
+                'key' => $data[$i][$key] ?? '',
+            ]);
+        } else {
+            $data = collect([[
+                'user_id' => $this->user_id,
+                'data' => $data,
+                'key' => $data[$key] ?? '',
+            ]]);
+        }
+
+        $this->replace(['data' => $data]);
     }
 }

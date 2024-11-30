@@ -4,17 +4,14 @@ namespace App\Http\Controllers\Forms;
 
 use App\Models\Form;
 use App\Models\GenericFormData;
-use Carbon\Carbon;
-use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Forms\FormDataCollection;
 use App\Http\Resources\Forms\FormDataResource;
 use V1\Notifications\FormSubmitedSuccessfully;
 use App\Enums\HttpStatus;
 use App\Http\Requests\SaveFormdataRequest;
+use App\Models\User;
 
 class FormDataController extends Controller
 {
@@ -57,27 +54,27 @@ class FormDataController extends Controller
      */
     public function store(SaveFormdataRequest $request, Form $form, $dontProcess = false)
     {
-        $key = $form->fields->firstWhere('key', true)->name ?? $form->fields->first()->name;
-        $data = $request->get('data');
-
-        if (! $data) {
-            throw ValidationException::withMessages(['data' => 'No data passed']);
-        }
+        $data = $request->input('data');
 
         if ($dontProcess === true) {
-            return $data;
+            return $data->first();
         }
 
-        $formdata = $form->data()->create([
-            'user_id' => $request->user_id ?? null,
-            'data' => $data,
-            'key' => $data[$key] ?? '',
-        ]);
+        $formdata = $form->data()->createMany($data);
+        $formdata->each(fn(GenericFormData $data) => $data->notify(new FormSubmitedSuccessfully()));
 
-        $formdata->notify(new FormSubmitedSuccessfully());
+        $resource = $request->getMult() === '*.'
+            ? new FormDataCollection($formdata)
+            : new FormDataResource($formdata->first());
 
-        return (new FormDataResource($formdata))->additional([
-            'message' => HttpStatus::message(HttpStatus::CREATED),
+        $user = ($uid = $request->input('user_id', $request->user)) ? User::find($uid) : $request->user('sanctum');
+        if ($user) {
+            $user->reg_status = 'ongoing';
+            $user->saveQuietly();
+        }
+
+        return $resource->additional([
+            'message' => __('You data has been submitted successfully.'),
             'status' => 'success',
             'statusCode' => HttpStatus::CREATED,
         ])->response()->setStatusCode(HttpStatus::CREATED->value);

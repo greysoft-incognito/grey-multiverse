@@ -12,7 +12,7 @@ Route::name('forms.')->prefix('forms')->group(function () {
         ->only(['index', 'show']);
 
     Route::apiResource('{form}/data', FormDataController::class)
-        ->only(['store', 'update', 'show'])
+        ->only(['store', 'update', 'show', 'index'])
         ->scoped();
 
     Route::apiResource('/', FormController::class)
