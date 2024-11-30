@@ -14,6 +14,10 @@ Route::middleware('guest')->prefix('auth')->group(function () {
     Route::get('register/preflight/{token}', [RegisteredUserController::class, 'preflight'])
         ->name('register.preflight');
 
+    Route::post('checks', [RegisteredUserController::class, 'checks'])->name('register.checks');
+    Route::post('otp', [VerifyEmailPhoneController::class, 'otp'])
+    ->middleware(['throttle:otp'])->name('register.otp');
+
     Route::post('login', [AuthenticatedSessionController::class, 'store'])
         ->name('login');
 

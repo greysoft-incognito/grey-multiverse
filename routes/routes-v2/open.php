@@ -1,16 +1,17 @@
 <?php
 
 use App\Helpers\Providers;
-use App\Models\BizMatch\Appointment;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/initialize', function () {
-
-    Appointment::first()->notifications('1');
-
     return Providers::response()->success([
         'data' => [
             'configuration' => Providers::config(),
+            'settings' => [
+                'timemap' => config('api.timemap'),
+                'dates' => config('api.dates'),
+            ],
+            'csrf_token' => csrf_token()
         ],
         'message' => 'Initialised',
         'status' => 'success',

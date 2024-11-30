@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\OtpReceived;
 use App\Traits\ModelCanExtend;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
+use Valorin\Random\Random;
 
 class TempUser extends Model
 {
@@ -31,16 +33,34 @@ class TempUser extends Model
         'city',
         'email',
         'phone',
+        'otp',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'last_attempt' => 'datetime',
+        ];
+    }
 
     public static function boot(): void
     {
         parent::boot();
-        self::deleting(function (TempUser $tempuser) {
+
+        self::creating(function (self $model) {
+            $model->firstname ??= $model->firstname ?? str($model->email)->before('@')->toString();
+        });
+
+        self::deleting(function (self $model) {
             /** @var User */
-            $user = User::whereEmail($tempuser->email)->first();
-            if ($user && $tempuser->transactions()->count() > 0) {
-                $tempuser->transactions->each(function (Transaction $transaction) use ($user) {
+            $user = User::whereEmail($model->email)->first();
+            if ($user && $model->transactions()->count() > 0) {
+                $model->transactions->each(function (Transaction $transaction) use ($user) {
                     $transaction->user_id = $user->id;
                     $transaction->temp_user_id = null;
                     $transaction->save();
@@ -58,7 +78,7 @@ class TempUser extends Model
         }
 
         $fname = str($data['name'])->explode(' ')->first(null, $data['firstname'] ?? '');
-        $lname = str($data['name'])->explode(' ')->last(fn ($n) => $n !== $fname, $data['lastname'] ?? '');
+        $lname = str($data['name'])->explode(' ')->last(fn($n) => $n !== $fname, $data['lastname'] ?? '');
 
         /** @var \App\Models\TempUser $user */
         return static::updateOrCreate(
@@ -79,6 +99,18 @@ class TempUser extends Model
     }
 
     /**
+     * Send OTP
+     */
+    public function sendOTPNotification()
+    {
+        $this->last_attempt = now();
+        $this->otp = Random::otp(6);
+        $this->save();
+
+        $this->notify(new OtpReceived());
+    }
+
+    /**
      * Get the user's fullname .
      *
      * @return string
@@ -86,7 +118,7 @@ class TempUser extends Model
     protected function fullname(): Attribute
     {
         return Attribute::make(
-            get: fn () => collect([$this->firstname, $this->lastname])->join(' '),
+            get: fn() => collect([$this->firstname, $this->lastname])->join(' '),
         );
     }
 

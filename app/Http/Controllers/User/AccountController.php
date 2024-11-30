@@ -24,6 +24,7 @@ class AccountController extends Controller
         'new_password' => 'New Password',
         'otp' => 'One Time Password',
         'password' => 'Password',
+        'name' => 'Fullname',
         'firstname' => 'Firstname',
         'lastname' => 'Lastname',
         'email' => 'Email Address',
@@ -122,7 +123,7 @@ class AccountController extends Controller
             }
 
             if (is_array($filled[$field])) {
-                return [$field.'.*' => ['required']];
+                return [$field . '.*' => ['required']];
             }
 
             return [$field => $vals];
@@ -147,7 +148,7 @@ class AccountController extends Controller
         $this->validate($request, $valid, [], $fields->filter(function ($k) use ($filled) {
             return is_array($filled[$k]);
         })->mapWithKeys(function ($field, $value) use ($filled) {
-            return collect(array_keys((array) $filled[$field]))->mapWithKeys(fn ($k) => ["$field.$k" => "$field $k"]);
+            return collect(array_keys((array) $filled[$field]))->mapWithKeys(fn($k) => ["$field.$k" => "$field $k"]);
         })->all());
 
         $fields = $fields->filter(function ($k) {
@@ -169,7 +170,11 @@ class AccountController extends Controller
                     $updated[$_field] = $request->{$_field};
                 }
 
-                if ($_field === 'email') {
+                if ($_field === 'name') {
+                    [$firstname, $lastname] = str($request->name)->explode(' ')->pad(2, '');
+                    $user->firstname = $firstname;
+                    $user->lastname = $lastname;
+                } else if ($_field === 'email') {
                     $user->email = $request->email;
                     if (Providers::config('verify_email', false)) {
                         $user->email_verified_at = null;
@@ -208,7 +213,7 @@ class AccountController extends Controller
         }
 
         $fields = collect($request->keys())->filter(
-            fn ($k) => ! in_array($k, [
+            fn($k) => ! in_array($k, [
                 'otp',
                 '_method',
                 'password',

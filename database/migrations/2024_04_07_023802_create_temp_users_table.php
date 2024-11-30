@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('country')->nullable();
             $table->string('state')->nullable();
             $table->string('city')->nullable();
+            $table->string('otp')->nullable();
+            $table->timestamp('expires_at')->nullable();
             $table->timestamps();
         });
     }

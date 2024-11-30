@@ -17,7 +17,21 @@ use ToneflixCode\LaravelFileable\Traits\Fileable;
 class Company extends Model
 {
     /** @use HasFactory<\Database\Factories\BizMatch\CompanyFactory> */
-    use Fileable, HasFactory, ModelCanExtend;
+    use HasFactory;
+    use Fileable;
+    use ModelCanExtend;
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'services' => \Illuminate\Database\Eloquent\Casts\AsCollection::class,
+        ];
+    }
 
     public function registerFileable()
     {
@@ -32,6 +46,24 @@ class Company extends Model
         static::creating(function (self $model) {
             $model->slug ??= $model->generateUsername($model->name, 'slug', '-');
         });
+    }
+
+    /**
+     * Retrieve the model for a bound value.
+     *
+     * @param  string|null  $field
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        if ($value === 'authenticated') {
+            return $this->where('user_id', auth('sanctum')->id())
+                ->firstOrNew();
+        }
+
+        return $this->where('id', $value)
+            ->orWhere('slug', $value)
+            ->firstOrFail();
     }
 
     public function user(): BelongsTo

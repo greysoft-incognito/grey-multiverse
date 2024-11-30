@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Enums\HttpStatus;
+use App\Helpers\Providers;
 use App\Http\Resources\AppointmentRescheduleCollection;
 use App\Http\Resources\AppointmentRescheduleResource;
 use App\Models\BizMatch\Reschedule;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class RescheduleController extends Controller
@@ -15,7 +17,10 @@ class RescheduleController extends Controller
      */
     public function index(Request $request)
     {
+        /** @var \App\Models\User $user */
+        $user = $request->user('sanctum');
         $query = Reschedule::query();
+        $query->forUser($user->id, $request->has('sent') ? $request->boolean('sent') : null);
 
         $data = $query->paginate($request->input('limit', 30));
 
@@ -55,6 +60,19 @@ class RescheduleController extends Controller
         $appointment->time_slot = $reschedule->proposed_time_slot;
         $appointment->duration = $reschedule->proposed_duration;
         $appointment->date = $reschedule->proposed_date;
+
+        if ($valid['status'] === 'accepted') {
+            try {
+                $appointment = $appointment->findNextAvailableSlot();
+            } catch (ModelNotFoundException $th) {
+                abort(Providers::response()->error([
+                    'data' => [],
+                    'errors' => ['time_slot' => [$th->getMessage()]],
+                    'message' => $th->getMessage()
+                ], HttpStatus::UNPROCESSABLE_ENTITY));
+            }
+        }
+
         $appointment->saveQuietly();
 
         $reschedule->status = $valid['status'];

@@ -11,20 +11,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use ToneflixCode\LaravelFileable\Traits\Fileable;
 
+/**
+ * @property \Illuminate\Database\Eloquent\Collection<int,GenericFormField> $fields
+ * @property \Illuminate\Database\Eloquent\Collection<int,GenericFormData> $data
+ * @property \Illuminate\Database\Eloquent\Collection<int,FormInfo> $infos
+ * @property \Illuminate\Database\Eloquent\Collection<int,LearningPath> $learningPaths
+ * @property array<string,array{url:string,icon:string,label:string,name:string}> $socials
+ */
 class Form extends Model
 {
     use Fileable, HasFactory, ModelCanExtend;
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'deadline' => 'datetime',
-        'socials' => 'array',
-        'dont_notify' => 'boolean',
-    ];
 
     /**
      * The accessors to append to the model's array form.
@@ -35,6 +31,43 @@ class Form extends Model
         'banner_url',
         'logo_url',
     ];
+
+    /**
+     * The model's attributes.
+     *
+     * @var array
+     */
+    protected $attributes = [
+        'require_auth' => false,
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    public function casts()
+    {
+        return [
+            'deadline' => 'datetime',
+            'socials' => 'array',
+            'dont_notify' => 'boolean',
+            'require_auth' => 'boolean',
+        ];
+    }
+
+    /**
+     * Retrieve the model for a bound value.
+     *
+     * @param  string|null  $field
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('id', $value)
+            ->orWhere('slug', $value)
+            ->firstOrFail();
+    }
 
     public function registerFileable()
     {
@@ -59,7 +92,7 @@ class Form extends Model
     protected function bannerUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->images['banner'],
+            get: fn() => $this->images['banner'],
         );
     }
 
@@ -79,7 +112,7 @@ class Form extends Model
     protected function dataEmails(): Attribute
     {
         return Attribute::make(
-            get: fn ($a) => str($a ?? '')->explode(',')->map(fn ($e) => str($e)->trim()),
+            get: fn($a) => str($a ?? '')->explode(',')->map(fn($e) => str($e)->trim()),
         );
     }
 
@@ -88,7 +121,7 @@ class Form extends Model
      */
     public function fields(): HasMany
     {
-        return $this->hasMany(GenericFormField::class);
+        return $this->hasMany(GenericFormField::class)->orderBy('priority', 'desc');
     }
 
     /**
@@ -117,20 +150,27 @@ class Form extends Model
     protected function logoUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->images['logo'],
+            get: fn() => $this->images['logo'],
         );
     }
 
     public function socials(): Attribute
     {
+        $parser = static fn($value, $name) => [
+            'url' => str($value)->before('?'),
+            'icon' => "fas fa-$name",
+            'name' => $name,
+            'label' => '@' . str(str($value)->explode('/')->last())->before('?'),
+        ];
+
         return Attribute::make(
-            get: fn ($value) => collect($value)->map(function ($value, $key) {
-                return [
-                    'url' => $value,
-                    'icon' => "fas fa-$key",
-                    'label' => '@'.str($value)->explode('/')->last(),
-                ];
-            })->toArray()
+            get: fn($value) => collect($value)->map(function ($value, $name) use ($parser) {
+                if (json_validate($value)) {
+                    return collect(json_decode($value))->map(fn($v, $n) => $parser($v, $n))->values();
+                }
+
+                return $parser($value, $name);
+            })->toArray()[0] ?? []
         );
     }
 }

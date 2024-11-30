@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Models\BizMatch\Appointment;
 use App\Models\BizMatch\Company;
+use App\Notifications\OtpReceived;
 use App\Notifications\SendCode;
 use App\Traits\ModelCanExtend;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -51,7 +52,13 @@ class User extends Authenticatable
         'phone',
         'username',
         'password',
+        'otp',
     ];
+
+    protected function getDefaultGuardName(): string
+    {
+        return 'web';
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -74,6 +81,7 @@ class User extends Authenticatable
      */
     protected $attributes = [
         'data' => '{}',
+        'reg_status' => 'pending',
         'access_data' => '{}',
     ];
 
@@ -191,6 +199,18 @@ class User extends Authenticatable
         $this->save();
 
         $this->notify(new SendCode($this->email_verify_code, 'verify'));
+    }
+
+    /**
+     * Send OTP
+     */
+    public function sendOTPNotification()
+    {
+        $this->last_attempt = now();
+        $this->otp = Random::otp(6);
+        $this->save();
+
+        $this->notify(new OtpReceived());
     }
 
     /**

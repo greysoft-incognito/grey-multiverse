@@ -40,7 +40,7 @@ class ExceptionHandler // extends Handler
 
             $exception = $e->getPrevious() ?: $e;
             $prefix = $exception instanceof ModelNotFoundException
-                ? str($exception->getModel())->afterLast('\\')->lower()
+                ? str($exception->getModel())->afterLast('\\')->headline()
                 : '';
 
             return match (true) {

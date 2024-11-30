@@ -9,6 +9,7 @@ use App\Http\Resources\AppointmentResource;
 use App\Models\BizMatch\Appointment;
 use App\Models\BizMatch\Company;
 use App\Models\BizMatch\Reschedule;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
@@ -21,8 +22,8 @@ class AppointmentController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user('sanctum');
 
-        $query = $user->appointments()->getQuery();
-        $query->forUser($user->id);
+        $query = Appointment::query();
+        $query->forUser($user->id, $request->has('sent') ? $request->boolean('sent') : null);
 
         $data = $query->paginate($request->input('limit', 30));
 
@@ -42,8 +43,8 @@ class AppointmentController extends Controller
             'date' => 'required|date',
             'time_slot' => 'required|string|in:morning,afternoon,evening',
             'duration' => 'required|numeric|in:15,20,25,30',
-            'table_number' => 'required|numeric|min:1|max:100',
-            'company_id' => 'required|string|exists:companies,id',
+            // 'table_number' => 'required|numeric|min:1|max:100',
+            'company_id' => 'required|exists:companies,id',
         ]);
 
         /** @var \App\Models\User $user */
@@ -54,7 +55,9 @@ class AppointmentController extends Controller
         /** @var \App\Models\Company $company */
         $company = Company::find($request->company_id);
 
+        /** @var \App\Models\BizMatch\Appointment $appointment */
         $appointment = $company->appointments()->make();
+
         $appointment->requestor_id = $user->id;
         $appointment->table_number = $request->integer('table_number');
         $appointment->invitee_id = $company->user->id;
@@ -62,6 +65,16 @@ class AppointmentController extends Controller
         $appointment->duration = $request->duration;
         $appointment->status = 'pending';
         $appointment->date = $request->date;
+        try {
+            $appointment = $appointment->findNextAvailableSlot();
+        } catch (ModelNotFoundException $th) {
+            abort(Providers::response()->error([
+                'data' => [],
+                'errors' => ['time_slot' => [$th->getMessage()]],
+                'message' => $th->getMessage()
+            ], HttpStatus::UNPROCESSABLE_ENTITY));
+        }
+
         $appointment->save();
 
         return (new AppointmentResource($appointment))->additional([
@@ -105,6 +118,18 @@ class AppointmentController extends Controller
          */
         $appointment->status = $valid['status'];
 
+        if ($valid['status'] === 'confirmed') {
+            try {
+                $appointment = $appointment->findNextAvailableSlot();
+            } catch (ModelNotFoundException $th) {
+                abort(Providers::response()->error([
+                    'data' => [],
+                    'errors' => ['time_slot' => [$th->getMessage()]],
+                    'message' => $th->getMessage()
+                ], HttpStatus::UNPROCESSABLE_ENTITY));
+            }
+        }
+
         /**
          * Create a reschedule model
          */
@@ -120,12 +145,14 @@ class AppointmentController extends Controller
             // Update the appointment
             $appointment->saveQuietly();
 
-            $msg =__(Reschedule::$msgGroups['sender']['pending'], [0, $appointment->requestor->company->name]);
+            $msg = __(Reschedule::$msgGroups['sender']['pending'], [0, $appointment->requestor->company->name]);
         } else {
             // Update the appointment
             $appointment->save();
+            // Delete all reschedule requests
+            $appointment->reschedules()->delete();
 
-            $msg =__(Appointment::$msgGroups['recipient'][$valid['status']], [0, $appointment->invitee->company->name]);
+            $msg = __(Appointment::$msgGroups['recipient'][$valid['status']], [0, $appointment->invitee->company->name]);
         }
 
         return (new AppointmentResource($appointment))->additional([

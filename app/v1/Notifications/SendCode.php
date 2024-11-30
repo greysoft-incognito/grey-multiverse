@@ -2,6 +2,7 @@
 
 namespace V1\Notifications;
 
+use App\Helpers\Providers;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -33,7 +34,7 @@ class SendCode extends Notification //implements ShouldQueue
      */
     public function via($notifiable)
     {
-        $pref = config('settings.prefered_notification_channels', ['mail', 'sms']);
+        $pref = Providers::config('prefered_notification_channels', ['mail', 'sms']);
         $channels = in_array('sms', $pref) && in_array('mail', $pref)
             ? ['mail', TwilioChannel::class]
             : (in_array('sms', $pref)
@@ -74,7 +75,8 @@ class SendCode extends Notification //implements ShouldQueue
 
         if (isset($message[$this->type])) {
             return (new MailMessage)->view(
-                ['email', 'email-plain'], $message[$this->type]
+                ['email-old', 'email-old-plain'],
+                $message[$this->type]
             )
                 ->subject(__($this->type === 'reset' ? 'Reset your :0 password.' : 'Verify your account at :0', [config('settings.site_name')]));
         }

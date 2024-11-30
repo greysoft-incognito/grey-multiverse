@@ -2,6 +2,7 @@
 
 namespace V1\Notifications;
 
+use App\Helpers\Providers;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -37,7 +38,7 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
             return [];
         }
 
-        $pref = config('settings.prefered_notification_channels', ['mail', 'sms']);
+        $pref = Providers::config('prefered_notification_channels', ['mail', 'sms']);
 
         return in_array('sms', $pref) && in_array('mail', $pref)
             ? ['mail', TwilioChannel::class]
@@ -81,7 +82,8 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
         ];
 
         return (new MailMessage)->view(
-            ['email', 'email-plain'], $message
+            ['email-old', 'email-old-plain'],
+            $message
         )
             ->subject(__(':0 Form submission recieved', [$n->form->name]));
     }

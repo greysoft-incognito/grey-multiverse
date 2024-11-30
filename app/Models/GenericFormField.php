@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class GenericFormField extends Model
 {
     use HasFactory;
+
+    protected $table = 'form_fields';
 
     /**
      * The attributes that should be cast.
@@ -19,6 +23,14 @@ class GenericFormField extends Model
         'restricted' => 'boolean',
         'required' => 'boolean',
     ];
+
+    /**
+     * Get the form that owns the GenericFormData
+     */
+    public function form(): BelongsTo
+    {
+        return $this->belongsTo(Form::class);
+    }
 
     public function scopeEmail($query)
     {
@@ -71,5 +83,43 @@ class GenericFormField extends Model
         });
 
         return $query;
+    }
+
+    /**
+     * Determine the expected value type based on element, type, and options.
+     *
+     * @return string
+     */
+    public function ExpectedValueType(): Attribute
+    {
+        // Define the expected types based on element and type
+        $typeMapping = [
+            'select' => 'string',
+            'checkboxgroup' => 'array',
+            'radiogroup' => 'string',
+            'input' => [
+                'text' => 'string',
+                'number' => 'integer',
+                'email' => 'string',
+                'password' => 'string',
+                'checkbox' => 'boolean',
+                'date' => 'string', // or Carbon instance depending on your use case
+            ],
+        ];
+
+        return Attribute::make(function () use ($typeMapping) {
+            // Handle specific elements
+            if (isset($typeMapping[$this->element])) {
+                if (is_array($typeMapping[$this->element])) {
+                    // Handle input type mapping
+                    return $typeMapping[$this->element][$this->type] ?? 'mixed';
+                }
+
+                return $typeMapping[$this->element];
+            }
+
+            // Default to string if no mapping is found
+            return 'string';
+        });
     }
 }

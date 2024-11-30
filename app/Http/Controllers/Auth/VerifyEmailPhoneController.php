@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Enums\HttpStatus;
 use App\Events\Verified;
 use App\Helpers\Providers as PV;
+use App\Helpers\Providers;
 use App\Helpers\Url;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
@@ -150,5 +151,69 @@ class VerifyEmailPhoneController extends Controller
             'reboot' => true,
             'message' => "We have successfully verified your $set_type, welcome to our community.",
         ]);
+    }
+
+    /**
+     * Validate User OTP.
+     *
+     * @return \Illuminate\Http\Response
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function otp(Request $request)
+    {
+        $type = $request->type ?? 'email';
+        $table = $request->boolean('temp') ? 'temp_users' : 'users';
+
+        $this->validate($request, [
+            'otp' => ['nullable', 'string'],
+            'type' => ['bail', 'required', 'string', 'in:email,phone'],
+            'temp' => ['nullable', 'boolean'],
+            $type => ['required', 'string', 'max:255', $request->otp ? "exists:$table,$type" : 'bail'],
+        ], [
+            'email' => 'You have entered an invalid email address'
+        ], [
+            'otp' => 'OTP',
+            'email' => 'Email Address',
+            'phone' => 'Phone Number',
+        ]);
+
+        /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\User|\App\Models\TempUser> */
+        $model = str($table)->singular()->camel()->title()->prepend('\\App\\Models\\')->toString()::query();
+
+        if (!$request->otp) {
+            $user = $request->temp
+                ? $model->firstOrCreate([$type => $request->{$type}])
+                : $model->where($type, $request->{$type})->firstOrFail();
+            $user->sendOTPNotification();
+
+            $masked = str($request[$type])->mask('*', 3, mb_strlen($request[$type]) / 2);
+
+            return PV::response()->success([
+                'data' => [],
+                'message' => "An OTP has been sent to {$masked}.",
+            ], HttpStatus::CREATED);
+        } else {
+            $ls = Providers::config('token_lifespan', 30);
+            $user = $model->firstWhere([$type => $request->{$type}, 'otp' => $request->otp]);
+
+            abort_if(!$user || now()->diffInSeconds($user->last_attempt) >= $ls, PV::response()->error([
+                'data' => [],
+                'errors' => ['otp' => ["This OTP is no longer valid."]],
+                'message' => "This OTP is no longer valid.",
+                'silent' => true,
+            ], HttpStatus::TIMEOUT));
+
+            if ($user instanceof \App\Models\TempUser) {
+                $user->delete();
+            } else {
+                $user->update(['last_attempt' => now(), 'otp' => null]);
+            }
+
+            return PV::response()->success([
+                'data' => [],
+                'message' => "The OTP is valid.",
+            ], HttpStatus::ACCEPTED);
+        }
     }
 }

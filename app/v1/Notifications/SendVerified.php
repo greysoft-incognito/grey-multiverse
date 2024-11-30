@@ -49,7 +49,8 @@ class SendVerified extends Notification //implements ShouldQueue
         ];
 
         return (new MailMessage)->view(
-            ['email', 'email-plain'], $message
+            ['email-old', 'email-old-plain'],
+            $message
         )
             ->subject('Welcome to the '.config('settings.site_name').' community.');
     }

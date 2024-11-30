@@ -6,7 +6,7 @@ return [
         'avatar' => [
             'size' => [400, 400],
             'path' => 'avatars/',
-            'default' => 'default.png',
+            'default' => 'default.svg',
         ],
         'banner' => [
             'size' => [1200, 600],

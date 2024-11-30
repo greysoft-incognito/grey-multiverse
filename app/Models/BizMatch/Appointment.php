@@ -7,11 +7,15 @@ use App\Notifications\NewAppointment;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
  * @property \Illuminate\Database\Eloquent\Collection<Reschedule> $reschedules
  * @property \App\Models\User $requestor
  * @property \App\Models\User $invitee
+ * @property \Carbon\Carbon $date
  */
 class Appointment extends Model
 {
@@ -51,7 +55,7 @@ class Appointment extends Model
     public static function booted(): void
     {
         parent::booted();
-        static::saved(fn (self $model) => $model->notify());
+        static::saved(fn(self $model) => $model->notify());
     }
 
     public function requestor(): BelongsTo
@@ -69,30 +73,109 @@ class Appointment extends Model
         return $this->hasMany(Reschedule::class);
     }
 
+    public function hasPendingReschedule(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->reschedules()->whereStatus('pending')->exists()
+        );
+    }
+
     public function notify()
     {
         $destinations = collect([
             'admin' => User::where(function ($query) {
                 collect(config('permission-defs.admin_roles'))
-                    ->each(fn ($role) => $query->orWhereHas('roles', fn ($q) => $q->where('name', $role)));
+                ->each(fn($role) => $query->orWhereHas('roles', fn($q) => $q->where('name', $role)));
             })->get(),
             'sender' => collect([$this->requestor]),
             'recipient' => collect([$this->invitee]),
         ]);
 
         $destinations->each(function ($recipients, $type) {
-            $recipients->each(fn (User $recipient) => $recipient->notify(new NewAppointment($this, $type)));
+            $recipients->each(fn(User $recipient) => $recipient->notify(new NewAppointment($this, $type)));
         });
     }
 
-    public function scopeForUser($query, $userId): void
+    public function scopeForUser($query, $userId, ?bool $sent = null): void
     {
-        $query->orWhere(function($query) use ($userId) {
-            $query->where('invitee_id', $userId);
-            $query->whereNotNull('invitee_id');
-        })->orWhere(function ($query) use ($userId) {
-            $query->where('requestor_id', $userId);
-            $query->whereNotNull('requestor_id');
-        });
+        if ($sent === true) {
+            $query->where(function ($query) use ($userId) {
+                $query->where('requestor_id', $userId);
+                $query->whereNotNull('requestor_id');
+            });
+        } elseif ($sent === false) {
+            $query->where(function ($query) use ($userId) {
+                $query->where('invitee_id', $userId);
+                $query->whereNotNull('invitee_id');
+            });
+        } else {
+            $query->orWhere(function ($query) use ($userId) {
+                $query->where('invitee_id', $userId);
+                $query->whereNotNull('invitee_id');
+            });
+            $query->orWhere(function ($query) use ($userId) {
+                $query->where('requestor_id', $userId);
+                $query->whereNotNull('requestor_id');
+            });
+        }
+    }
+
+    public function findNextAvailableSlot()
+    {
+        [$start, $end] = config("api.timemap.{$this->time_slot}");
+
+        // Set start and end times based on the slot in `timemap`
+        $startTime = $this->date->copy()->setTimeFrom(Carbon::parse($start));
+        $endTime = $this->date->copy()->setTimeFrom(Carbon::parse($end));
+
+        // Initialize the current time to start time of the time slot
+        $currentTime = $startTime->copy();
+
+        // Check for available slot within the specified range
+        while ($currentTime->lessThanOrEqualTo($endTime)) {
+            $existingAppointment = Appointment::where('date', $this->date)
+                ->where('booked_for', $currentTime)
+                ->where('status', 'confirmed')
+                ->where('time_slot', $this->time_slot)
+                ->first();
+
+            if (!$existingAppointment) {
+                // Set `booked_for` to the next available time slot if found
+                $this->booked_for = $currentTime;
+                $this->table_number = $this->assignTableNumber($currentTime, $this->date);
+                return $this;
+            }
+
+            // Move to the next slot within the time slot interval
+            $currentTime->addMinutes($this->duration);
+        }
+
+        // If no available time is found within the slot, throw an exception
+        throw new ModelNotFoundException("No available time slots for {$this->time_slot} on selected date.");
+    }
+
+    /**
+     * Assign a table number based on the time slot and date.
+     */
+    protected function assignTableNumber(Carbon $startTime, Carbon $date): int
+    {
+        // Example logic for table assignment
+        $existingTables = Appointment::where('date', $date)
+            ->where('booked_for', $startTime)
+            ->where('status', 'confirmed')
+            ->pluck('table_number')
+            ->toArray();
+
+        $allTables = collect(config('api.tables'))->shuffle();
+
+        // Find the first available table number
+        foreach ($allTables as $table) {
+            if (!in_array($table, $existingTables)) {
+                return $table;
+            }
+        }
+
+        // Throw an error if no tables are available
+        throw new ModelNotFoundException('No available tables for the selected time slots.');
     }
 }

@@ -34,6 +34,7 @@ return new class extends Migration
             $table->json('data')->nullable();
             $table->json('access_data')->nullable();
             $table->rememberToken();
+            $table->string('reg_status')->nullable();
             $table->timestamps();
         });
 

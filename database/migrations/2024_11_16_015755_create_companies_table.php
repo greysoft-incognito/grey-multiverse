@@ -19,7 +19,8 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->text('description')->nullable();
             $table->string('industry_category');
-            $table->string('location');
+            $table->string('location')->nullable();
+            $table->string('country')->nullable();
             $table->json('services')->nullable();
             $table->text('conference_objectives')->nullable();
             $table->timestamps();

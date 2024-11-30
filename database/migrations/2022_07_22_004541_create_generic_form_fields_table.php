@@ -13,10 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('generic_form_fields', function (Blueprint $table) {
+        Schema::create('form_fields', function (Blueprint $table) {
             $table->id();
             $table->foreignId('form_id')->constrained('forms', 'id')->cascadeOnDelete()->cascadeOnUpdate();
             $table->string('label')->nullable()->default('Field');
+            $table->integer('priority')->nullable()->default(0);
             $table->string('name')->nullable()->default('field');
             $table->string('alias')->nullable()->nullable();
             $table->string('value')->nullable();
@@ -26,6 +27,7 @@ return new class extends Migration
             $table->string('compare')->nullable();
             $table->json('options')->nullable();
             $table->string('required_if')->nullable();
+            $table->boolean('require_auth')->default(false);
             $table->boolean('restricted')->default(false);
             $table->boolean('required')->default(true);
             $table->boolean('key')->default(false);
@@ -59,6 +61,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('generic_form_fields');
+        Schema::dropIfExists('form_fields');
     }
 };

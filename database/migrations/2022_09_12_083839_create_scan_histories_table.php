@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('qrcode')->nullable();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('form_id')->constrained('forms')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('form_data_id')->constrained('generic_form_data')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('form_data_id')->constrained('form_data')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });
     }

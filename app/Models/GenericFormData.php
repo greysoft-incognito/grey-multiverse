@@ -17,6 +17,8 @@ class GenericFormData extends Model
 {
     use HasFactory, Notifiable;
 
+    protected $table = 'form_data';
+
     /**
      * The attributes that should be cast.
      *
@@ -40,10 +42,17 @@ class GenericFormData extends Model
         'key',
     ];
 
-    protected static function booted()
+    /**
+     * Retrieve the model for a bound value.
+     *
+     * @param  string|null  $field
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
+    public function resolveRouteBinding($value, $field = null)
     {
-        // static::creating(function ($item) {
-        // });
+        return $this->where('id', $value)
+            ->orWhere('key', $value)
+            ->firstOrFail();
     }
 
     /**

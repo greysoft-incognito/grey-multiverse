@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('generic_form_data', function (Blueprint $table) {
+        Schema::create('form_data', function (Blueprint $table) {
             $table->id();
             $table->foreignId('form_id')->constrained('forms', 'id')->cascadeOnDelete()->cascadeOnUpdate();
             $table->integer('user_id')->index()->nullable();
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('generic_form_data');
+        Schema::dropIfExists('form_data');
     }
 };

@@ -12,6 +12,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules;
 
 class RegisteredUserController extends Controller
@@ -52,7 +53,7 @@ class RegisteredUserController extends Controller
     public function createUser(Request $request)
     {
         $firstname = str($request->get('name'))->explode(' ')->first(null, $request->firstname);
-        $lastname = str($request->get('name'))->explode(' ')->last(fn ($n) => $n !== $firstname, $request->lastname);
+        $lastname = str($request->get('name'))->explode(' ')->last(fn($n) => $n !== $firstname, $request->lastname);
 
         $user = User::create([
             'role' => 'user',
@@ -76,7 +77,7 @@ class RegisteredUserController extends Controller
         $dev = new DeviceDetector($request->userAgent());
 
         $device = $dev->getBrandName()
-            ? ($dev->getBrandName().$dev->getDeviceName())
+            ? ($dev->getBrandName() . $dev->getDeviceName())
             : $request->userAgent();
 
         $user->save();
@@ -116,5 +117,47 @@ class RegisteredUserController extends Controller
             'time_left' => $dateAdd->shortAbsoluteDiffForHumans(),
             'try_at' => $dateAdd->toDateTimeLocalString(),
         ]);
+    }
+
+    /**
+     * Check the specified field.
+     *
+     * @return \Illuminate\Http\Response
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function checks(Request $request)
+    {
+        $rule = $request->rule ?? 'unique';
+        $type = $request->type ?? 'email';
+
+        $validator = static fn($validator) => abort_if($validator->fails(), PV::response()->error([
+            'data' => [],
+            'errors' => $validator->messages(),
+            'message' => $validator->messages()->all()[0] ?? 'error',
+            'silent' => true
+        ], HttpStatus::UNPROCESSABLE_ENTITY));
+
+        if ($type === 'email') {
+            $validator(Validator::make($request->all(), [
+                'email' => "required|email",
+            ], ['email' => 'Invalid email address']));
+        }
+
+        $validator(Validator::make($request->all(), [
+            'type' => ['bail', 'required', 'string', 'in:email,phone'],
+            'rule' => ['bail', 'required', 'string', 'in:unique'],
+            $type => ['required', 'string', 'max:255', "{$rule}:users,{$type}"],
+        ], [
+            "{$type}.{$rule}" => "An account with this {$type} already exists.",
+        ], [
+            'email' => 'Email Address',
+            'phone' => 'Phone Number',
+        ]));
+
+        return PV::response()->success([
+            'data' => [],
+            'message' => "The {$type} is available for use.",
+        ], HttpStatus::ACCEPTED);
     }
 }
