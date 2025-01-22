@@ -4,6 +4,7 @@ namespace App\Models\BizMatch;
 
 use App\Models\User;
 use App\Notifications\NewAppointment;
+use App\Traits\Conversationable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -19,6 +20,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
  */
 class Appointment extends Model
 {
+    use Conversationable;
+
     public static $msgGroups = [
         'sender' => [
             'pending' => 'You have sent a new appointment request to :0.',
@@ -85,7 +88,7 @@ class Appointment extends Model
         $destinations = collect([
             'admin' => User::where(function ($query) {
                 collect(config('permission-defs.admin_roles'))
-                ->each(fn($role) => $query->orWhereHas('roles', fn($q) => $q->where('name', $role)));
+                    ->each(fn($role) => $query->orWhereHas('roles', fn($q) => $q->where('name', $role)));
             })->get(),
             'sender' => collect([$this->requestor]),
             'recipient' => collect([$this->invitee]),

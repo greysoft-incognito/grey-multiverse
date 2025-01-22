@@ -26,6 +26,8 @@ class AppointmentResource extends JsonResource
             'invitee' => new CompanyResource($this->invitee->company),
             'requestor' => new CompanyResource($this->requestor->company),
             'bookedFor' => $this->booked_for,
+            'message' => $this->latestMessage?->text,
+            'messages_count' => $this->messages()->count(),
             'endsAt' => $this->booked_for?->addMinutes($this->duration),
             'updatedAt' => $this->updated_at,
             'createdAt' => $this->created_at,

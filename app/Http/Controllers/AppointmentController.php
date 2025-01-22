@@ -39,12 +39,13 @@ class AppointmentController extends Controller
      */
     public function store(Request $request, Company $company)
     {
-        $this->validate($request, [
+        @['message' => $message] = $this->validate($request, [
             'date' => 'required|date',
             'time_slot' => 'required|string|in:morning,afternoon,evening',
             'duration' => 'required|numeric|in:15,20,25,30',
             // 'table_number' => 'required|numeric|min:1|max:100',
             'company_id' => 'required|exists:companies,id',
+            'message' => ['nullable', 'string', 'min:1', 'max:1000'],
         ]);
 
         /** @var \App\Models\User $user */
@@ -65,6 +66,7 @@ class AppointmentController extends Controller
         $appointment->duration = $request->duration;
         $appointment->status = 'pending';
         $appointment->date = $request->date;
+
         try {
             $appointment = $appointment->findNextAvailableSlot();
         } catch (ModelNotFoundException $th) {
@@ -76,6 +78,10 @@ class AppointmentController extends Controller
         }
 
         $appointment->save();
+
+        if ($message) {
+            $appointment->sendMessage($user, $message);
+        }
 
         return (new AppointmentResource($appointment))->additional([
             'status' => 'success',
@@ -106,11 +112,15 @@ class AppointmentController extends Controller
      */
     public function update(Request $request, Appointment $appointment)
     {
+        /** @var \App\Models\User $user */
+        $user = $request->user('sanctum');
+
         $valid = $this->validate($request, [
             'status' => 'required|string|in:confirmed,rescheduled,canceled',
             'date' => 'required_if:status,rescheduled|date',
             'duration' => 'required_if:status,rescheduled|numeric|in:15,20,25,30',
             'time_slot' => 'required_if:status,rescheduled|string|in:morning,afternoon,evening',
+            'message' => ['nullable', 'string', 'min:1', 'max:1000'],
         ]);
 
         /**
@@ -153,6 +163,10 @@ class AppointmentController extends Controller
             $appointment->reschedules()->delete();
 
             $msg = __(Appointment::$msgGroups['recipient'][$valid['status']], [0, $appointment->invitee->company->name]);
+        }
+
+        if ($valid['message']) {
+            $appointment->sendMessage($user, $valid['message']);
         }
 
         return (new AppointmentResource($appointment))->additional([
