@@ -123,9 +123,7 @@ class MessageController extends Controller
      */
     protected function conversation(string $conversation_type, string $conversation_id)
     {
-        $className = str(str($conversation_type)->explode('-')->join('\\'))
-            ->singular()
-            ->apa()
+        $className = str(str($conversation_type)->explode('-')->map(fn($v) => str($v)->singular()->studly())->join('\\'))
             ->prepend('\\App\\Models\\')
             ->toString();
 

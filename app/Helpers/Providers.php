@@ -192,7 +192,7 @@ class Providers
             }
 
             /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\User|\App\Models\TempUser> */
-            $model = str($table)->singular()->camel()->title()->prepend('\\App\\Models\\')->toString()::query();
+            $model = str($table)->singular()->studly()->prepend('\\App\\Models\\')->toString()::query();
 
             $user = $model->firstWhere(['email' => $request->email]);
 

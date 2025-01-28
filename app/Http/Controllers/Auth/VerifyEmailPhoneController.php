@@ -179,7 +179,7 @@ class VerifyEmailPhoneController extends Controller
         ]);
 
         /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\User|\App\Models\TempUser> */
-        $model = str($table)->singular()->camel()->title()->prepend('\\App\\Models\\')->toString()::query();
+        $model = str($table)->singular()->studly()->prepend('\\App\\Models\\')->toString()::query();
 
         if (!$request->otp) {
             $user = $request->temp
