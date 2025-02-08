@@ -22,7 +22,10 @@ class FormDataController extends Controller
      */
     public function index(Request $request, Form $form)
     {
-        $forms = $form->data()->paginate($request->get('limit', 30));
+        $forms = $form
+            ->data()
+            ->where('user_id', auth('sanctum')->id())
+            ->paginate($request->get('limit', 30));
 
         return (new FormDataCollection($forms))->additional([
             'message' => HttpStatus::message(HttpStatus::OK),
@@ -86,7 +89,7 @@ class FormDataController extends Controller
      * @param  GenericFormData $data
      * @return \Illuminate\Http\Response
      */
-    public function show(GenericFormData $data)
+    public function show(Form $form, GenericFormData $data)
     {
         return (new FormDataResource($data))->additional([
             'message' => HttpStatus::message(HttpStatus::OK),

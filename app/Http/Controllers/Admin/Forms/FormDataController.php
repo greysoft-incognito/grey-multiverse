@@ -213,9 +213,15 @@ class FormDataController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Form $form, GenericFormData $data)
     {
         \Gate::authorize('usable', 'formdata.delete');
-        //
+
+        $data->delete();
+
+        return Providers::response()->success([
+            'data' => [],
+            'message' => __('Form data deleted successfully.'),
+        ], HttpStatus::ACCEPTED);
     }
 }

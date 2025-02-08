@@ -122,6 +122,18 @@ return [
             "If you do need any assistance please don't fail to reachout to one of our numerous support channels.",
         ],
     ],
+    'send_report' => [
+        'subject' => ':form_name, Report is ready.',
+        'lines' => [
+            'Your :period report report for :form_name is ready!',
+            [
+                'link' => ':link',
+                'title' => 'Download Report',
+            ],
+            'For security and privacy concerns this link expires in :ttl and is only usable once',
+            'If you have any concerns please mail <a href="mailto:hi@greysoft.ng">hi@greysoft.ng</a> for support.'
+        ]
+    ],
 
     /*
     |--------------------------------------------------------------------------

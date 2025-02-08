@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Enums\HttpStatus;
 use App\Helpers\Providers;
+use App\Http\Controllers\Controller;
 use App\Http\Resources\AppointmentRescheduleCollection;
 use App\Http\Resources\AppointmentRescheduleResource;
 use App\Models\BizMatch\Reschedule;
@@ -19,7 +20,6 @@ class RescheduleController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = $request->user('sanctum');
-
         $query = Reschedule::query();
         $query->forUser($user->id, $request->has('sent') ? $request->boolean('sent') : null);
 
@@ -35,14 +35,8 @@ class RescheduleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, string $reschedule_id)
+    public function show(Reschedule $reschedule)
     {
-        /** @var \App\Models\User $user */
-        $user = $request->user('sanctum');
-
-        /** @var \App\Models\BizMatch\Reschedule $reschedule */
-        $reschedule = Reschedule::forUser($user->id)->findOrFail($reschedule_id);
-
         return (new AppointmentRescheduleResource($reschedule))->additional([
             'status' => 'success',
             'message' => HttpStatus::message(HttpStatus::OK),
@@ -53,17 +47,11 @@ class RescheduleController extends Controller
     /**
      * Confirm or Cancel an appointment Reschedule request.
      */
-    public function update(Request $request, string $reschedule_id)
+    public function update(Request $request, Reschedule $reschedule)
     {
         $valid = $this->validate($request, [
             'status' => 'required|string|in:accepted,declined',
         ]);
-
-        /** @var \App\Models\User $user */
-        $user = $request->user('sanctum');
-
-        /** @var \App\Models\BizMatch\Reschedule $reschedule */
-        $reschedule = Reschedule::forUser($user->id)->findOrFail($reschedule_id);
 
         /**
          * Update the appointment
@@ -95,6 +83,21 @@ class RescheduleController extends Controller
             'status' => 'success',
             'message' => __(Reschedule::$msgGroups['recipient'][$valid['status']], [$appointment->invitee->company->name]),
             'statusCode' => HttpStatus::ACCEPTED,
+        ])->response()->setStatusCode(HttpStatus::ACCEPTED->value);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Request $request, string $id)
+    {
+        $ids = $request->input('items', [$id]);
+        Reschedule::whereIn('id', $ids)->delete();
+
+        return (new AppointmentRescheduleCollection([]))->additional([
+            'message' => (count($ids) > 1 ? count($ids) . ' reschedules' : 'Reschedule') . ' deleted successfully',
+            'status' => 'success',
+            'status_code' => HttpStatus::ACCEPTED,
         ])->response()->setStatusCode(HttpStatus::ACCEPTED->value);
     }
 }

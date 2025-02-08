@@ -25,9 +25,9 @@ class FormDataResource extends JsonResource
         $fullname_field = $form->fields()->fullname()->first();
 
         $name = collect([
-            $this->data[$fname_field->name ?? '--'] ?? '',
-            $this->data[$lname_field->name ?? '--'] ?? '',
-            ! $fname_field && ! $lname_field ? $this->data[$fullname_field->name ?? $email_field->name ?? '--'] : '',
+            $data[$fname_field->name ?? '--'] ?? '',
+            $data[$lname_field->name ?? '--'] ?? '',
+            ! $fname_field && ! $lname_field ? $data[$fullname_field->name ?? $email_field->name ?? '--'] : '',
         ])->filter(fn($name) => $name !== '')->implode(' ');
 
         return collect([
@@ -40,7 +40,7 @@ class FormDataResource extends JsonResource
             'scan_date' => $form->scan_date,
             'fields' => $form->fields,
         ])
-            ->merge($this->data)->except(['fields']);
+            ->merge($data)->except(['fields']);
     }
 
     /**

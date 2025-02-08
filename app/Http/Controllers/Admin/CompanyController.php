@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Enums\HttpStatus;
 use App\Helpers\Providers;
+use App\Http\Controllers\Controller;
 use App\Http\Resources\CompanyCollection;
 use App\Http\Resources\CompanyResource;
 use App\Models\BizMatch\Company;
@@ -28,22 +29,6 @@ class CompanyController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        /** @var \App\Models\User $user */
-        $user = $request->user();
-
-        /** @var \App\Models\BizMatch\Company $company */
-        $company = $user->company()->firstOrNew();
-        $user->reg_status = 'ongoing';
-        $user->saveQuietly();
-
-        return $this->update($request, $company);
-    }
-
-    /**
      * Display the specified resource.
      */
     public function show(Company $company)
@@ -58,14 +43,8 @@ class CompanyController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Company $company)
     {
-        /** @var \App\Models\User $user */
-        $user = $request->user();
-
-        /** @var \App\Models\BizMatch\Company $company */
-        $company = $user->company()->where('id', $id)->firstOrFail();
-
         $valid = $this->validate($request, [
             'image' => 'nullable|image|mimes:png,jpg,jpeg',
             'name' => 'required|string',
@@ -100,22 +79,15 @@ class CompanyController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, Company $company)
+    public function destroy(Request $request, string $id)
     {
-        /** @var \App\Models\User $user */
-        $user = $request->user();
+        $ids = $request->input('items', [$id]);
+        Company::whereIn('id', $ids)->delete();
 
-        abort_if($user->isNot($company->user), Providers::response()->error([
-            'data' => [],
-            'message' => 'You do not have permission to delete this company.',
-        ], HttpStatus::FORBIDDEN));
-
-        $company->delete();
-
-        return (new CompanyResource($company))->additional([
+        return (new CompanyCollection([]))->additional([
+            'message' => (count($ids) > 1 ? count($ids) . ' companies' : 'Company') . ' deleted successfully',
             'status' => 'success',
-            'message' => __('Your company ":0" has been deleted successfully.', [$company->name]),
-            'statusCode' => HttpStatus::OK,
+            'status_code' => HttpStatus::ACCEPTED,
         ])->response()->setStatusCode(HttpStatus::ACCEPTED->value);
     }
 }

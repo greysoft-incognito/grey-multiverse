@@ -32,6 +32,7 @@ trait Permissions
             'formdata.stats',
             'formdata.list',
             'formdata.show',
+            'formdata.delete',
 
             'dashboard',
             'content.create',

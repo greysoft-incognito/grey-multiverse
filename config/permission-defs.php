@@ -58,6 +58,7 @@ return [
     'permissions' => [
         'manage-users',
         'manage-admins',
+        'configuration',
         'manage-configuration',
 
         'users.list',
@@ -81,6 +82,7 @@ return [
         'formdata.stats',
         'formdata.list',
         'formdata.show',
+        'formdata.delete',
 
         'dashboard',
         'content.create',
@@ -89,7 +91,6 @@ return [
         'front_content',
         'subscriptions',
         'transactions',
-        'configuration',
 
         'spaces',
         'spaces.list',
@@ -103,6 +104,21 @@ return [
         'reservation.create',
         'reservation.update',
         'reservation.delete',
+
+        'appointment.list',
+        'appointment.update',
+        'appointment.delete',
+        'appointment.manage',
+
+        'company.list',
+        'company.update',
+        'company.delete',
+        'company.manage',
+
+        'reschedule.list',
+        'reschedule.update',
+        'reschedule.delete',
+        'reschedule.manage'
     ],
     /*
     |--------------------------------------------------------------------------
@@ -121,13 +137,20 @@ return [
             'users.create',
             'users.update',
             'users.delete',
+
             'content.create',
             'content.update',
             'content.delete',
-            'configuration',
+
             'front_content',
 
+            'formdata.delete',
+            'company.delete',
+            'reschedule.delete',
+            'appointment.delete',
+
             'manage-admins',
+            'configuration',
             'manage-configuration',
         ],
         'reviewer' => [
@@ -136,6 +159,8 @@ return [
             'users.user',
             'users.update',
             'users.delete',
+
+            'formdata.delete',
 
             'form.create',
             'form.update',
@@ -164,6 +189,18 @@ return [
             'manage-admins',
             'manage-users',
             'manage-configuration',
+
+            'reservation.create',
+            'reservation.update',
+            'reservation.delete',
+
+            'company.update',
+            'company.delete',
+            'company.manage',
+
+            'reschedule.update',
+            'reschedule.delete',
+            'reschedule.manage'
         ],
     ],
     /*

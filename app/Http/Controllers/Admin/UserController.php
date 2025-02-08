@@ -9,6 +9,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 
 class UserController extends Controller
@@ -18,18 +19,38 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        @[
+            'type' => $type,
+            'search' => $search,
+        ] = $this->validate($request, [
+            'type' => ['nullable', 'string', 'in:user,admin'],
+            'search' => ['nullable', 'string'],
+        ]);
+
         $query = User::query();
 
-        $query->when($request->has('type'), function (Builder $query) use ($request) {
-            $query->where('type', $request->input('type'));
+        $query->when($type, function (Builder $query) use ($type) {
+            if ($type === 'admin') {
+                $query->whereHas('roles');
+                $query->orWhereHas('permissions');
+            } else {
+                $query->whereDoesntHave('roles');
+                $query->whereDoesntHave('permissions');
+            }
         });
-        $query->when($request->has('search'), function (Builder $query) use ($request) {
-            $query->where('firstname', 'like', '%'.$request->input('search').'%');
-            $query->orWhere('lastname', 'like', '%'.$request->input('search').'%');
-            $query->orWhereRaw(
-                "LOWER(CONCAT_WS(' ', firstname, lastname)) like ?",
-                ['%'.mb_strtolower($request->input('search')).'%']
-            );
+
+        $query->when($search, function (Builder $query) use ($search) {
+            if (stripos($search, '@') === 0) {
+                $query->where('username', str_ireplace('@', '', $search));
+            } else {
+                $query->where('firstname', 'like', "%{$search}%");
+                $query->orWhere('lastname', 'like', "%{$search}%");
+                $query->orWhereRaw(
+                    "LOWER(CONCAT_WS(' ', firstname, lastname)) like ?",
+                    ['%' . mb_strtolower($search) . '%']
+                );
+                $query->orWhere('email', $search);
+            }
         });
 
         $users = $query->paginate($request->input('limit', 30));
@@ -58,6 +79,10 @@ class UserController extends Controller
             'firstname' => ['nullable', 'string', 'max:255'],
             'laststname' => ['nullable', 'string', 'max:255'],
             'type' => ['nullable', 'string', 'in:user,admin,...'],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['required', 'string', Rule::in(config('permission-defs.roles'))],
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['required', 'string', Rule::in(config('permission-defs.permissions'))],
         ], [
             'name.required_without' => 'Please enter the user\'s fullname.',
         ], [
@@ -66,7 +91,7 @@ class UserController extends Controller
         ]);
 
         $valid['firstname'] = str($request->get('name'))->explode(' ')->first(null, $request->firstname);
-        $valid['lastname'] = str($request->get('name'))->explode(' ')->last(fn ($n) => $n !== $valid['firstname'], $request->lastname);
+        $valid['lastname'] = str($request->get('name'))->explode(' ')->last(fn($n) => $n !== $valid['firstname'], $request->lastname);
 
         /** @var \App\Models\User $user */
         $user = User::create($valid);
@@ -103,17 +128,22 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        \Artisan::call('optimize:clear');
+        \Artisan::call('app:sync-roles');
+        \Artisan::call('optimize:clear');
         $valid = $this->validate($request, [
             'image' => ['nullable', 'image'],
             'name' => ['required_without:firstname', 'string', 'max:255'],
-            'email' => ['required_without:phone', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
-            'phone' => 'required_without:email|string|max:255|unique:users,phone,'.$user->id,
+            'email' => ['required_without:phone', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'phone' => 'required_without:email|string|max:255|unique:users,phone,' . $user->id,
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
             'firstname' => ['nullable', 'string', 'max:255'],
             'laststname' => ['nullable', 'string', 'max:255'],
             'type' => ['nullable', 'string', 'in:user,admin,...'],
-            'roles' => ['array', 'in:'.implode(',', config('permission-defs.admin_roles', []))],
-            'permissions' => ['array', 'in:'.implode(',', config('permission-defs.permissions', []))],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['required', 'string', Rule::in(config('permission-defs.roles'))],
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['required', 'string', Rule::in(config('permission-defs.permissions'))],
         ], [
             'name.required_without' => 'Please enter the user\'s fullname.',
         ], [
@@ -122,13 +152,17 @@ class UserController extends Controller
         ]);
 
         $valid['firstname'] = str($request->name)->explode(' ')->first(null, $request->firstname);
-        $valid['lastname'] = str($request->name)->explode(' ')->last(fn ($n) => $n !== $valid['firstname'], $request->lastname);
+        $valid['lastname'] = str($request->name)->explode(' ')->last(fn($n) => $n !== $valid['firstname'], $request->lastname);
 
         $user->update($valid);
 
-        $user->syncRoles($valid['roles'] ?? []);
+        if (isset($valid['roles'])) {
+            $user->syncRoles($valid['roles']);
+        }
 
-        $user->syncPermissions($valid['permissions'] ?? []);
+        if (isset($valid['permissions'])) {
+            $user->syncPermissions($valid['permissions']);
+        } 
 
         return (new UserResource($user))->additional([
             'message' => 'User update successfull',
@@ -140,12 +174,13 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user)
+    public function destroy(Request $request, string $id)
     {
-        $user->delete();
+        $ids = $request->input('items', [$id]);
+        User::whereIn('id', $ids)->delete();
 
         return (new UserCollection([]))->additional([
-            'message' => 'User deleted successfully',
+            'message' => (count($ids) > 1 ? count($ids) . ' users' : 'User') . ' deleted successfully',
             'status' => 'success',
             'status_code' => HttpStatus::ACCEPTED,
         ])->response()->setStatusCode(HttpStatus::ACCEPTED->value);
