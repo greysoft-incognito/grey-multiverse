@@ -3,6 +3,7 @@
 use App\Http\Controllers\Forms\FormController;
 use App\Http\Controllers\Forms\FormDataController;
 use App\Http\Controllers\Forms\FormFieldController;
+use App\Http\Middleware\CheckFormDataAccess;
 use Illuminate\Support\Facades\Route;
 
 Route::name('v2.forms.')->prefix('forms')->group(function () {
@@ -12,7 +13,8 @@ Route::name('v2.forms.')->prefix('forms')->group(function () {
         ->only(['index', 'show']);
 
     Route::apiResource('{form}/data', FormDataController::class)
-        ->only(['store', 'update', 'show', 'index'])
+        ->middleware([CheckFormDataAccess::class])
+        ->except(['update'])
         ->scoped();
 
     Route::apiResource('/', FormController::class)

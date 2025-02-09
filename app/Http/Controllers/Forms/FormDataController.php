@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Forms;
 
 use App\Enums\HttpStatus;
+use App\Helpers\Providers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SaveFormdataRequest;
 use App\Http\Resources\Forms\FormDataCollection;
@@ -13,7 +14,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use V1\Notifications\FormSubmitedSuccessfully;
 
-class FormDataController extends Controller
+class FormDataController
 {
     /**
      * Display a listing of the resource.
@@ -41,7 +42,7 @@ class FormDataController extends Controller
      */
     public function all(Request $request)
     {
-        $forms = GenericFormData::paginate($request->get('limit', 30));
+        $forms = GenericFormData::where('user_id', auth('sanctum')->id())->paginate($request->get('limit', 30));
 
         return (new FormDataCollection($forms))->additional([
             'message' => HttpStatus::message(HttpStatus::OK),
@@ -64,14 +65,14 @@ class FormDataController extends Controller
         }
 
         $formdata = $form->data()->createMany($data);
-        $formdata->each(fn (GenericFormData $data) => $data->notify(new FormSubmitedSuccessfully()));
+        $formdata->each(fn(GenericFormData $data) => $data->notify(new FormSubmitedSuccessfully()));
 
-        $resource = $request->getMult() === '*.'
+        $resource = $request->hasMultipleEntries()
             ? new FormDataCollection($formdata)
             : new FormDataResource($formdata->first());
 
         $user = ($uid = $request->input('user_id', $request->user)) ? User::find($uid) : $request->user('sanctum');
-        if ($user) {
+        if ($user && $user->reg_status !== 'completed') {
             $user->reg_status = 'ongoing';
             $user->saveQuietly();
         }
@@ -88,8 +89,13 @@ class FormDataController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(Form $form, GenericFormData $data)
+    public function show(Form $form, string $id)
     {
+        $data = $form
+            ->data()
+            ->where('user_id', auth('sanctum')->id())
+            ->find($id);
+
         return (new FormDataResource($data))->additional([
             'message' => HttpStatus::message(HttpStatus::OK),
             'status' => 'success',
@@ -103,9 +109,25 @@ class FormDataController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(SaveFormdataRequest $request, Form $form, $id) {}
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Form $form, string $id)
     {
-        \Gate::authorize('usable', 'formdata.update');
-        //
+        $form
+            ->data()
+            ->where('user_id', auth('sanctum')->id())
+            ->where('id', $id)
+            ->delete();
+
+        return Providers::response()->success([
+            'data' => [],
+            'message' => __('Form data deleted successfully.'),
+        ], HttpStatus::ACCEPTED);
     }
 }

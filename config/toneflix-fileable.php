@@ -22,6 +22,10 @@ return [
             'path' => 'media/logos/',
             'default' => 'default.png',
         ],
+        'dbconfig' => [
+            'path' => 'storage/',
+            'default' => 'default.png',
+        ],
         'private' => [
             'files' => [
                 'path' => 'files/',
