@@ -16,6 +16,9 @@ php artisan optimize
 echo "Syncronizing Roles..."
 php artisan app:sync-roles
 
+echo "Linking Storage."
+php artisan storage:link
+
 echo "Setting permissions..."
 chown -R greysoft-multiverse:greysoft-multiverse $(pwd)
 chmod -R 775 storage bootstrap/cache

@@ -103,7 +103,7 @@
                                                     <tbody>
                                                         <tr>
                                                             <td style="width:100px;"> <img alt="Logo" height="auto"
-                                                                    src="{{ asset('logo.png') }}?v=2"
+                                                                    src="{{ dbconfig('app_logo') }}?v=2"
                                                                     style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;"
                                                                     width="100" /> </td>
                                                         </tr>
@@ -127,7 +127,7 @@
                                                                 <a href="https://app.5minutes.ng" target="_blank"
                                                                     style="color: #2e58ff; text-decoration: none;"> <img
                                                                         alt="image description" height="200"
-                                                                        src="{{ $banner ?? asset('hero.jpg') }}?v=2"
+                                                                        src="{{ $banner ?? dbconfig('email_banner') }}?v=2"
                                                                         style="border:0;display:block;outline:none;text-decoration:none;height:200px;width:100%;font-size:13px;object-fit:cover;"
                                                                         width="auto" /> </a>
                                                             </td>

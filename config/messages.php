@@ -134,6 +134,15 @@ return [
             'If you have any concerns please mail <a href="mailto:hi@greysoft.ng">hi@greysoft.ng</a> for support.',
         ],
     ],
+    'form_submited' => [
+        'subject' => 'Your submission for :form_name has been recieved.',
+        'lines' => [
+            ':success_message',
+            '<div style="display: flex; justify-content: center;"><img style="height: 155px;" src=":qr_code"/></div>',
+            'Your QR Code may be required to be scanned on your arrival.',
+            'If there are any further information, we will not hesitate to contact you.',
+        ],
+    ],
 
     /*
     |--------------------------------------------------------------------------

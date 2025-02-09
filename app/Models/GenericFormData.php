@@ -43,6 +43,15 @@ class GenericFormData extends Model
     ];
 
     /**
+     * The attributes to be appended
+     *
+     * @var array
+     */
+    protected $appends = [
+        'fullname',
+    ];
+
+    /**
      * Retrieve the model for a bound value.
      *
      * @param  string|null  $field
@@ -66,9 +75,9 @@ class GenericFormData extends Model
     /**
      * Get the name of user from the GenericFormData field
      */
-    public function nameAttribute(): Attribute
+    public function name(): Attribute
     {
-        return new Attribute(
+        return Attribute::make(
             get: function () {
                 $fname_field = $this->form->fields()->fname()->first();
                 $lname_field = $this->form->fields()->lname()->first();
@@ -78,11 +87,19 @@ class GenericFormData extends Model
                     $this->data[$fname_field->name ?? '--'] ?? '',
                     $this->data[$lname_field->name ?? '--'] ?? '',
                     ! $fname_field && ! $lname_field ? ($this->data[$fullname_field->name ?? $email_field->name ?? '--'] ?? '') : '',
-                ])->filter(fn ($name) => $name !== '')->implode(' ');
+                ])->filter(fn($name) => $name !== '')->implode(' ');
 
                 return $name;
             },
         );
+    }
+
+    /**
+     * Get the name of user from the GenericFormData field
+     */
+    public function fullname(): Attribute
+    {
+        return $this->name();
     }
 
     /**
@@ -105,7 +122,7 @@ class GenericFormData extends Model
                 $this->data[$fname_field->name ?? '--'] ?? '',
                 $this->data[$lname_field->name ?? '--'] ?? '',
                 ! $fname_field && ! $lname_field ? $this->data[$fullname_field->name ?? $email_field->name ?? '--'] : '',
-            ])->filter(fn ($name) => $name !== '')->implode(' ');
+            ])->filter(fn($name) => $name !== '')->implode(' ');
 
             // Return email address and name...
             if (isset($this->data[$email_field->name ?? '--'])) {

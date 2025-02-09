@@ -47,8 +47,8 @@ class ConfigurationSeeder extends Seeder
                 'choices' => json_encode([]),
             ],
             [
-                'key' => 'auth_banner',
-                'title' => 'Auth Banner',
+                'key' => 'email_banner',
+                'title' => 'Email Banner',
                 'value' => null,
                 'type' => 'file',
                 'count' => null,

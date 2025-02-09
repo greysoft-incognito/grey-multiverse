@@ -12,7 +12,7 @@ use App\Models\Form;
 use App\Models\GenericFormData;
 use App\Models\User;
 use Illuminate\Http\Request;
-use V1\Notifications\FormSubmitedSuccessfully;
+use App\Notifications\FormSubmitedSuccessfully;
 
 class FormDataController
 {
