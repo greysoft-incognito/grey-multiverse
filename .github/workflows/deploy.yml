@@ -21,11 +21,5 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} '
             cd ${{ secrets.DEPLOY_PATH }} && \
-            git pull origin main && \
-            composer install --no-dev --optimize-autoloader && \
-            php artisan migrate --force && \
-            php artisan cache:clear && \
-            php artisan config:cache && \
-            php artisan route:cache && \
-            php artisan view:cache
+            ./deploy.sh
           '
