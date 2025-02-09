@@ -7,7 +7,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailPhoneController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('guest')->prefix('auth')->group(function () {
+Route::middleware('guest')->prefix('auth')->name('auth.')->group(function () {
     Route::post('register', [RegisteredUserController::class, 'store'])
         ->name('register');
 
@@ -32,7 +32,7 @@ Route::middleware('guest')->prefix('auth')->group(function () {
         ->name('password.update');
 });
 
-Route::middleware('auth:sanctum')->prefix('verify')->group(function () {
+Route::middleware('auth:sanctum')->prefix('verify')->name('verify.')->group(function () {
     Route::post('with-code/{type?}', [VerifyEmailPhoneController::class, 'store'])
         ->middleware(['throttle:code-requests'])
         ->name('verification.store');
@@ -45,12 +45,12 @@ Route::middleware('auth:sanctum')->prefix('verify')->group(function () {
         ->name('verification.show');
 });
 
-Route::middleware('auth:sanctum')->prefix('account')->group(function () {
+Route::middleware('auth:sanctum')->prefix('account')->name('account.')->group(function () {
     Route::get('devices', [AuthenticatedSessionController::class, 'getTokens'])
         ->name('authenticated.devices');
 
     Route::post('devices/logout', [AuthenticatedSessionController::class, 'destroyTokens'])
-        ->name('logout');
+    ->name('devices.logout');
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');

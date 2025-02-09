@@ -38,14 +38,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::name('manage.')->prefix('manage')->group(function () {
         Route::apiResource('forms', SuFormController::class)->only(['index', 'show']);
-        Route::get('form-fields', [SuFormFieldController::class, 'all'])->name('all');
+        Route::get('form-fields', [SuFormFieldController::class, 'all'])->name('form-fields');
         Route::apiResource('form-fields/{form}', SuFormFieldController::class)
             ->parameters(['{form}' => 'field'])->except(['store', 'update', 'destroy']);
-        Route::get('form-data/all', [SuFormDataController::class, 'all'])->name('all');
+        Route::get('form-data/all', [SuFormDataController::class, 'all'])->name('form-data.all');
         Route::post('qr/form-data', [SuFormDataController::class, 'decodeQr'])->name('decode.qr');
         Route::post('qr/reservation-data', [ReservationController::class, 'decodeQr'])->name('decode.reservation.qr');
-        Route::get('form-data/stats/{form}', [SuFormDataController::class, 'stats'])->name('stats');
-        Route::apiResource('form-data/{form}', SuFormDataController::class)->parameters(['{form}' => 'id']);
+
+        Route::name('form-data.')->prefix('form-data')->group(function () {
+            Route::get('stats/{form}', [SuFormDataController::class, 'stats'])->name('stats');
+            Route::apiResource('{form}', SuFormDataController::class)->parameters(['{form}' => 'id']);
+        });
     });
 
     Route::name('payment.')->prefix('payment')->controller(PaymentController::class)->group(function () {

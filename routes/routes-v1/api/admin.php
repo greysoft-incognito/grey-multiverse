@@ -28,11 +28,18 @@ Route::middleware(['auth:sanctum', 'admin'])->name('admin.')->prefix('admin')->g
 
     Route::apiResource('forms', SuFormController::class);
     Route::apiResource('form-infos/{form}', FormInfoController::class)->parameter('{form}', 'info');
-    Route::get('form-fields', [SuFormFieldController::class, 'all'])->name('all');
-    Route::post('form-fields/{form}/multiple', [SuFormFieldController::class, 'multiple'])->name('multiple');
-    Route::apiResource('form-fields/{form}', SuFormFieldController::class)->parameters(['{form}' => 'field']);
-    Route::get('form-data/all', [SuFormDataController::class, 'all'])->name('all');
-    Route::get('form-data/stats', [SuFormDataController::class, 'stats'])->name('stats');
-    Route::apiResource('form-data/{form}', SuFormDataController::class)->parameters(['{form}' => 'id']);
+
+    Route::name('form-fields.')->prefix('form-fields')->group(function () {
+        Route::get('/', [SuFormFieldController::class, 'all'])->name('all');
+        Route::post('/{form}/multiple', [SuFormFieldController::class, 'multiple'])->name('multiple');
+        Route::apiResource('/{form}', SuFormFieldController::class)->parameters(['{form}' => 'field']);
+    });
+
+    Route::name('form-data.')->prefix('form-data')->group(function () {
+        Route::get('/all', [SuFormDataController::class, 'all'])->name('all');
+        Route::get('/stats', [SuFormDataController::class, 'stats'])->name('stats');
+        Route::apiResource('/{form}', SuFormDataController::class)->parameters(['{form}' => 'id']);
+    });
+
     Route::apiResource('users', UsersController::class);
 });

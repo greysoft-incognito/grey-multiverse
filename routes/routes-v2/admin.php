@@ -37,7 +37,7 @@ Route::middleware(['auth:sanctum', $permissionMiddlewares])->prefix('admin')->gr
 
         Route::apiResource('{form}/fields', FormFieldController::class);
 
-        Route::get('all/data', [FormDataController::class, 'all'])->name('all');
+        Route::get('all/data', [FormDataController::class, 'all'])->name('data.all');
         Route::get('{form}/stats', [FormDataController::class, 'stats'])->name('stats');
         Route::apiResource('{form}/data', FormDataController::class)->scoped();
 
