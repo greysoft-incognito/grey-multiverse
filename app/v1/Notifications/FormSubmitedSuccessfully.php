@@ -37,7 +37,7 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
             return [];
         }
 
-        $pref = dbconfig('prefered_notification_channels', ['mail', 'sms']);
+        $pref = collect(dbconfig('prefered_notification_channels', ['mail', 'sms']))->toArray();
 
         return in_array('sms', $pref) && in_array('mail', $pref)
             ? ['mail', TwilioChannel::class]
