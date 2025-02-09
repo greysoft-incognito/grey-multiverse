@@ -2,7 +2,6 @@
 
 namespace V1\Notifications;
 
-use App\Helpers\Providers;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -38,7 +37,7 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
             return [];
         }
 
-        $pref = Providers::config('prefered_notification_channels', ['mail', 'sms']);
+        $pref = dbconfig('prefered_notification_channels', ['mail', 'sms']);
 
         return in_array('sms', $pref) && in_array('mail', $pref)
             ? ['mail', TwilioChannel::class]
@@ -65,7 +64,7 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
             $lname_field ? $n->data[$lname_field->name] : '',
             $fullname_field && ! $fname_field && ! $fname_field ? $n->data[$fullname_field->name] : '',
             $name_field && ! $fname_field && ! $fname_field && ! $fullname_field ? $n->data[$name_field->name] : '',
-        ])->filter(fn($name) => $name !== '')->implode(' ');
+        ])->filter(fn ($name) => $name !== '')->implode(' ');
 
         $qr_code = $n->id;
         $message = [
@@ -107,7 +106,7 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
             $lname_field ? $n->data[$lname_field->name] : '',
             $fullname_field && ! $fname_field && ! $fname_field ? $n->data[$fullname_field->name] : '',
             $name_field && ! $fname_field && ! $fname_field && ! $fullname_field ? $n->data[$name_field->name] : '',
-        ])->filter(fn($name) => $name !== '')->implode(' ');
+        ])->filter(fn ($name) => $name !== '')->implode(' ');
 
         $qr_code = $n->id;
         $message = __($n->form->success_message, [
@@ -116,7 +115,7 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
             'form' => $n->form->title,
         ]);
 
-        $message = __('Hi :0, ', [$this->name]) . $message;
+        $message = __('Hi :0, ', [$this->name]).$message;
 
         return (new TwilioSmsMessage())
             ->content($message);

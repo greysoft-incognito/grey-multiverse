@@ -99,12 +99,14 @@ class Form extends Model
     protected function bannerUrl(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->images['banner'],
+            get: fn () => $this->images['banner'],
         );
     }
 
     /**
-     * Get all of the data for the Form
+     * Get all of the GenericFormData for the Form
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<GenericFormData>
      */
     public function data(): HasMany
     {
@@ -119,7 +121,7 @@ class Form extends Model
     protected function dataEmails(): Attribute
     {
         return Attribute::make(
-            get: fn($a) => str($a ?? '')->explode(',')->map(fn($e) => str($e)->trim()),
+            get: fn ($a) => str($a ?? '')->explode(',')->map(fn ($e) => str($e)->trim()),
         );
     }
 
@@ -157,23 +159,23 @@ class Form extends Model
     protected function logoUrl(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->images['logo'],
+            get: fn () => $this->images['logo'],
         );
     }
 
     public function socials(): Attribute
     {
-        $parser = static fn($value, $name) => [
+        $parser = static fn ($value, $name) => [
             'url' => str($value)->before('?'),
             'icon' => "fas fa-$name",
             'name' => $name,
-            'label' => '@' . str(str($value)->explode('/')->last())->before('?'),
+            'label' => '@'.str(str($value)->explode('/')->last())->before('?'),
         ];
 
         return Attribute::make(
-            get: fn($value) => collect($value)->map(function ($value, $name) use ($parser) {
+            get: fn ($value) => collect($value)->map(function ($value, $name) use ($parser) {
                 if (json_validate($value)) {
-                    return collect(json_decode($value))->map(fn($v, $n) => $parser($v, $n))->values();
+                    return collect(json_decode($value))->map(fn ($v, $n) => $parser($v, $n))->values();
                 }
 
                 return $parser($value, $name);

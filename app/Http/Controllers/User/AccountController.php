@@ -123,7 +123,7 @@ class AccountController extends Controller
             }
 
             if (is_array($filled[$field])) {
-                return [$field . '.*' => ['required']];
+                return [$field.'.*' => ['required']];
             }
 
             return [$field => $vals];
@@ -148,7 +148,7 @@ class AccountController extends Controller
         $this->validate($request, $valid, [], $fields->filter(function ($k) use ($filled) {
             return is_array($filled[$k]);
         })->mapWithKeys(function ($field, $value) use ($filled) {
-            return collect(array_keys((array) $filled[$field]))->mapWithKeys(fn($k) => ["$field.$k" => "$field $k"]);
+            return collect(array_keys((array) $filled[$field]))->mapWithKeys(fn ($k) => ["$field.$k" => "$field $k"]);
         })->all());
 
         $fields = $fields->filter(function ($k) {
@@ -174,15 +174,15 @@ class AccountController extends Controller
                     [$firstname, $lastname] = str($request->name)->explode(' ')->pad(2, '');
                     $user->firstname = $firstname;
                     $user->lastname = $lastname;
-                } else if ($_field === 'email') {
+                } elseif ($_field === 'email') {
                     $user->email = $request->email;
-                    if (Providers::config('verify_email', false)) {
+                    if (dbconfig('verify_email', false)) {
                         $user->email_verified_at = null;
                         $user->sendEmailVerificationNotification();
                     }
                 } elseif ($_field === 'phone') {
                     $user->phone = $request->phone;
-                    if (Providers::config('verify_phone', false)) {
+                    if (dbconfig('verify_phone', false)) {
                         $user->phone_verified_at = null;
                         $user->sendPhoneVerificationNotification();
                     }
@@ -213,7 +213,7 @@ class AccountController extends Controller
         }
 
         $fields = collect($request->keys())->filter(
-            fn($k) => ! in_array($k, [
+            fn ($k) => ! in_array($k, [
                 'otp',
                 '_method',
                 'password',

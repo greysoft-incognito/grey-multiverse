@@ -243,7 +243,7 @@
                                                                                         style="font-family:Lato,'Helvetica Neue ',Helvetica,Arial,sans-serif;font-size:18px;font-weight:400;line-height:24px;text-align:center;color:#434245;">
                                                                                         You are recieving this message
                                                                                         because you are registered on
-                                                                                        {{ Providers::config('app_name') }}.
+                                                                                        {{ dbconfig('app_name') }}.
                                                                                     </div>
                                                                                 </td>
                                                                             </tr>
@@ -253,7 +253,7 @@
                                                                                     <div
                                                                                         style="font-family:Lato,'Helvetica Neue ',Helvetica,Arial,sans-serif;font-size:15px;font-weight:400;line-height:20px;text-align:center;color:#bfbfbf;">
                                                                                         &copy;{{ now()->format('Y') }}
-                                                                                        {{ Providers::config('app_name') }}.,
+                                                                                        {{ dbconfig('app_name') }}.,
                                                                                         All Rights Reserved.
                                                                                     </div>
                                                                                 </td>

@@ -29,13 +29,16 @@ class Processor extends Command
     public function handle()
     {
         $this->info('Running automated processes...');
-        Transaction::where('status', 'pending')
-            ->where('created_at', '<=', now()->subHours(24)->toDateTimeString())
-            ->get()->each(function ($transaction) {
-                $transaction->update([
-                    'status' => 'failed',
-                ]);
-            });
+
+        $transactions = Transaction::where('status', 'pending')
+            ->where('created_at', '<=', now()->subHours(2))
+            ->cursor();
+
+        foreach ($transactions as $transaction) {
+            $transaction->update([
+                'status' => 'failed',
+            ]);
+        }
 
         $this->info('Automated processes completed successfully!');
 

@@ -27,7 +27,7 @@ class AccountVerified extends Notification
      */
     public function via(object $notifiable): array
     {
-        return [...Providers::config('prefered_notification_channels', ['mail', 'sms']), 'database'];
+        return [...dbconfig('prefered_notification_channels', ['mail', 'sms']), 'database'];
     }
 
     /**
@@ -42,7 +42,7 @@ class AccountVerified extends Notification
                 'type' => $this->type,
                 'label' => 'email address',
                 'app_url' => config('app.frontend_url', config('app.url')),
-                'app_name' => Providers::config('app_name'),
+                'app_name' => dbconfig('app_name'),
             ]
         );
 
@@ -68,7 +68,7 @@ class AccountVerified extends Notification
                 'type' => $this->type,
                 'label' => 'phone number',
                 'app_url' => config('app.frontend_url', config('app.url')),
-                'app_name' => Providers::config('app_name'),
+                'app_name' => dbconfig('app_name'),
             ]
         );
 
@@ -95,7 +95,7 @@ class AccountVerified extends Notification
                 'type' => $this->type,
                 'label' => 'phone number',
                 'app_url' => config('app.frontend_url', config('app.url')),
-                'app_name' => Providers::config('app_name'),
+                'app_name' => dbconfig('app_name'),
             ]
         );
 

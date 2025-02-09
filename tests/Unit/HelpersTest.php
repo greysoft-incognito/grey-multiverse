@@ -38,7 +38,7 @@ class HelpersTest extends TestCase
                 'token' => md5(time()),
                 'label' => 'email address',
                 'app_url' => config('app.frontend_url', config('app.url')),
-                'app_name' => Providers::config('app_name'),
+                'app_name' => dbconfig('app_name'),
                 'duration' => '10 seconds',
             ]
         );

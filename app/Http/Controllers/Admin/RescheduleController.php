@@ -69,7 +69,7 @@ class RescheduleController extends Controller
                 abort(Providers::response()->error([
                     'data' => [],
                     'errors' => ['time_slot' => [$th->getMessage()]],
-                    'message' => $th->getMessage()
+                    'message' => $th->getMessage(),
                 ], HttpStatus::UNPROCESSABLE_ENTITY));
             }
         }
@@ -95,7 +95,7 @@ class RescheduleController extends Controller
         Reschedule::whereIn('id', $ids)->delete();
 
         return (new AppointmentRescheduleCollection([]))->additional([
-            'message' => (count($ids) > 1 ? count($ids) . ' reschedules' : 'Reschedule') . ' deleted successfully',
+            'message' => (count($ids) > 1 ? count($ids).' reschedules' : 'Reschedule').' deleted successfully',
             'status' => 'success',
             'status_code' => HttpStatus::ACCEPTED,
         ])->response()->setStatusCode(HttpStatus::ACCEPTED->value);

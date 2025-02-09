@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\HttpStatus;
-use App\Helpers\Providers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CompanyCollection;
 use App\Http\Resources\CompanyResource;
@@ -85,7 +84,7 @@ class CompanyController extends Controller
         Company::whereIn('id', $ids)->delete();
 
         return (new CompanyCollection([]))->additional([
-            'message' => (count($ids) > 1 ? count($ids) . ' companies' : 'Company') . ' deleted successfully',
+            'message' => (count($ids) > 1 ? count($ids).' companies' : 'Company').' deleted successfully',
             'status' => 'success',
             'status_code' => HttpStatus::ACCEPTED,
         ])->response()->setStatusCode(HttpStatus::ACCEPTED->value);

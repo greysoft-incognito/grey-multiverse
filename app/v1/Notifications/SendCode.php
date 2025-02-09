@@ -2,7 +2,6 @@
 
 namespace V1\Notifications;
 
-use App\Helpers\Providers;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -34,7 +33,7 @@ class SendCode extends Notification //implements ShouldQueue
      */
     public function via($notifiable)
     {
-        $pref = Providers::config('prefered_notification_channels', ['mail', 'sms']);
+        $pref = dbconfig('prefered_notification_channels', ['mail', 'sms']);
         $channels = in_array('sms', $pref) && in_array('mail', $pref)
             ? ['mail', TwilioChannel::class]
             : (in_array('sms', $pref)

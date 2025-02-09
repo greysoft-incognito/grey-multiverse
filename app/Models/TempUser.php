@@ -78,7 +78,7 @@ class TempUser extends Model
         }
 
         $fname = str($data['name'])->explode(' ')->first(null, $data['firstname'] ?? '');
-        $lname = str($data['name'])->explode(' ')->last(fn($n) => $n !== $fname, $data['lastname'] ?? '');
+        $lname = str($data['name'])->explode(' ')->last(fn ($n) => $n !== $fname, $data['lastname'] ?? '');
 
         /** @var \App\Models\TempUser $user */
         return static::updateOrCreate(
@@ -118,7 +118,7 @@ class TempUser extends Model
     protected function fullname(): Attribute
     {
         return Attribute::make(
-            get: fn() => collect([$this->firstname, $this->lastname])->join(' '),
+            get: fn () => collect([$this->firstname, $this->lastname])->join(' '),
         );
     }
 

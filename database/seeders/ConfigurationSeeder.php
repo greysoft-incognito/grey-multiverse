@@ -15,9 +15,9 @@ class ConfigurationSeeder extends Seeder
      */
     public function run()
     {
-        Cache::forget('configuration::build');
-        Configuration::truncate();
-        Configuration::insert([
+        Cache::forget('laravel-dbconfig.configurations::build');
+
+        Configuration::upsert([
             [
                 'key' => 'app_logo',
                 'title' => 'App Logo',
@@ -326,6 +326,20 @@ class ConfigurationSeeder extends Seeder
                 'group' => 'misc',
                 'choices' => json_encode([]),
             ],
-        ]);
+            [
+                'key' => 'notifiable_emails',
+                'title' => 'Notifiable Emails',
+                'value' => json_encode([]),
+                'type' => 'array',
+                'count' => 100,
+                'max' => null,
+                'col' => 6,
+                'autogrow' => true,
+                'hint' => 'Email addresses that will recieve important server notification updates.',
+                'secret' => false,
+                'group' => 'misc',
+                'choices' => json_encode([]),
+            ],
+        ], ['key'], ['title', 'value', 'hint', 'group', 'max', 'col', 'autogrow', 'secret', 'choices']);
     }
 }

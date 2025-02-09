@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Forms;
 
-use App\Models\Form;
-use App\Models\GenericFormData;
-use Illuminate\Http\Request;
+use App\Enums\HttpStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SaveFormdataRequest;
 use App\Http\Resources\Forms\FormDataCollection;
 use App\Http\Resources\Forms\FormDataResource;
-use V1\Notifications\FormSubmitedSuccessfully;
-use App\Enums\HttpStatus;
-use App\Http\Requests\SaveFormdataRequest;
+use App\Models\Form;
+use App\Models\GenericFormData;
 use App\Models\User;
+use Illuminate\Http\Request;
+use V1\Notifications\FormSubmitedSuccessfully;
 
 class FormDataController extends Controller
 {
@@ -64,7 +64,7 @@ class FormDataController extends Controller
         }
 
         $formdata = $form->data()->createMany($data);
-        $formdata->each(fn(GenericFormData $data) => $data->notify(new FormSubmitedSuccessfully()));
+        $formdata->each(fn (GenericFormData $data) => $data->notify(new FormSubmitedSuccessfully()));
 
         $resource = $request->getMult() === '*.'
             ? new FormDataCollection($formdata)
@@ -86,7 +86,6 @@ class FormDataController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  GenericFormData $data
      * @return \Illuminate\Http\Response
      */
     public function show(Form $form, GenericFormData $data)

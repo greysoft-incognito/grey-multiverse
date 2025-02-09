@@ -118,7 +118,7 @@ return [
         'reschedule.list',
         'reschedule.update',
         'reschedule.delete',
-        'reschedule.manage'
+        'reschedule.manage',
     ],
     /*
     |--------------------------------------------------------------------------
@@ -200,7 +200,7 @@ return [
 
             'reschedule.update',
             'reschedule.delete',
-            'reschedule.manage'
+            'reschedule.manage',
         ],
     ],
     /*

@@ -28,7 +28,7 @@ class FormDataResource extends JsonResource
             $data[$fname_field->name ?? '--'] ?? '',
             $data[$lname_field->name ?? '--'] ?? '',
             ! $fname_field && ! $lname_field ? $data[$fullname_field->name ?? $email_field->name ?? '--'] : '',
-        ])->filter(fn($name) => $name !== '')->implode(' ');
+        ])->filter(fn ($name) => $name !== '')->implode(' ');
 
         return collect([
             'id' => $this->id,

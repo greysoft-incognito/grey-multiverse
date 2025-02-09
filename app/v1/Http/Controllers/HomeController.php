@@ -2,7 +2,6 @@
 
 namespace V1\Http\Controllers;
 
-use App\Helpers\Providers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use V1\Services\HttpStatus;
@@ -26,7 +25,7 @@ class HomeController extends Controller
             'message' => 'OK',
             'status' => 'success',
             'status_code' => HttpStatus::OK,
-            'settings' => collect(Providers::config())
+            'settings' => collect(dbconfig())
                 ->except(['permissions', 'messages', 'system'])
                 ->filter(fn ($v, $k) => stripos($k, 'secret') === false)
                 ->mergeRecursive([

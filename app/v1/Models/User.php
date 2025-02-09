@@ -122,11 +122,7 @@ class User extends Authenticatable
     {
         return Attribute::make(
             get: fn () => $this->company_name,
-            set: function ($value) {
-                return [
-                    'company_name' => $value
-                ]
-            }
+            set: fn ($value) => ['company_name' => $value]
         );
     }
 

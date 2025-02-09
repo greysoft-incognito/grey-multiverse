@@ -46,7 +46,7 @@ class ConfigurationController extends Controller
 
         $valid = $this->validate($request, $rules);
 
-        $config = Providers::config($valid);
+        $config = dbconfig($valid);
 
         return Providers::response()->success([
             'data' => Configuration::notSecret()->orderBy('id')->get()

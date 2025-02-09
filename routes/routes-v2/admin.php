@@ -11,7 +11,7 @@ use App\Http\Controllers\Admin\RescheduleController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
-$permissionMiddlewares = 'role:' . implode('|', config('permission-defs.roles', []));
+$permissionMiddlewares = 'role:'.implode('|', config('permission-defs.roles', []));
 
 Route::get('refresh', function () {
     \Artisan::call('app:sync-roles');

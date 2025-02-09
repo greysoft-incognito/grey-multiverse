@@ -3,11 +3,9 @@
 namespace App\Notifications;
 
 use App\Enums\SmsProvider;
-use App\Helpers\Providers;
 use App\Models\TempUser;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -18,7 +16,9 @@ class OtpReceived extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(public $type = 'mail') {}
+    public function __construct(public $type = 'mail')
+    {
+    }
 
     /**
      * Get the notification's delivery channels.
@@ -35,7 +35,7 @@ class OtpReceived extends Notification
      */
     public function toMail(User|TempUser $notifiable): MailMessage
     {
-        $dateAdd = $notifiable->last_attempt?->addSeconds(Providers::config('token_lifespan', 30));
+        $dateAdd = $notifiable->last_attempt?->addSeconds(dbconfig('token_lifespan', 30));
 
         return (new MailMessage())
             ->subject('One Time Password')
@@ -44,10 +44,11 @@ class OtpReceived extends Notification
                 'lines' => [
                     "Hello $notifiable->firstname,",
                     "Your OTP is <strong>{$notifiable->otp}</strong>.",
-                    "This OTP expires in {$dateAdd->longAbsoluteDiffForHumans()}"
+                    "This OTP expires in {$dateAdd->longAbsoluteDiffForHumans()}",
                 ],
             ]);
     }
+
     /**
      * Get the sms representation of the notification.
      *
@@ -55,7 +56,7 @@ class OtpReceived extends Notification
      */
     public function toSms(User|TempUser $notifiable)
     {
-        $dateAdd = $notifiable->last_attempt?->addSeconds(Providers::config('token_lifespan', 30));
+        $dateAdd = $notifiable->last_attempt?->addSeconds(dbconfig('token_lifespan', 30));
 
         $message = __('Your OTP is :0, it will expire in :1.', [
             $notifiable->otp,

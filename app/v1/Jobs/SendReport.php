@@ -2,32 +2,33 @@
 
 namespace V1\Jobs;
 
+use App\Mail\ReportGenerated;
+use App\Models\BizMatch\Appointment;
+use App\Models\BizMatch\Company;
 use App\Models\Form;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
-use V1\Mail\ReportGenerated;
 
 class SendReport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $report;
-
     /**
-     * Create a new job instance.
-     *
+     * @param  null|\Illuminate\Support\Collection<int, \Illuminate\Support\Stringable>  $data_emails
      * @return void
      */
-    public function __construct(Form $report, $batch = null, $title = null)
-    {
-        $this->report = $report;
-        $this->batch = $batch;
-        $this->title = $title;
+    public function __construct(
+        protected Form|Company|Appointment $dataset,
+        protected int $batch = 0,
+        protected ?string $title = null,
+        protected ?Collection $data_emails = null,
+    ) {
     }
 
     /**
@@ -37,12 +38,16 @@ class SendReport implements ShouldQueue
      */
     public function handle()
     {
-        $this->report->data_emails->filter(fn($e) => $e->isNotEmpty())->each(function ($email) {
+        if (! $this->data_emails || $this->data_emails->isEmpty()) {
+            return false;
+        }
+
+        $this->data_emails->unique()->filter(fn ($e) => $e->isNotEmpty())->each(function ($email) {
             RateLimiter::attempt(
-                'send-report:' . $email . $this->batch,
+                'send-report:'.$email.$this->batch,
                 5,
                 function () use ($email) {
-                    Mail::to($email->toString())->send(new ReportGenerated($this->report, $this->batch, $this->title));
+                    Mail::to($email->toString())->send(new ReportGenerated($this->dataset, $this->batch, $this->title));
                 },
                 30
             );

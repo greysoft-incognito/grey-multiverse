@@ -1,8 +1,10 @@
 <?php
 
-namespace V1\Mail;
+namespace App\Mail;
 
 use App\Helpers\Providers;
+use App\Models\BizMatch\Appointment;
+use App\Models\BizMatch\Company;
 use App\Models\Form;
 use Carbon\CarbonImmutable;
 use Illuminate\Bus\Queueable;
@@ -23,7 +25,7 @@ class ReportGenerated extends Mailable
      * @return void
      */
     public function __construct(
-        public Form $form,
+        public Form|Company|Appointment $form,
         public $batch = null,
         public $title = null
     ) {

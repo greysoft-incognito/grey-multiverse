@@ -81,7 +81,7 @@ class RescheduleController extends Controller
                 abort(Providers::response()->error([
                     'data' => [],
                     'errors' => ['time_slot' => [$th->getMessage()]],
-                    'message' => $th->getMessage()
+                    'message' => $th->getMessage(),
                 ], HttpStatus::UNPROCESSABLE_ENTITY));
             }
         }

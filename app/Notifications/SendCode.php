@@ -39,7 +39,7 @@ class SendCode extends Notification implements ShouldQueue
             : (
                 str($this->type)->is('verify')
                 ? ['mail']
-                : Providers::config('prefered_notification_channels', ['mail', 'sms'])
+        : dbconfig('prefered_notification_channels', ['mail', 'sms'])
             );
 
         return collect($channels)->map(fn ($ch) => $ch == 'sms' ? SmsProvider::getChannel() : $ch)->toArray();
@@ -59,7 +59,7 @@ class SendCode extends Notification implements ShouldQueue
         /** @var \Carbon\Carbon */
         $datetime = $notifiable->last_attempt;
 
-        $dateAdd = $datetime?->addSeconds(Providers::config('token_lifespan', 30));
+        $dateAdd = $datetime?->addSeconds(dbconfig('token_lifespan', 30));
 
         $message = Providers::messageParser(
             "send_code::$this->type",
@@ -70,7 +70,7 @@ class SendCode extends Notification implements ShouldQueue
                 'token' => $this->token,
                 'label' => 'email address',
                 'app_url' => config('app.frontend_url', config('app.url')),
-                'app_name' => Providers::config('app_name'),
+                'app_name' => dbconfig('app_name'),
                 'duration' => $dateAdd->longAbsoluteDiffForHumans(),
             ]
         );
@@ -96,17 +96,17 @@ class SendCode extends Notification implements ShouldQueue
 
         /** @var \Carbon\Carbon */
         $datetime = $n->last_attempt;
-        $dateAdd = $datetime?->addSeconds(Providers::config('token_lifespan', 30));
+        $dateAdd = $datetime?->addSeconds(dbconfig('token_lifespan', 30));
 
         $message = [
             'reset' => __('Use this code :0 to reset your :1 password, It expires in :2.', [
                 $this->code,
-                Providers::config('app_name'),
+                dbconfig('app_name'),
                 $dateAdd->longAbsoluteDiffForHumans(),
             ]),
             'verify-phone' => __('use this code :0 to verify your :1 phone number, It expires in :2.', [
                 $this->code,
-                Providers::config('app_name'),
+                dbconfig('app_name'),
                 $dateAdd->longAbsoluteDiffForHumans(),
             ]),
         ];

@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Admin\Forms;
 
+use App\Enums\HttpStatus;
+use App\Helpers\Providers;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\Forms\FormFieldCollection;
+use App\Http\Resources\Forms\FormFieldResource;
 use App\Models\Form;
 use App\Models\GenericFormField;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\Forms\FormFieldCollection;
-use App\Http\Resources\Forms\FormFieldResource;
-use App\Enums\HttpStatus;
-use App\Helpers\Providers;
 
 class FormFieldController extends Controller
 {
@@ -200,14 +200,14 @@ class FormFieldController extends Controller
             return $field;
         });
 
-        $count_id = $fields->filter(fn($f) => $f['updated'])->count();
-        $count_no_id = $fields->filter(fn($f) => ! $f['updated'])->count();
+        $count_id = $fields->filter(fn ($f) => $f['updated'])->count();
+        $count_no_id = $fields->filter(fn ($f) => ! $f['updated'])->count();
         $msg = str('Form updated successfully')
-            ->when($count_id, fn($str) => $str->append(', :0 field(s) updated'))
-            ->when($count_no_id, fn($str) => $str->append(', :1 new field(s) created'));
+            ->when($count_id, fn ($str) => $str->append(', :0 field(s) updated'))
+            ->when($count_no_id, fn ($str) => $str->append(', :1 new field(s) created'));
 
         return (new FormFieldCollection($fields))->additional([
-            'message' => __($msg->toString() . '.', [$count_id, $count_no_id]),
+            'message' => __($msg->toString().'.', [$count_id, $count_no_id]),
             'status' => 'success',
             'statusCode' => HttpStatus::ACCEPTED,
         ])->response()->setStatusCode(HttpStatus::ACCEPTED->value);
@@ -287,7 +287,7 @@ class FormFieldController extends Controller
                 }
 
                 return false;
-            })->filter(fn($i) => $i !== false)->count();
+            })->filter(fn ($i) => $i !== false)->count();
 
             return Providers::response()->success([
                 'data' => [],

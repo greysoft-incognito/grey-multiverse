@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\AppointmentCollection;
 use App\Http\Resources\AppointmentResource;
 use App\Models\BizMatch\Appointment;
-use App\Models\BizMatch\Company;
 use App\Models\BizMatch\Reschedule;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -71,7 +70,7 @@ class AppointmentController extends Controller
                 abort(Providers::response()->error([
                     'data' => [],
                     'errors' => ['time_slot' => [$th->getMessage()]],
-                    'message' => $th->getMessage()
+                    'message' => $th->getMessage(),
                 ], HttpStatus::UNPROCESSABLE_ENTITY));
             }
         }
@@ -121,7 +120,7 @@ class AppointmentController extends Controller
         Appointment::whereIn('id', $ids)->delete();
 
         return (new AppointmentCollection([]))->additional([
-            'message' => (count($ids) > 1 ? count($ids) . ' appointments' : 'Appointment') . ' deleted successfully',
+            'message' => (count($ids) > 1 ? count($ids).' appointments' : 'Appointment').' deleted successfully',
             'status' => 'success',
             'status_code' => HttpStatus::ACCEPTED,
         ])->response()->setStatusCode(HttpStatus::ACCEPTED->value);

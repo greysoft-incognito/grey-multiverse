@@ -3,7 +3,6 @@
 namespace App\Helpers;
 
 use App\Enums\HttpStatus;
-use App\Models\Configuration;
 use App\Models\PasswordCodeResets;
 use App\Services\MessageParser;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -15,12 +14,12 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\AbstractPaginator;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Response;
+use ToneflixCode\DbConfig\Helpers\Configure;
 
 class Providers
 {
@@ -36,18 +35,8 @@ class Providers
         string|array $key = null,
         mixed $default = null,
         bool $loadSecret = false
-    ): Collection|string|int|float|array|null {
-        $config = Configuration::build($loadSecret);
-
-        if (is_array($key)) {
-            return Configuration::setConfig($key);
-        }
-
-        if (is_null($key)) {
-            return $config;
-        }
-
-        return Arr::get($config, $key, $default) ?? $default;
+    ): Collection|string|int|float|array|bool|null {
+        return Configure::config($key, $default, $loadSecret);
     }
 
     /**
@@ -196,7 +185,7 @@ class Providers
 
             $user = $model->firstWhere(['email' => $request->email]);
 
-            if (!$user) {
+            if (! $user) {
                 return Limit::none();
             }
 
@@ -205,10 +194,9 @@ class Providers
 
             return (! $user->last_attempt || $dateAdd->isPast())
                 ? Limit::none()
-                : response()->info([
-                    'message' => __("We already sent you an OTP, you can try again :0.", [
-                        $dateAdd->diffForHumans(),
-                    ]),
+                : response()->info(['message' => __('We already sent you an OTP, you can try again :0.', [
+                    $dateAdd->diffForHumans(),
+                ]),
                     'time_left' => $dateAdd->shortAbsoluteDiffForHumans(),
                     'try_at' => $dateAdd->toDateTimeLocalString(),
                 ], HttpStatus::TOO_MANY_REQUESTS);
@@ -221,12 +209,12 @@ class Providers
     public static function paginator(LengthAwarePaginator $data): array
     {
         if ($data instanceof LengthAwarePaginator) {
-            $links = $data->linkCollection()->filter(fn($link) => is_numeric($link['label']));
+            $links = $data->linkCollection()->filter(fn ($link) => is_numeric($link['label']));
 
             return [
                 'data' => count(static::$responseKeys)
                     ? collect($data->items())
-                    ->map(fn($e) => collect($e)->filter(fn($k, $v) => in_array($v, static::$responseKeys)))
+                        ->map(fn ($e) => collect($e)->filter(fn ($k, $v) => in_array($v, static::$responseKeys)))
                     : $data->items(),
                 'meta' => [
                     'current_page' => $data->currentPage(),
@@ -275,7 +263,7 @@ class Providers
      */
     public static function money($number, $abbrev = false)
     {
-        return static::config('currency_symbol') . (
+        return static::config('currency_symbol').(
             $abbrev === false
             ? number_format($number, 2)
             : static::numberAbbr($number)
@@ -319,11 +307,11 @@ class Providers
         // Remove unecessary zeroes after decimal. "1.0" -> "1"; "1.00" -> "1"
         // Intentionally does not affect partials, eg "1.50" -> "1.50"
         if ($precision > 0) {
-            $dotzero = '.' . str_repeat('0', $precision);
+            $dotzero = '.'.str_repeat('0', $precision);
             $n_format = str_replace($dotzero, '', $n_format);
         }
 
-        return $n_format . $suffix;
+        return $n_format.$suffix;
     }
 
     /**

@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Admin\Forms;
 
-use App\Models\Form;
-use App\Models\FormInfo;
-use Illuminate\Http\Request;
+use App\Enums\HttpStatus;
+use App\Helpers\Providers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Forms\FormInfoCollection;
 use App\Http\Resources\Forms\FormInfoResource;
-use App\Enums\HttpStatus;
-use App\Helpers\Providers;
+use App\Models\Form;
+use App\Models\FormInfo;
+use Illuminate\Http\Request;
 
 class FormInfoController extends Controller
 {
@@ -156,7 +156,7 @@ class FormInfoController extends Controller
                 }
 
                 return false;
-            })->filter(fn($i) => $i !== false)->count();
+            })->filter(fn ($i) => $i !== false)->count();
 
             return Providers::response()->info([
                 'data' => [],

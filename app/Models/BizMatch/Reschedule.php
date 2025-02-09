@@ -42,7 +42,7 @@ class Reschedule extends Model
     public static function booted(): void
     {
         parent::booted();
-        static::saved(fn(self $model) => $model->notify());
+        static::saved(fn (self $model) => $model->notify());
     }
 
     public function appointment()
@@ -53,14 +53,14 @@ class Reschedule extends Model
     public function requestor(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->appointment->requestor,
+            get: fn () => $this->appointment->requestor,
         );
     }
 
     public function invitee(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->appointment->invitee,
+            get: fn () => $this->appointment->invitee,
         );
     }
 
@@ -69,18 +69,18 @@ class Reschedule extends Model
         $destinations = collect([
             'admin' => User::where(function ($query) {
                 collect(config('permission-defs.admin_roles'))
-                ->each(fn($role) => $query->orWhereHas('roles', fn($q) => $q->where('name', $role)));
+                    ->each(fn ($role) => $query->orWhereHas('roles', fn ($q) => $q->where('name', $role)));
             })->get(),
             'sender' => collect([$this->invitee]),
             'recipient' => collect([$this->requestor]),
         ]);
 
         $destinations->each(function ($recipients, $type) {
-            $recipients->each(fn(User $recipient) => $recipient->notify(new AppointmentRescheduled($this, $type)));
+            $recipients->each(fn (User $recipient) => $recipient->notify(new AppointmentRescheduled($this, $type)));
         });
     }
 
-    public function scopeForUser($query, $userId, ?bool $sent = null): void
+    public function scopeForUser($query, $userId, bool $sent = null): void
     {
         $query->whereHas('appointment', function ($query) use ($userId, $sent) {
             if ($sent === false) {

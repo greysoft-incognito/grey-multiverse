@@ -2,6 +2,8 @@
 
 namespace V1\Services;
 
+use App\Models\BizMatch\Appointment;
+use App\Models\BizMatch\Company;
 use App\Models\Form;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -14,11 +16,11 @@ class GenericDataExport implements ShouldAutoSize, WithMultipleSheets, WithPrope
 {
     use Exportable;
 
-    public function __construct(array $data, Form $form = null, $title = null)
-    {
-        $this->data = $data;
-        $this->form = $form;
-        $this->title = $title;
+    public function __construct(
+        protected array $data,
+        protected Form|Company|Appointment $dataset,
+        protected $title = null
+    ) {
     }
 
     public function sheets(): array
@@ -41,14 +43,17 @@ class GenericDataExport implements ShouldAutoSize, WithMultipleSheets, WithPrope
 
     public function properties(): array
     {
+        $title = $this->title ?: $this->dataset->name ?? 'GreyMultiverse';
+        $keywords = str($this->dataset->name ?? $this->dataset->slug)->append(",$title")->lower();
+
         return [
             'creator' => 'GreyMultiverese',
-            'lastModifiedBy' => $this->form->name ?? 'GreyMultiverse',
-            'title' => ($this->title ? $this->title : ($this->form->name ?? 'GreyMultiverse')).' Submited Data',
-            'description' => $this->form->title ?? $this->title ?? 'Submited Data',
-            'keywords' => 'submissions,export,spreadsheet,greysoft,greymultiverse,'.($this->form->name ?? 'good'),
+            'lastModifiedBy' => 'GreyMultiverse',
+            'title' => "{$title} Submited Data",
+            'description' => $this->dataset->title ?? $this->title ?? 'Submited Data',
+            'keywords' => "submissions,export,spreadsheet,greysoft,greymultiverse,$keywords",
             'category' => 'Submited Data',
-            'company' => $this->form->name ?? 'GreyMultiverse',
+            'company' => $this->dataset->name ?? $this->dataset->title ?? 'GreyMultiverse',
         ];
     }
 }

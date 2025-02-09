@@ -5,12 +5,12 @@ namespace App\Models\BizMatch;
 use App\Models\User;
 use App\Notifications\NewAppointment;
 use App\Traits\Conversationable;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property \Illuminate\Database\Eloquent\Collection<Reschedule> $reschedules
@@ -58,7 +58,7 @@ class Appointment extends Model
     public static function booted(): void
     {
         parent::booted();
-        static::saved(fn(self $model) => $model->notify());
+        static::saved(fn (self $model) => $model->notify());
     }
 
     public function requestor(): BelongsTo
@@ -79,7 +79,7 @@ class Appointment extends Model
     public function hasPendingReschedule(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->reschedules()->whereStatus('pending')->exists()
+            get: fn () => $this->reschedules()->whereStatus('pending')->exists()
         );
     }
 
@@ -88,18 +88,18 @@ class Appointment extends Model
         $destinations = collect([
             'admin' => User::where(function ($query) {
                 collect(config('permission-defs.admin_roles'))
-                    ->each(fn($role) => $query->orWhereHas('roles', fn($q) => $q->where('name', $role)));
+                    ->each(fn ($role) => $query->orWhereHas('roles', fn ($q) => $q->where('name', $role)));
             })->get(),
             'sender' => collect([$this->requestor]),
             'recipient' => collect([$this->invitee]),
         ]);
 
         $destinations->each(function ($recipients, $type) {
-            $recipients->each(fn(User $recipient) => $recipient->notify(new NewAppointment($this, $type)));
+            $recipients->each(fn (User $recipient) => $recipient->notify(new NewAppointment($this, $type)));
         });
     }
 
-    public function scopeForUser($query, $userId, ?bool $sent = null): void
+    public function scopeForUser($query, $userId, bool $sent = null): void
     {
         if ($sent === true) {
             $query->where(function ($query) use ($userId) {
@@ -142,10 +142,11 @@ class Appointment extends Model
                 ->where('time_slot', $this->time_slot)
                 ->first();
 
-            if (!$existingAppointment) {
+            if (! $existingAppointment) {
                 // Set `booked_for` to the next available time slot if found
                 $this->booked_for = $currentTime;
                 $this->table_number = $this->assignTableNumber($currentTime, $this->date);
+
                 return $this;
             }
 
@@ -173,7 +174,7 @@ class Appointment extends Model
 
         // Find the first available table number
         foreach ($allTables as $table) {
-            if (!in_array($table, $existingTables)) {
+            if (! in_array($table, $existingTables)) {
                 return $table;
             }
         }

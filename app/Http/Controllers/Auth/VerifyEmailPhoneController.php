@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\Enums\HttpStatus;
 use App\Events\Verified;
 use App\Helpers\Providers as PV;
-use App\Helpers\Providers;
 use App\Helpers\Url;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
@@ -171,7 +170,7 @@ class VerifyEmailPhoneController extends Controller
             'temp' => ['nullable', 'boolean'],
             $type => ['required', 'string', 'max:255', $request->otp ? "exists:$table,$type" : 'bail'],
         ], [
-            'email' => 'You have entered an invalid email address'
+            'email' => 'You have entered an invalid email address',
         ], [
             'otp' => 'OTP',
             'email' => 'Email Address',
@@ -181,7 +180,7 @@ class VerifyEmailPhoneController extends Controller
         /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\User|\App\Models\TempUser> */
         $model = str($table)->singular()->studly()->prepend('\\App\\Models\\')->toString()::query();
 
-        if (!$request->otp) {
+        if (! $request->otp) {
             $user = $request->temp
                 ? $model->firstOrCreate([$type => $request->{$type}])
                 : $model->where($type, $request->{$type})->firstOrFail();
@@ -194,13 +193,13 @@ class VerifyEmailPhoneController extends Controller
                 'message' => "An OTP has been sent to {$masked}.",
             ], HttpStatus::CREATED);
         } else {
-            $ls = Providers::config('token_lifespan', 30);
+            $ls = dbconfig('token_lifespan', 30);
             $user = $model->firstWhere([$type => $request->{$type}, 'otp' => $request->otp]);
 
-            abort_if(!$user || now()->diffInSeconds($user->last_attempt) >= $ls, PV::response()->error([
+            abort_if(! $user || now()->diffInSeconds($user->last_attempt) >= $ls, PV::response()->error([
                 'data' => [],
-                'errors' => ['otp' => ["This OTP is no longer valid."]],
-                'message' => "This OTP is no longer valid.",
+                'errors' => ['otp' => ['This OTP is no longer valid.']],
+                'message' => 'This OTP is no longer valid.',
                 'silent' => true,
             ], HttpStatus::TIMEOUT));
 
@@ -212,7 +211,7 @@ class VerifyEmailPhoneController extends Controller
 
             return PV::response()->success([
                 'data' => [],
-                'message' => "The OTP is valid.",
+                'message' => 'The OTP is valid.',
             ], HttpStatus::ACCEPTED);
         }
     }

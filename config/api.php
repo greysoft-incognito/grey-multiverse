@@ -14,5 +14,5 @@ return [
         '2024-11-15',
         '2024-11-16',
     ],
-    'tables' => range(1, 100) // Assuming there are 100 tables available
+    'tables' => range(1, 100), // Assuming there are 100 tables available
 ];

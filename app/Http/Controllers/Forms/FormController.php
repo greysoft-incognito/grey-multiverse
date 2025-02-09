@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Forms;
 
 use App\Enums\HttpStatus;
-use App\Models\Form;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Forms\FormCollection;
 use App\Http\Resources\Forms\FormResource;
+use App\Models\Form;
+use Illuminate\Http\Request;
 
 class FormController extends Controller
 {
@@ -30,7 +30,6 @@ class FormController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  Form  $form
      * @return \Illuminate\Http\Response
      */
     public function show(Form $form)

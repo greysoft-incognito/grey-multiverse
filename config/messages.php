@@ -123,7 +123,7 @@ return [
         ],
     ],
     'send_report' => [
-        'subject' => ':form_name, Report is ready.',
+        'subject' => ':form_name Report is Ready.',
         'lines' => [
             'Your :period report report for :form_name is ready!',
             [
@@ -131,8 +131,8 @@ return [
                 'title' => 'Download Report',
             ],
             'For security and privacy concerns this link expires in :ttl and is only usable once',
-            'If you have any concerns please mail <a href="mailto:hi@greysoft.ng">hi@greysoft.ng</a> for support.'
-        ]
+            'If you have any concerns please mail <a href="mailto:hi@greysoft.ng">hi@greysoft.ng</a> for support.',
+        ],
     ],
 
     /*

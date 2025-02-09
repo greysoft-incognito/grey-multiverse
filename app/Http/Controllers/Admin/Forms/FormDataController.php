@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Admin\Forms;
 
-use App\Models\Form;
-use App\Models\GenericFormData;
-use Illuminate\Http\Request;
+use App\Enums\HttpStatus;
+use App\Helpers\Providers;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Forms\FormDataController as GuestFormDataController;
 use App\Http\Resources\Forms\FormDataCollection;
 use App\Http\Resources\Forms\FormDataResource;
-use App\Enums\HttpStatus;
-use App\Helpers\Providers;
+use App\Models\Form;
+use App\Models\GenericFormData;
+use Illuminate\Http\Request;
 
 class FormDataController extends Controller
 {
@@ -177,7 +177,7 @@ class FormDataController extends Controller
                         $query->whereJsonDoesntContain("data->{$stat[0]}", [$stat[1]]);
                     }
 
-                    $others = $request_data->filter(fn($rd) => $rd !== "{$stat[0]}:{$stat[1]}")->toArray();
+                    $others = $request_data->filter(fn ($rd) => $rd !== "{$stat[0]}:{$stat[1]}")->toArray();
                     foreach ($others as $other) {
                         $query->whereJsonDoesntContain("data->{$stat[0]}", str_ireplace("{$stat[0]}:", '', $other));
                     }

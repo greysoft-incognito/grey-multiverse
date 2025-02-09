@@ -2,7 +2,6 @@
 
 namespace App\Enums;
 
-use App\Helpers\Providers;
 use NotificationChannels\Twilio\TwilioChannel;
 use NotificationChannels\Twilio\TwilioSmsMessage;
 use ToneflixCode\KudiSmsNotification\KudiSmsChannel;
@@ -21,7 +20,7 @@ enum SmsProvider: string
      */
     public static function getMessage(string $message): TwilioSmsMessage|KudiSmsMessage
     {
-        $type = Providers::config('prefered_sms_channel', 'TWILLIO');
+        $type = dbconfig('prefered_sms_channel', 'TWILLIO');
 
         if ($type === self::KUDISMS->name) {
             return (new KudiSmsMessage())->message($message);
@@ -37,7 +36,7 @@ enum SmsProvider: string
      */
     public static function getChannel(): string
     {
-        $type = Providers::config('prefered_sms_channel', 'TWILLIO');
+        $type = dbconfig('prefered_sms_channel', 'TWILLIO');
 
         if ($type === self::KUDISMS->name) {
             return self::KUDISMS->value;

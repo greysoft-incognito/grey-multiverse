@@ -2,7 +2,6 @@
 
 namespace App\Services\Payment;
 
-use App\Helpers\Providers;
 use App\Models\User;
 use Cartalyst\Stripe\Stripe;
 use Illuminate\Http\Request;
@@ -22,7 +21,7 @@ final class StripeProcessor implements PaymentInterface
     {
         // Stripe instance
         $this->request = $request;
-        $this->stripe = Stripe::make(Providers::config('stripe_secret_key', env('STRIPE_SECRET_KEY'), true));
+        $this->stripe = Stripe::make(dbconfig('stripe_secret_key', env('STRIPE_SECRET_KEY'), true));
         $this->user = $user;
     }
 
@@ -44,7 +43,7 @@ final class StripeProcessor implements PaymentInterface
         // Parameters
         $params = [
             'amount' => $amount,
-            'currency' => Providers::config('app_currency', 'USD'),
+            'currency' => dbconfig('app_currency', 'USD'),
             'payment_method' => $this->request->pm_id,
         ];
 

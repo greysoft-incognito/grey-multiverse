@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('configurations', function (Blueprint $table) {
+        Schema::create(config('laravel-dbconfig.tables.configurations', 'configurations'), function (Blueprint $table) {
             $table->id();
             $table->string('key')->unique()->index();
             $table->string('title')->nullable();
@@ -38,6 +38,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('configurations');
+        Schema::dropIfExists(config('laravel-dbconfig.tables.configurations', 'configurations'));
     }
 };

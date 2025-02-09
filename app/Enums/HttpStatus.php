@@ -37,7 +37,7 @@ enum HttpStatus: int
             HttpStatus::FORBIDDEN => 'We are sorry, but you do not have permission to perform this action.',
             HttpStatus::NOT_FOUND => 'The requested resource was not found.',
             HttpStatus::NO_CONTENT => 'No Content.',
-            HttpStatus::TIMEOUT    => 'Timeout.',
+            HttpStatus::TIMEOUT => 'Timeout.',
             HttpStatus::BAD_REQUEST => 'Something went wrong.',
             HttpStatus::UNAUTHORIZED => 'Unauthenticated: Please login to continue.',
             HttpStatus::SERVER_ERROR => 'Whoops! Something went wrong on our end. Please try again later.',

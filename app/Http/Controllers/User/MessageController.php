@@ -117,17 +117,15 @@ class MessageController extends Controller
     /**
      * Get the active conversation
      *
-     * @param string $conversation_type
-     * @param string $conversation_id
      * @return \App\Models\BizMatch\Appointment|\App\Models\BizMatch\Conversation
      */
     protected function conversation(string $conversation_type, string $conversation_id)
     {
-        $className = str(str($conversation_type)->explode('-')->map(fn($v) => str($v)->singular()->studly())->join('\\'))
+        $className = str(str($conversation_type)->explode('-')->map(fn ($v) => str($v)->singular()->studly())->join('\\'))
             ->prepend('\\App\\Models\\')
             ->toString();
 
-        abort_if(!class_exists($className), 404, 'Conversation not found.');
+        abort_if(! class_exists($className), 404, 'Conversation not found.');
 
         /** @var \Illuminate\Database\Eloquent\Builder $baseQuery */
         $baseQuery = $className::query();

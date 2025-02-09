@@ -3,7 +3,6 @@
 namespace App\Services\Payment;
 
 use App\Enums\HttpStatus;
-use App\Helpers\Providers;
 use App\Models\TempUser;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -48,13 +47,13 @@ class PaystackProcessor implements PaymentInterface
         $due = $amount;
         $msg = 'Transaction Failed';
 
-        $reference = Providers::config('reference_prefix', 'TRX-').Random::string(20, ! 1, ! 0, ! 0, ! 1);
+        $reference = dbconfig('reference_prefix', 'TRX-').Random::string(20, ! 1, ! 0, ! 0, ! 1);
 
         $response = new \stdClass();
 
         // Initialize paystack transaction
         try {
-            $paystack = new Paystack(Providers::config('paystack_secret_key', env('PAYSTACK_SECRET_KEY'), true));
+            $paystack = new Paystack(dbconfig('paystack_secret_key', env('PAYSTACK_SECRET_KEY'), true));
 
             // Dont initialize paystack for inline transaction
             if ($this->request->inline) {
@@ -83,7 +82,7 @@ class PaystackProcessor implements PaymentInterface
                     'metadata' => $builder->build(),
                     'callback_url' => $this->request->get(
                         'redirect',
-                        Providers::config('payment_verify_url')
+                        dbconfig('payment_verify_url')
                     ),
                 ];
 
@@ -171,7 +170,7 @@ class PaystackProcessor implements PaymentInterface
             }
         } else {
             try {
-                $paystack = new Paystack(Providers::config('paystack_secret_key', env('PAYSTACK_SECRET_KEY'), true));
+                $paystack = new Paystack(dbconfig('paystack_secret_key', env('PAYSTACK_SECRET_KEY'), true));
                 $tranx = $paystack->transaction->verify([
                     'reference' => $this->request->reference,   // unique to transactions
                 ]);
@@ -244,7 +243,7 @@ class PaystackProcessor implements PaymentInterface
             $tranx = $response;
         } else {
             try {
-                $paystack = new Paystack(Providers::config('paystack_secret_key', env('PAYSTACK_SECRET_KEY'), true));
+                $paystack = new Paystack(dbconfig('paystack_secret_key', env('PAYSTACK_SECRET_KEY'), true));
                 $paystack->useRoutes(['deauth' => PaystackDeauth::class]);
                 $tranx = $paystack->deauth->deactivateAuthorization([
                     'authorization_code' => $authorization_code,
@@ -296,7 +295,7 @@ class PaystackProcessor implements PaymentInterface
         $msg = 'Transfer Failed';
 
         $recipient = null;
-        $paystack = new Paystack(Providers::config('paystack_secret_key', env('PAYSTACK_SECRET_KEY'), true));
+        $paystack = new Paystack(dbconfig('paystack_secret_key', env('PAYSTACK_SECRET_KEY'), true));
 
         try {
             $recipient_code = $user->data['bank']['recipient_code'] ?? null;
@@ -318,7 +317,7 @@ class PaystackProcessor implements PaymentInterface
                 $user->save();
             }
 
-            $reference = Providers::config('reference_prefix', 'TRX-').Random::string(20, ! 1, ! 0, ! 0, ! 1);
+            $reference = dbconfig('reference_prefix', 'TRX-').Random::string(20, ! 1, ! 0, ! 0, ! 1);
 
             $tranx = $paystack->transfer->initiate([
                 'source' => 'balance',

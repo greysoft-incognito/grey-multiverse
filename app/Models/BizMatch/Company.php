@@ -16,9 +16,10 @@ use ToneflixCode\LaravelFileable\Traits\Fileable;
  */
 class Company extends Model
 {
+    use Fileable;
+
     /** @use HasFactory<\Database\Factories\BizMatch\CompanyFactory> */
     use HasFactory;
-    use Fileable;
     use ModelCanExtend;
 
     /**

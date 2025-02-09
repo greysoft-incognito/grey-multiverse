@@ -16,17 +16,17 @@ class FormFieldResource extends JsonResource
     public function toArray($request)
     {
         return [
-            "id" => $this->id,
-            "formId" => $this->form_id,
-            "label" => $this->label,
-            "name" => $this->name,
-            "alias" => $this->alias,
-            "value" => $this->value,
-            "fieldId" => $this->field_id,
-            "hint" => $this->hint,
-            "customError" => $this->custom_error,
-            "compare" => $this->compare,
-            "options" => $this->when($this->alias === 'learning_paths' && (bool) $this->form?->learningPaths, function () {
+            'id' => $this->id,
+            'formId' => $this->form_id,
+            'label' => $this->label,
+            'name' => $this->name,
+            'alias' => $this->alias,
+            'value' => $this->value,
+            'fieldId' => $this->field_id,
+            'hint' => $this->hint,
+            'customError' => $this->custom_error,
+            'compare' => $this->compare,
+            'options' => $this->when($this->alias === 'learning_paths' && (bool) $this->form?->learningPaths, function () {
                 return collect($this->form->learningPaths)->map(function ($path) {
                     $path->label = $path->title;
                     $path->value = $path->id;
@@ -34,18 +34,18 @@ class FormFieldResource extends JsonResource
                     return $path;
                 });
             }, $this->options ?: []),
-            "requiredIf" => $this->required_if,
-            "restricted" => $this->restricted,
-            "required" => $this->required,
-            "priority" => $this->priority,
-            "key" => $this->key,
-            "min" => $this->min,
-            "max" => $this->max,
-            "element" => $this->element,
-            "type" => $this->type,
-            "expected_value_type" => $this->ExpectedValueType,
-            "createdAt" => $this->created_at,
-            "updatedAt" => $this->updated_at,
+            'requiredIf' => $this->required_if,
+            'restricted' => $this->restricted,
+            'required' => $this->required,
+            'priority' => $this->priority,
+            'key' => $this->key,
+            'min' => $this->min,
+            'max' => $this->max,
+            'element' => $this->element,
+            'type' => $this->type,
+            'expected_value_type' => $this->ExpectedValueType,
+            'createdAt' => $this->created_at,
+            'updatedAt' => $this->updated_at,
         ];
     }
 

@@ -27,7 +27,7 @@ class FormResource extends JsonResource
             'banner_title' => $this->banner_title,
             'banner_info' => $this->banner_info,
             'template' => $this->template,
-            'data_emails' => $this->data_emails->filter(fn($e) => $e != ''),
+            'data_emails' => $this->data_emails->filter(fn ($e) => $e != ''),
             'dont_notify' => $this->dont_notify,
             'socials' => $this->socials,
             'deadline' => $this->deadline,
