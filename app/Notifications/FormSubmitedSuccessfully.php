@@ -74,6 +74,7 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
             ->view(['email', 'email-plain'], [
                 'subject' => $message->subject,
                 'lines' => $message->lines,
+                // 'banner' => $notifiable->form->success_message,
             ]);
     }
 
