@@ -19,7 +19,7 @@ jobs:
 
       - name: Deploy and Run Updates
         run: |
-          ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} '
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} '
             cd ${{ secrets.DEPLOY_PATH }} && \
             ./deploy.sh
           '
