@@ -8,13 +8,14 @@ use Illuminate\Support\Facades\Route;
 class CheckDuplicateRoutes extends Command
 {
     protected $signature = 'routes:duplicates';
+
     protected $description = 'Find duplicate route names in Laravel';
 
     public function handle()
     {
-        $routes = collect(Route::getRoutes())->mapWithKeys(fn($route) => [
-            $route->getName() => $route->uri()
-        ])->filter(fn($_, $name) => !is_null($name));
+        $routes = collect(Route::getRoutes())->mapWithKeys(fn ($route) => [
+            $route->getName() => $route->uri(),
+        ])->filter(fn ($_, $name) => ! is_null($name));
 
         $duplicates = $routes->duplicates(null, true);
 

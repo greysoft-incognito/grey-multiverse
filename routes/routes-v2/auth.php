@@ -50,7 +50,7 @@ Route::middleware('auth:sanctum')->prefix('account')->name('account.')->group(fu
         ->name('authenticated.devices');
 
     Route::post('devices/logout', [AuthenticatedSessionController::class, 'destroyTokens'])
-    ->name('devices.logout');
+        ->name('devices.logout');
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');

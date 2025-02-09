@@ -4,15 +4,14 @@ namespace App\Http\Controllers\Forms;
 
 use App\Enums\HttpStatus;
 use App\Helpers\Providers;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\SaveFormdataRequest;
 use App\Http\Resources\Forms\FormDataCollection;
 use App\Http\Resources\Forms\FormDataResource;
 use App\Models\Form;
 use App\Models\GenericFormData;
 use App\Models\User;
-use Illuminate\Http\Request;
 use App\Notifications\FormSubmitedSuccessfully;
+use Illuminate\Http\Request;
 
 class FormDataController
 {
@@ -65,7 +64,7 @@ class FormDataController
         }
 
         $formdata = $form->data()->createMany($data);
-        $formdata->each(fn(GenericFormData $data) => $data->notify(new FormSubmitedSuccessfully()));
+        $formdata->each(fn (GenericFormData $data) => $data->notify(new FormSubmitedSuccessfully()));
 
         $resource = $request->hasMultipleEntries()
             ? new FormDataCollection($formdata)
@@ -109,7 +108,9 @@ class FormDataController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(SaveFormdataRequest $request, Form $form, $id) {}
+    public function update(SaveFormdataRequest $request, Form $form, $id)
+    {
+    }
 
     /**
      * Remove the specified resource from storage.

@@ -87,7 +87,7 @@ class GenericFormData extends Model
                     $this->data[$fname_field->name ?? '--'] ?? '',
                     $this->data[$lname_field->name ?? '--'] ?? '',
                     ! $fname_field && ! $lname_field ? ($this->data[$fullname_field->name ?? $email_field->name ?? '--'] ?? '') : '',
-                ])->filter(fn($name) => $name !== '')->implode(' ');
+                ])->filter(fn ($name) => $name !== '')->implode(' ');
 
                 return $name;
             },
@@ -122,7 +122,7 @@ class GenericFormData extends Model
                 $this->data[$fname_field->name ?? '--'] ?? '',
                 $this->data[$lname_field->name ?? '--'] ?? '',
                 ! $fname_field && ! $lname_field ? $this->data[$fullname_field->name ?? $email_field->name ?? '--'] : '',
-            ])->filter(fn($name) => $name !== '')->implode(' ');
+            ])->filter(fn ($name) => $name !== '')->implode(' ');
 
             // Return email address and name...
             if (isset($this->data[$email_field->name ?? '--'])) {

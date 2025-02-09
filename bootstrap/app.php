@@ -30,7 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->statefulApi();
-    $middleware->throttleApi();
+        $middleware->throttleApi();
 
         $middleware->validateCsrfTokens(except: [
             'api/*',
@@ -58,7 +58,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 Request::HEADER_X_FORWARDED_AWS_ELB
         );
 
-    $middleware->api(append: [
+        $middleware->api(append: [
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ]);
 

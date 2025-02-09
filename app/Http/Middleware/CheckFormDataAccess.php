@@ -19,7 +19,7 @@ class CheckFormDataAccess
         /** @var \App\Models\Form $form */
         $form = $request->route()->parameter('form');
 
-        if ($form->require_auth && !$request->user('sanctum')) {
+        if ($form->require_auth && ! $request->user('sanctum')) {
             throw new UnauthorizedHttpException('Bearer', 'Unauthenticated');
         }
 

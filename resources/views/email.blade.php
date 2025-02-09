@@ -103,7 +103,7 @@
                                                     <tbody>
                                                         <tr>
                                                             <td style="width:100px;"> <img alt="Logo" height="auto"
-                                                                    src="{{ dbconfig('app_logo') }}?v=2"
+                                                                    src="{{ $logo ?? dbconfig('app_logo') }}?v=2"
                                                                     style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;"
                                                                     width="100" /> </td>
                                                         </tr>

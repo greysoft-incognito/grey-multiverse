@@ -51,7 +51,6 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      *
-     * @param  GenericFormData  $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail(GenericFormData $notifiable)
@@ -73,8 +72,9 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
             ->subject($message->subject)
             ->view(['email', 'email-plain'], [
                 'subject' => $message->subject,
+                'banner' => $notifiable->form->files['banner'] ?? null,
                 'lines' => $message->lines,
-                // 'banner' => $notifiable->form->success_message,
+                // 'logo' => $notifiable->form->files['logo'] ?? null,
             ]);
     }
 
