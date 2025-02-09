@@ -14,7 +14,7 @@ return [
     */
 
     'upload_collection' => [
-        'path' => 'storage/',
+        'path' => 'media/default/',
         'default' => 'default.png',
     ],
 
