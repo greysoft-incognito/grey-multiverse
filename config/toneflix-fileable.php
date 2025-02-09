@@ -17,13 +17,13 @@ return [
             'path' => 'media/default/',
             'default' => 'default.png',
         ],
+        'dbconfig' => [
+            'path' => 'media/default/',
+            'default' => 'default.png',
+        ],
         'logo' => [
             'size' => [200, 200],
             'path' => 'media/logos/',
-            'default' => 'default.png',
-        ],
-        'dbconfig' => [
-            'path' => 'storage/',
             'default' => 'default.png',
         ],
         'private' => [
