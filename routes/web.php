@@ -9,12 +9,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
 
-Route::get('/', function () {
-    return [
-        'Welcome to the GreyMultiverse API v2' => AppInfo::basic(2),
-    ];
-});
-
 Route::get('/', function (Request $request) {
     return [
         'api' => config('app.name'),
