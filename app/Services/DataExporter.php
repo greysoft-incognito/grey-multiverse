@@ -83,7 +83,7 @@ class DataExporter
         protected ?Command $console = null,
         protected int $chunkSize = 1000,
     ) {
-        $this->data_emails = dbconfig('notifiable_emails', collect([]))->map(fn ($e) => str($e));
+        $this->data_emails = dbconfig('notifiable_emails', collect([]))->map(fn($e) => str($e));
     }
 
     public function export()
@@ -129,7 +129,7 @@ class DataExporter
 
                     // Extract the Data for the CSV
                     $items->each(function ($item) {
-                        $this->console?->info('Exporting item '.$item->id.' ('.$item->name_attribute.')...');
+                        $this->console?->info('Exporting item ' . $item->id . ' (' . $item->name_attribute . ')...');
                         $item = $this->parseGeneric($item)->toArray();
                         $this->pushItem($item);
                     });
@@ -138,7 +138,7 @@ class DataExporter
                     $this->items = [];
                 });
 
-                $title = $this->scanned ? $title.' (Scanned data)' : $title;
+                $title = $this->scanned ? $title . ' (Scanned data)' : $title;
                 $this->saveAndDispatch($this->sheets, $dataset, $title);
             } else {
                 // Export all other dataset
@@ -186,7 +186,7 @@ class DataExporter
     {
         return collect($item->toArray())
             ->only($this->allowed)
-            ->sortBy(fn ($_, $key) => array_search($key, $this->allowed))
+            ->sortBy(fn($_, $key) => array_search($key, $this->allowed))
             ->map(function ($value, $key) {
                 if (in_array($key, ['user_id', 'requestor_id', 'invitee_id'])) {
                     /** @var User */
@@ -199,7 +199,7 @@ class DataExporter
                 // Parse date fields
                 if (in_array($key, ['booked_for', 'created_at', 'date'])) {
                     $value = Carbon::parse($value)->isoFormat(
-                        'MMM DD, YYYY'.($key === 'booked_for' ? ': hh:mm A' : '')
+                    'MMM DD, YYYY' . ($key === 'booked_for' ? ': hh:mm A' : '')
                     );
                 }
 
@@ -236,13 +236,13 @@ class DataExporter
             } else {
                 $this->data_emails
                     ->unique()
-                    ->filter(fn ($e) => $e->isNotEmpty())
-                    ->each(fn ($email) => $this->dispatchMails($email, $dataset, $title));
+                    ->filter(fn($e) => $e->isNotEmpty())
+                    ->each(fn($email) => $this->dispatchMails($email, $dataset, $title));
             }
         }
 
-        $name = str(get_class($dataset))->afterLast('\\')->plural()->append('-')
-            ->append($dataset->id ?? $dataset->id ?? 'dataset')->slug();
+        $sid = $dataset instanceof Form ? $dataset->id : 'dataset';
+        $name = str(get_class($dataset))->afterLast('\\')->plural()->append('-')->append($sid)->slug();
 
         $status = Excel::store(
             new GenericDataExport($items, $dataset, $title),
@@ -266,7 +266,7 @@ class DataExporter
         string $title,
     ): void {
         RateLimiter::attempt(
-            'send-report:'.$email.$this->batch,
+            'send-report:' . $email . $this->batch,
             5,
             function () use ($email, $title, $dataset) {
                 Mail::to($email->toString())->send(new ReportGenerated($dataset, $this->batch, $title));
@@ -375,7 +375,7 @@ class DataExporter
 
             // Extract the Headings for the CSV
             $headings = collect($this->allowed)->map(
-                fn ($e) => str($e)
+                fn($e) => str($e)
                     ->replace('_', ' ')
                     ->title()
                     ->replace(['User Id', 'Id'], ['Representative', 'ID'])
@@ -420,7 +420,7 @@ class DataExporter
 
             // Extract the Headings for the CSV
             $headings = collect($this->allowed)->map(
-                fn ($e) => str($e)
+                fn($e) => str($e)
                     ->replace('_', ' ')
                     ->title()
                     ->replace([' Id', 'Id'], ['', 'ID'])

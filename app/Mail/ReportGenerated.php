@@ -32,7 +32,8 @@ class ReportGenerated extends Mailable
     ) {
         $timestamp = CarbonImmutable::now()->timestamp;
 
-        $encoded = "/$timestamp/{$form->id}";
+        $sid = $form instanceof Form ? $form->id : 'dataset';
+        $encoded = "/$timestamp/{$sid}";
         $params = base64url_encode(str(get_class($form))->replace('\\', '.')->append($encoded));
 
         $this->message = Providers::messageParser(
