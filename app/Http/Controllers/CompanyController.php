@@ -35,12 +35,28 @@ class CompanyController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user();
 
+        $valid = $this->validate($request, [
+            'image' => 'nullable|image|mimes:png,jpg,jpeg',
+            'name' => 'required|string',
+            'description' => 'required|string',
+            'industry_category' => 'required|string',
+            'country' => 'required|string',
+            'location' => 'required|string',
+            'services' => 'nullable|array',
+            'services.*' => 'required|string',
+            'conference_objectives' => 'required|string',
+        ]);
+
         /** @var \App\Models\BizMatch\Company $company */
-        $company = $user->company()->firstOrNew();
+        $company = $user->company()->firstOrCreate($valid);
         $user->reg_status = 'ongoing';
         $user->saveQuietly();
 
-        return $this->update($request, $company);
+        return (new CompanyResource($company))->additional([
+            'status' => 'success',
+            'message' => __('Your company ":0" has been created successfully.', [$company->name]),
+            'statusCode' => HttpStatus::CREATED,
+        ])->response()->setStatusCode(HttpStatus::CREATED->value);
     }
 
     /**

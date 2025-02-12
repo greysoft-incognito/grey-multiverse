@@ -22,6 +22,16 @@ class Company extends Model
     use HasFactory;
     use ModelCanExtend;
 
+    protected $fillable = [
+        'name',
+        'description',
+        'industry_category',
+        'country',
+        'location',
+        'services',
+        'conference_objectives',
+    ];
+
     /**
      * Get the attributes that should be cast.
      *
