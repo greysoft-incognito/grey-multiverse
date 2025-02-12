@@ -68,7 +68,7 @@ class DataExporter
     /**
      * The current query builder instance
      *
-     * @var \Illuminate\Support\LazyCollection<int,Form|Company|Appointment>
+     * @var \Illuminate\Support\LazyCollection<int,Form|Company|Appointment|User>
      */
     protected \Illuminate\Support\LazyCollection $dataCollection;
 
@@ -182,7 +182,7 @@ class DataExporter
         });
     }
 
-    private function parseNonGeneric(Company|Appointment $item)
+    private function parseNonGeneric(Company|Appointment|User $item)
     {
         return collect($item->toArray())
             ->only($this->allowed)
@@ -225,7 +225,7 @@ class DataExporter
      * @param [type] $title
      * @return bool
      */
-    private function saveAndDispatch($items, Form|Company|Appointment $dataset, $title = null)
+    private function saveAndDispatch($items, Form|Company|Appointment|User $dataset, $title = null)
     {
         if (! is_array($items) || empty($items)) {
             return false;
@@ -262,7 +262,7 @@ class DataExporter
      */
     private function dispatchMails(
         \Illuminate\Support\Stringable $email,
-        Form|Company|Appointment $dataset,
+        Form|Company|Appointment|User $dataset,
         string $title,
     ): void {
         RateLimiter::attempt(

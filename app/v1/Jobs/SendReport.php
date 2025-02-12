@@ -6,6 +6,7 @@ use App\Mail\ReportGenerated;
 use App\Models\BizMatch\Appointment;
 use App\Models\BizMatch\Company;
 use App\Models\Form;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -24,7 +25,7 @@ class SendReport implements ShouldQueue
      * @return void
      */
     public function __construct(
-        protected Form|Company|Appointment $dataset,
+        protected Form|Company|Appointment|User $dataset,
         protected int $batch = 0,
         protected ?string $title = null,
         protected ?Collection $data_emails = null,

@@ -5,6 +5,7 @@ namespace V1\Services;
 use App\Models\BizMatch\Appointment;
 use App\Models\BizMatch\Company;
 use App\Models\Form;
+use App\Models\User;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
@@ -18,7 +19,7 @@ class GenericDataExport implements ShouldAutoSize, WithMultipleSheets, WithPrope
 
     public function __construct(
         protected array $data,
-        protected Form|Company|Appointment $dataset,
+        protected Form|Company|Appointment|User $dataset,
         protected $title = null
     ) {
     }
