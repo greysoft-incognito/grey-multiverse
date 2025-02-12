@@ -299,6 +299,51 @@ class DataExporter
     }
 
     /**
+     * Export users
+     *
+     * @return $this
+     */
+    public function users(bool $queue = false)
+    {
+        $query = User::query()->whereDoesntHave('roles')->whereDoesntHave('permissions');
+
+        $this->dataCollection = $query->cursor();
+        $this->exportTitle = 'User Data';
+        $this->scanned = false;
+        $this->shallow = true;
+        $this->queue = $queue;
+
+        $this->abort = $this->dataCollection->count() < 1;
+
+        if (! $this->abort) {
+            $this->allowed = [
+                'id',
+                'firstname',
+                'lastname',
+                'email',
+                "phone",
+                'city',
+                'state',
+                'country',
+                'created_at',
+            ];
+
+            // Extract the Headings for the CSV
+            $headings = collect($this->allowed)->map(
+                fn($e) => str($e)
+                    ->replace('_', ' ')
+                    ->title()
+                    ->replace(['Id'], ['ID'])
+                    ->toString()
+            );
+
+            $this->pushItem($headings->toArray());
+        }
+
+        return $this;
+    }
+
+    /**
      * Export companies
      *
      * @return $this

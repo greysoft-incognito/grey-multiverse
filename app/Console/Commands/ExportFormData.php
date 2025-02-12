@@ -39,6 +39,7 @@ class ExportFormData extends Command
 
             $exporter->formData()->export();
             $exporter->formData(scanned: true)->export();
+            $exporter->users()->export();
             $exporter->companies()->export();
             $exporter->appointments()->export();
         }
