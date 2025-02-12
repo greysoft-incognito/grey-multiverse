@@ -6,6 +6,7 @@ use App\Helpers\Providers;
 use App\Models\BizMatch\Appointment;
 use App\Models\BizMatch\Company;
 use App\Models\Form;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -25,7 +26,7 @@ class ReportGenerated extends Mailable
      * @return void
      */
     public function __construct(
-        public Form|Company|Appointment $form,
+        public Form|Company|Appointment|User $form,
         public $batch = null,
         public $title = null
     ) {
