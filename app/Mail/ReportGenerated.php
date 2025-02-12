@@ -31,14 +31,16 @@ class ReportGenerated extends Mailable
         public $title = null
     ) {
         $timestamp = CarbonImmutable::now()->timestamp;
-        $encoded = base64url_encode("download.formdata/$timestamp/{$this->form->id}");
+
+        $encoded = base64url_encode("/$timestamp/{$form->id}");
+        $params = str(get_class($form))->replace('\\', '.')->append($encoded);
 
         $this->message = Providers::messageParser(
             'send_report',
             [
                 'form_name' => $this->title ?? $this->form->name,
                 'period' => 'daily',
-                'link' => route('download.formdata', [$timestamp, $encoded, $this->batch]),
+                'link' => route('download.formdata', [$timestamp, $params, $this->batch]),
                 'ttl' => '10 hours',
                 'app_name' => dbconfig('app_name'),
             ]

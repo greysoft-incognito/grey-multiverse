@@ -3,13 +3,12 @@
 use App\Enums\HttpStatus;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
-use V1\Services\AppInfo;
 use App\Models\Form;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
 
-Route::get('/', function (Request $request) {
+Route::get('/', function () {
     return [
         'api' => config('app.name'),
         'hello' => 'Star Gazer',
@@ -27,8 +26,12 @@ Route::get('download/formdata/{timestamp}/{form}/{batch?}', function ($timestamp
         abort(HttpStatus::BAD_REQUEST, 'Link expired');
     }
 
+    // public Form|Company|Appointment|User $form,
     $id = str(base64url_decode($data))->explode('/')->last();
-    $form = Form::findOrFail($id);
+
+    /** @var \App\Models\Form|\App\Models\User|\App\Models\BizMatch\Company|\App\Models\BizMatch\Appointment $class */
+    $model = app(str(str(base64url_decode($data))->explode('/')->first())->replace('.', '\\')->toString());
+    $form = $model->findOrFail($id);
     $storage = Storage::disk('protected');
 
     $path = 'exports/' . $form->id . '/data-batch' . $batch . '.xlsx';
