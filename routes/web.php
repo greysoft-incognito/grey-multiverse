@@ -1,12 +1,12 @@
 <?php
 
 use App\Enums\HttpStatus;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Route;
 use App\Models\Form;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
     return [
@@ -36,18 +36,18 @@ Route::get('download/formdata/{timestamp}/{form}/{batch?}', function ($timestamp
 
     if ($model instanceof Form) {
         $form = $model->findOrFail($id);
-        $groupName = 'forms-' . $form->id;
+        $groupName = 'forms-'.$form->id;
     } else {
         $groupName = str(get_class($model))->afterLast('\\')->lower()->plural()->append('-dataset')->toString();
     }
 
-    $path = 'exports/' . $groupName . '/data-batch' . $batch . '.xlsx';
+    $path = 'exports/'.$groupName.'/data-batch'.$batch.'.xlsx';
     // dd($groupName, $path);
     if ($storage->exists($path)) {
         $mime = $storage->mimeType($path);
 
         // create response and add encoded image data
-        return Response::download($storage->path($path), $groupName . '-' . $setTime->format('Y-m-d H_i_s') . '.xlsx', [
+        return Response::download($storage->path($path), $groupName.'-'.$setTime->format('Y-m-d H_i_s').'.xlsx', [
             'Content-Type' => $mime,
             'Cross-Origin-Resource-Policy' => 'cross-origin',
             'Access-Control-Allow-Origin' => '*',

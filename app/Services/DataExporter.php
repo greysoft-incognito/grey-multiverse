@@ -143,6 +143,7 @@ class DataExporter
             } else {
                 // Export all other dataset
                 $item = $this->parseNonGeneric($dataset);
+
                 $this->pushItem($item->values()->toArray());
             }
         }
@@ -184,26 +185,28 @@ class DataExporter
 
     private function parseNonGeneric(Company|Appointment|User $item)
     {
-        return collect($item->toArray())
-            ->only($this->allowed)
-            ->sortBy(fn($_, $key) => array_search($key, $this->allowed))
-            ->map(function ($value, $key) {
-                if (in_array($key, ['user_id', 'requestor_id', 'invitee_id'])) {
-                    /** @var User */
-                    $user = User::find($value);
-                    $value = in_array($key, ['requestor_id', 'invitee_id']) && $user->company
-                        ? $user->company->name
-                        : $user?->fullname;
-                }
+        return collect($this->allowed)
+            ->map(function ($key) use ($item) {
+                $value = $item[$key] ?? '';
 
-                // Parse date fields
-                if (in_array($key, ['booked_for', 'created_at', 'date'])) {
-                    $value = Carbon::parse($value)->isoFormat(
-                    'MMM DD, YYYY' . ($key === 'booked_for' ? ': hh:mm A' : '')
-                    );
-                }
+                $usesUser = in_array($key, ['user_id', 'requestor_id', 'invitee_id', 'contact_email', 'contact_phone']);
 
-                return (string) $value;
+                /** @var User|null */
+                $user = $usesUser ? match (true) {
+                    in_array($key, ['user_id', 'requestor_id', 'invitee_id']) => User::find($value),
+                    default => User::find($item->user_id ?? ''),
+                } : null;
+
+                return match (true) {
+                    $key == 'contact_email' => $user->email ?? 'N/A',
+                    $key == 'contact_phone' => $user->phone ?? 'N/A',
+                    $key == 'user_id' => $user->fullname ?? 'N/A',
+                    in_array($key, ['requestor_id', 'invitee_id']) => $user->company->name ?? 'N/A',
+                    in_array($key, ['booked_for', 'created_at', 'date']) => Carbon::parse($value)->isoFormat(
+                        'MMM DD, YYYY' . ($key === 'booked_for' ? ': hh:mm A' : '')
+                    ),
+                    default => (string) $value
+                };
             });
     }
 
@@ -321,7 +324,7 @@ class DataExporter
                 'firstname',
                 'lastname',
                 'email',
-                "phone",
+                'phone',
                 'city',
                 'state',
                 'country',
@@ -365,8 +368,9 @@ class DataExporter
                 'id',
                 'name',
                 'user_id',
+                'contact_email',
+                'contact_phone',
                 'industry_category',
-                // "description",
                 'country',
                 'location',
                 'conference_objectives',
@@ -378,9 +382,10 @@ class DataExporter
                 fn($e) => str($e)
                     ->replace('_', ' ')
                     ->title()
-                    ->replace(['User Id', 'Id'], ['Representative', 'ID'])
+                    ->replace(['User Id', 'Id'], ['Contact Person', 'ID'])
                     ->toString()
             );
+
             $this->pushItem($headings->toArray());
         }
 

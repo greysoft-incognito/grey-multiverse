@@ -20,6 +20,7 @@ class Company extends Model
 
     /** @use HasFactory<\Database\Factories\BizMatch\CompanyFactory> */
     use HasFactory;
+
     use ModelCanExtend;
 
     protected $fillable = [
