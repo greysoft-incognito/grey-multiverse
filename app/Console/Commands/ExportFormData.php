@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Jobs\ExportData;
 use App\Services\DataExporter;
+use App\Services\SimpleDataExporter;
 use Illuminate\Console\Command;
 
 class ExportFormData extends Command
@@ -13,7 +14,10 @@ class ExportFormData extends Command
      *
      * @var string
      */
-    protected $signature = 'app:export {--Q|queue}';
+    protected $signature = 'app:export
+                            {--M|modern}
+                            {--Q|queue}
+                           ';
 
     /**
      * The console command description.
@@ -29,19 +33,23 @@ class ExportFormData extends Command
      */
     public function handle()
     {
-        if ($this->option('queue')) {
-            ExportData::dispatch();
+        if ($this->option('modern')) {
+            new SimpleDataExporter(50);
         } else {
-            $exporter = new DataExporter(
-                chunkSize: 500,
-                console: $this,
-            );
+            if ($this->option('queue')) {
+                ExportData::dispatch();
+            } else {
+                $exporter = new DataExporter(
+                    chunkSize: 500,
+                    console: $this,
+                );
 
-            $exporter->formData()->export();
-            $exporter->formData(scanned: true)->export();
-            $exporter->users()->export();
-            $exporter->companies()->export();
-            $exporter->appointments()->export();
+                $exporter->formData()->export();
+                $exporter->formData(scanned: true)->export();
+                $exporter->users()->export();
+                $exporter->companies()->export();
+                $exporter->appointments()->export();
+            }
         }
 
         return 0;
