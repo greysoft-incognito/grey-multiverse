@@ -20,7 +20,6 @@ Route::get('/', function () {
 });
 
 Route::get('download/formdata/{timestamp}/{form}/{batch?}', function ($timestamp, $data, $batch = null) {
-    // Auth::logout();
     $setTime = Carbon::createFromTimestamp($timestamp);
     if ($setTime->diffInSeconds(now()) > 36000) {
         abort(HttpStatus::BAD_REQUEST->value, 'Link expired');
@@ -42,7 +41,7 @@ Route::get('download/formdata/{timestamp}/{form}/{batch?}', function ($timestamp
     }
 
     $path = 'exports/'.$groupName.'/data-batch'.$batch.'.xlsx';
-    // dd($groupName, $path);
+
     if ($storage->exists($path)) {
         $mime = $storage->mimeType($path);
 
