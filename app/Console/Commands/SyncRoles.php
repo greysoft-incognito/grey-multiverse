@@ -222,8 +222,8 @@ class SyncRoles extends Command
         $rolesArray->each(fn ($role) => Role::findOrCreate($role));
         $permissionsArray->each(fn ($role) => Permission::findOrCreate($role));
 
-        $roles = Role::withCount('permissions')->get();
         $permissions = Permission::get();
+        $roles = Role::withCount('permissions')->get();
 
         $roles->each(function ($role) use ($permissionsArray) {
             $exclude = config("permission-defs.exclusions.{$role->name}", []);
@@ -235,6 +235,7 @@ class SyncRoles extends Command
             ['ID', 'Name', 'Gaurd', 'Permissions'],
             $roles->map(fn ($role) => $role->only('id', 'name', 'guard_name', 'permissions_count'))
         );
+        $this->info('Roles Synced');
 
         $this->newLine();
         $this->info('Permissions');
@@ -242,5 +243,6 @@ class SyncRoles extends Command
             ['ID', 'Name', 'Gaurd'],
             $permissions->map(fn ($perm) => $perm->only('id', 'name', 'guard_name'))
         );
+        $this->info('Permissions Synced');
     }
 }

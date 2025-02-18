@@ -72,6 +72,7 @@ return [
         'form.create',
         'form.update',
         'form.delete',
+        'form.reviewers.manage',
 
         'formfield.list',
         'formfield.show',
@@ -82,6 +83,7 @@ return [
         'formdata.stats',
         'formdata.list',
         'formdata.show',
+        'formdata.update',
         'formdata.delete',
 
         'dashboard',
@@ -161,6 +163,7 @@ return [
             'users.delete',
 
             'formdata.delete',
+            'form.reviewers.manage',
 
             'form.create',
             'form.update',

@@ -21,8 +21,13 @@ class FormController extends Controller
      */
     public function index(Request $request)
     {
+        /** @var \App\Models\User $user */
+        $user = $request->user('sanctum');
+
         \Gate::authorize('usable', 'form.list');
+
         $query = Form::query();
+
         // Search and filter columns
         if ($request->search) {
             $query->where(function ($query) use ($request) {
@@ -33,6 +38,10 @@ class FormController extends Controller
                     $query->orWhereFullText('content', $request->search);
                 });
             });
+        }
+
+        if ($user->hasExactRoles(['reviewer'])) {
+            $query->forReviewer($user);
         }
 
         // Reorder Columns
@@ -192,7 +201,7 @@ class FormController extends Controller
                 }
 
                 return false;
-            })->filter(fn ($i) => $i !== false)->count();
+            })->filter(fn($i) => $i !== false)->count();
 
             return Providers::response()->info([
                 'data' => [],

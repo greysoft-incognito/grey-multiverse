@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\Models\Portal\LearningPath;
 use App\Traits\ModelCanExtend;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use ToneflixCode\LaravelFileable\Traits\Fileable;
@@ -99,7 +101,7 @@ class Form extends Model
     protected function bannerUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->images['banner'],
+            get: fn() => $this->images['banner'],
         );
     }
 
@@ -121,7 +123,7 @@ class Form extends Model
     protected function dataEmails(): Attribute
     {
         return Attribute::make(
-            get: fn ($a) => str($a ?? '')->explode(',')->map(fn ($e) => str($e)->trim()),
+            get: fn($a) => str($a ?? '')->explode(',')->map(fn($e) => str($e)->trim()),
         );
     }
 
@@ -159,27 +161,46 @@ class Form extends Model
     protected function logoUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->images['logo'],
+            get: fn() => $this->images['logo'],
         );
     }
 
     public function socials(): Attribute
     {
-        $parser = static fn ($value, $name) => [
+        $parser = static fn($value, $name) => [
             'url' => str($value)->before('?'),
             'icon' => "fas fa-$name",
             'name' => $name,
-            'label' => '@'.str(str($value)->explode('/')->last())->before('?'),
+            'label' => '@' . str(str($value)->explode('/')->last())->before('?'),
         ];
 
         return Attribute::make(
-            get: fn ($value) => collect($value)->map(function ($value, $name) use ($parser) {
+            get: fn($value) => collect($value)->map(function ($value, $name) use ($parser) {
                 if (json_validate($value)) {
-                    return collect(json_decode($value))->map(fn ($v, $n) => $parser($v, $n))->values();
+                    return collect(json_decode($value))->map(fn($v, $n) => $parser($v, $n))->values();
                 }
 
                 return $parser($value, $name);
             })->toArray()[0] ?? []
         );
+    }
+
+    /**
+     * The users assigned as reviewers for the form.
+     */
+    public function reviewers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'form_reviewer')
+        ->using(FormReviewer::class)
+            ->withTimestamps();
+    }
+
+    public function scopeForReviewer(Builder $query, User|string $user): void
+    {
+        if ($user instanceof $user) {
+            $user = $user->id;
+        }
+
+        $query->whereHas('reviewers', fn($q) => $q->where('users.id', $user));
     }
 }

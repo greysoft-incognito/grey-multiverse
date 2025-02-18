@@ -9,9 +9,11 @@ use App\Models\BizMatch\Company;
 use App\Notifications\OtpReceived;
 use App\Notifications\SendCode;
 use App\Traits\ModelCanExtend;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -149,7 +151,7 @@ class User extends Authenticatable
     protected function avatar(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->files['image'],
+            get: fn() => $this->files['image'],
         );
     }
 
@@ -161,7 +163,7 @@ class User extends Authenticatable
     protected function fullname(): Attribute
     {
         return Attribute::make(
-            get: fn () => collect([$this->firstname, $this->lastname])->filter()->join(' '),
+            get: fn() => collect([$this->firstname, $this->lastname])->filter()->join(' '),
         );
     }
 
@@ -178,13 +180,12 @@ class User extends Authenticatable
     protected function privileges(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->getRoleNames(),
+            get: fn() => $this->getRoleNames(),
             set: function (array|\Illuminate\Support\Collection $value) {
                 if (count($value) && app()->runningInConsole()) {
                     $roles = Role::whereIn('name', $value)->orWhereIn('id', $value)->pluck('name');
                     $roles->count() > 0 && $this->syncRoles($roles);
                 }
-
             }
         );
     }
@@ -269,8 +270,8 @@ class User extends Authenticatable
     protected function userData(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->data,
-            set: fn ($value) => is_array($value)
+            get: fn() => $this->data,
+            set: fn($value) => is_array($value)
                 ? json_encode($value, JSON_FORCE_OBJECT)
                 : $value,
         );
@@ -316,5 +317,33 @@ class User extends Authenticatable
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class, 'requestor_id');
+    }
+
+    /**
+     * The forms assigned to the user for review.
+     */
+    public function reviewForms(): BelongsToMany
+    {
+        return $this->belongsToMany(Form::class, 'form_reviewer')
+        ->using(FormReviewer::class)
+            ->withTimestamps();
+    }
+
+    /**
+     * Scope to search for user.
+     */
+    public function scopeDoSearch(Builder $query, string $search): void
+    {
+        if (stripos($search, '@') === 0) {
+            $query->where('username', str_ireplace('@', '', $search));
+        } else {
+            $query->where('firstname', 'like', "%{$search}%");
+            $query->orWhere('lastname', 'like', "%{$search}%");
+            $query->orWhereRaw(
+                "LOWER(CONCAT_WS(' ', firstname, lastname)) like ?",
+                ['%' . mb_strtolower($search) . '%']
+            );
+            $query->orWhere('email', $search);
+        }
     }
 }

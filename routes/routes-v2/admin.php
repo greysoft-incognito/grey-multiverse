@@ -7,11 +7,12 @@ use App\Http\Controllers\Admin\Forms\FormController;
 use App\Http\Controllers\Admin\Forms\FormDataController;
 use App\Http\Controllers\Admin\Forms\FormFieldController;
 use App\Http\Controllers\Admin\Forms\FormInfoController;
+use App\Http\Controllers\Admin\Forms\ReviewerController;
 use App\Http\Controllers\Admin\RescheduleController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
-$permissionMiddlewares = 'role:'.implode('|', config('permission-defs.roles', []));
+$permissionMiddlewares = 'role:' . implode('|', config('permission-defs.roles', []));
 
 Route::get('refresh', function () {
     \Artisan::call('app:sync-roles');
@@ -39,7 +40,12 @@ Route::middleware(['auth:sanctum', $permissionMiddlewares])->prefix('admin')->gr
 
         Route::get('all/data', [FormDataController::class, 'all'])->name('data.all');
         Route::get('{form}/stats', [FormDataController::class, 'stats'])->name('stats');
+
         Route::apiResource('{form}/data', FormDataController::class)->scoped();
+
+        Route::apiResource('/{form}/reviewers', ReviewerController::class)
+            ->except(['show', 'update'])
+            ->scoped();
 
         Route::apiResource('/', FormController::class)
             ->parameter('', 'form');
