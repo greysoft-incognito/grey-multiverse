@@ -23,7 +23,7 @@ Route::get('refresh', function () {
     dump(\Artisan::output());
 });
 
-Route::middleware(['auth:sanctum', $permissionMiddlewares])->prefix('admin')->group(function () {
+Route::middleware(['auth:sanctum', $permissionMiddlewares])->prefix('admin')->name('admin.')->group(function () {
     Route::apiResource('users', UserController::class);
     Route::apiResource('configurations', ConfigurationController::class)->only(['index', 'show', 'store']);
 
@@ -44,15 +44,17 @@ Route::middleware(['auth:sanctum', $permissionMiddlewares])->prefix('admin')->gr
         Route::get('{form}/stats', [FormExtraController::class, 'stats'])->name('stats');
         Route::post('{form}/config', [FormExtraController::class, 'config'])->name('config');
 
-        Route::apiResource('{form}/data', FormDataController::class)->scoped();
-
         Route::apiResource('/{form}/reviewers', ReviewerController::class)
             ->except(['show', 'update'])
             ->scoped();
 
-        Route::apiResource('/{form}/data/{data}/reviewers', FormDataReviewerController::class)
-            ->except(['show', 'update'])
-            ->scoped();
+        Route::name('formdata.')->group(function () {
+            Route::apiResource('{form}/data', FormDataController::class)->scoped();
+
+            Route::apiResource('/{form}/data/{data}/reviewers', FormDataReviewerController::class)
+                ->except(['show', 'update'])
+                ->scoped();
+        });
 
         Route::apiResource('/', FormController::class)
             ->parameter('', 'form');
