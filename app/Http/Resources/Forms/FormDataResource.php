@@ -18,24 +18,16 @@ class FormDataResource extends JsonResource
         $form = $this->form;
         $data = $this->data;
 
-        $email_field = $form->fields()->email()->first();
-        $phone_field = $form->fields()->phone()->first();
-        $fname_field = $form->fields()->fname()->first();
-        $lname_field = $form->fields()->lname()->first();
-        $fullname_field = $form->fields()->fullname()->first();
-
-        $name = collect([
-            $data[$fname_field->name ?? '--'] ?? '',
-            $data[$lname_field->name ?? '--'] ?? '',
-            ! $fname_field && ! $lname_field ? $data[$fullname_field->name ?? $email_field->name ?? '--'] : '',
-        ])->filter(fn ($name) => $name !== '')->implode(' ');
+        $name = str($this->name)->explode(' ');
 
         return collect([
             'id' => $this->id,
-            'name' => $name,
+            'name' => $this->name,
+            'firstname' => $name->first(),
+            'lastname' => $name->count() > 1 ? $name->last() : '',
             'form_id' => $this->form_id,
-            'email' => $this->whenNotNull($data[$email_field->name ?? ''] ?? null),
-            'phone' => $this->whenNotNull($data[$phone_field->name ?? ''] ?? null),
+            'email' => $this->whenNotNull($this->email),
+            'phone' => $this->whenNotNull($this->phone),
             'qr' => route('form.data.qr', ['form', $this->id]),
             'scan_date' => $form->scan_date,
             'fields' => $form->fields,

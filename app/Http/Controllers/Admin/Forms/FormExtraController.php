@@ -27,19 +27,26 @@ class FormExtraController extends Controller
     {
         \Gate::authorize('usable', 'form.update');
 
+        $validateField = static fn() => Rule::exists(GenericFormField::class, 'name')->where('form_id', $form->id);
+
         $valid = $request->validate([
-            'chartables' => 'required|array',
-            'chartables.*.field_name' => ['required', Rule::exists(GenericFormField::class, 'name')->where('form_id', $form->id)],
+            'chartables' => 'nullable|array',
+            'chartables.*.field_name' => ['required', 'string', $validateField()],
             'chartables.*.chart_type' => 'required|in:line,bar,pie',
-            'chartables.*.cols' => 'required|numeric|in:12,6,4,3',
-            'statcards' => 'required|array',
-            'statcards.*.field' => ['required', Rule::exists(GenericFormField::class, 'name')->where('form_id', $form->id)],
+            'chartables.*.cols' => 'required|numeric|in:12,8,6,4,3',
+            'statcards' => 'nullable|array',
+            'statcards.*.field' => ['required', 'string', $validateField()],
             'statcards.*.key' => 'required|string',
-            'statcards.*.cols' => 'required|numeric|in:12,6,4,3',
+            'statcards.*.cols' => 'required|numeric|in:12,8,6,4,3',
             'statcards.*.value' => 'required|string',
+            'fields_map' => 'required|array',
+            'fields_map.name' => ['required', 'string', $validateField()],
+            'fields_map.email' => ['required', 'string', $validateField()],
+            'fields_map.phone' => ['required', 'string', $validateField()],
+            'auto_assign_reviewers' => ['nullable', 'boolean'],
         ]);
 
-        $form->config = $valid;
+        $form->config = collect($form->config)->merge($valid);
         $form->save();
 
         return (new FormResource($form))->additional([

@@ -109,11 +109,11 @@ trait TimeTools
                 null => 'Unknown',
                 "0" => ucwords("Not $dataKey"),
                 "1" => ucwords($dataKey),
-                default => ucwords($val),
+                default => str($val)->replace(['-', '_'], ' ')->apa()->toString(),
             })->toArray(),
             "datasets" => [
                 [
-                    "label" => ucwords($dataKey . " Stats"),
+                    "label" => str($dataKey)->replace(['-', '_'], ' ')->apa()->toString(),
                     "data" => $results->pluck($countKey)->toArray(),
                     "backgroundColor" => $results->map(fn() => $this->generateRandomHexColor())->toArray()
                 ]

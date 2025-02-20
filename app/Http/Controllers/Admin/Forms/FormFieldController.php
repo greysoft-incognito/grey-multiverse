@@ -78,8 +78,7 @@ class FormFieldController extends Controller
             'max.required' => 'the Max field is required if Compare is set and Type equals date while Min is missing',
         ]);
 
-        $field = new GenericFormField;
-        $field->form_id = $form->id;
+        $field = $form->fields()->make();
         $field->name = $request->name;
         $field->field_id = $request->name;
         $field->label = $request->label;
@@ -200,14 +199,14 @@ class FormFieldController extends Controller
             return $field;
         });
 
-        $count_id = $fields->filter(fn ($f) => $f['updated'])->count();
-        $count_no_id = $fields->filter(fn ($f) => ! $f['updated'])->count();
+        $count_id = $fields->filter(fn($f) => $f['updated'])->count();
+        $count_no_id = $fields->filter(fn($f) => ! $f['updated'])->count();
         $msg = str('Form updated successfully')
-            ->when($count_id, fn ($str) => $str->append(', :0 field(s) updated'))
-            ->when($count_no_id, fn ($str) => $str->append(', :1 new field(s) created'));
+            ->when($count_id, fn($str) => $str->append(', :0 field(s) updated'))
+            ->when($count_no_id, fn($str) => $str->append(', :1 new field(s) created'));
 
         return (new FormFieldCollection($fields))->additional([
-            'message' => __($msg->toString().'.', [$count_id, $count_no_id]),
+            'message' => __($msg->toString() . '.', [$count_id, $count_no_id]),
             'status' => 'success',
             'statusCode' => HttpStatus::ACCEPTED,
         ])->response()->setStatusCode(HttpStatus::ACCEPTED->value);
@@ -287,7 +286,7 @@ class FormFieldController extends Controller
                 }
 
                 return false;
-            })->filter(fn ($i) => $i !== false)->count();
+            })->filter(fn($i) => $i !== false)->count();
 
             return Providers::response()->success([
                 'data' => [],

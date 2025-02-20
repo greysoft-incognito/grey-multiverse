@@ -25,6 +25,7 @@ use ToneflixCode\LaravelFileable\Traits\Fileable;
  * @property bool $dont_notify
  * @property \Carbon\Carbon $deadline
  * @property bool $require_auth
+ * @property array{auto_assign_reviewers:bool,chartables:array,statcards:array,fields_map:array{name:string,email:string,phone:string}} $config
  * @property array<string,array{url:string,icon:string,label:string,name:string}> $socials
  */
 class Form extends Model
@@ -47,7 +48,12 @@ class Form extends Model
      * @var array
      */
     protected $attributes = [
-        'config' => '{ "chartables": [], "statcards": [] }',
+        'config' => '{
+            "chartables": [],
+            "statcards": [],
+            "fields_map": { "name":"name","email":"email","phone":"phone" },
+            "auto_assign_reviewers": false
+        }',
         'require_auth' => false,
     ];
 
@@ -170,7 +176,7 @@ class Form extends Model
     public function socials(): Attribute
     {
         $parser = static fn($value, $name) => [
-            'url' => str($value)->before('?'),
+            'url' => str($value)->before('?')->toString(),
             'icon' => "fas fa-$name",
             'name' => $name,
             'label' => '@' . str(str($value)->explode('/')->last())->before('?'),

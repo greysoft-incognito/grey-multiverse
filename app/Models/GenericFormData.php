@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Arr;
 
 /**
  * Class GenericFormData
@@ -17,7 +18,7 @@ use Illuminate\Notifications\Notifiable;
  */
 class GenericFormData extends Model
 {
-    use HasFactory, Notifiable; 
+    use HasFactory, Notifiable;
 
     /**
      * The attributes that should be cast.
@@ -61,6 +62,16 @@ class GenericFormData extends Model
         return 'form_data';
     }
 
+    public static function booted(): void
+    {
+        static::created(function (self $model) {
+            if (Arr::get($model->form->config, 'auto_assign_reviewers')) {
+                $ids = $model->form->reviewers()->take(dbconfig('auto_assign_reviewers', 2) ?: 2)->pluck('id');
+                $model->reviewers()->sync($ids);
+            }
+        });
+    }
+
     /**
      * Retrieve the model for a bound value.
      *
@@ -93,6 +104,10 @@ class GenericFormData extends Model
                     return '';
                 }
 
+                if (isset($this->form->config['fields_map']['name'])) {
+                    return $this->data[$this->form->config['fields_map']['name'] ?? '--'] ?? '';
+                }
+
                 $fname_field = $this->form->fields()->fname()->first();
                 $lname_field = $this->form->fields()->lname()->first();
                 $fullname_field = $this->form->fields()->fullname()->first();
@@ -101,9 +116,51 @@ class GenericFormData extends Model
                     $this->data[$fname_field->name ?? '--'] ?? '',
                     $this->data[$lname_field->name ?? '--'] ?? '',
                     ! $fname_field && ! $lname_field ? ($this->data[$fullname_field->name ?? $email_field->name ?? '--'] ?? '') : '',
-                ])->filter(fn ($name) => $name !== '')->implode(' ');
+                ])->filter(fn($name) => $name !== '')->implode(' ');
 
                 return $name;
+            },
+        );
+    }
+
+    /**
+     * Get the email of user from the GenericFormData field
+     */
+    public function email(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (!$this->form) {
+                    return '';
+                }
+
+                if (isset($this->form->config['fields_map']['email'])) {
+                    return $this->data[$this->form->config['fields_map']['email'] ?? '--'] ?? '';
+                }
+
+                $field = $this->form->fields()->email()->first();
+                return $this->data[$field->name ?? ''];
+            },
+        );
+    }
+
+    /**
+     * Get the phone number of user from the GenericFormData field
+     */
+    public function phone(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (!$this->form) {
+                    return '';
+                }
+
+                if (isset($this->form->config['fields_map']['phone'])) {
+                    return $this->data[$this->form->config['fields_map']['phone'] ?? '--'] ?? '';
+                }
+
+                $field = $this->form->fields()->phone()->first();
+                return $this->data[$field->name ?? ''];
             },
         );
     }
@@ -122,7 +179,7 @@ class GenericFormData extends Model
     public function reviewers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'form_data_reviewer', 'form_data_id')
-        ->using(GenericFormDataReviewer::class)
+            ->using(GenericFormDataReviewer::class)
             ->withTimestamps();
     }
 
@@ -146,7 +203,7 @@ class GenericFormData extends Model
                 $this->data[$fname_field->name ?? '--'] ?? '',
                 $this->data[$lname_field->name ?? '--'] ?? '',
                 ! $fname_field && ! $lname_field ? $this->data[$fullname_field->name ?? $email_field->name ?? '--'] : '',
-            ])->filter(fn ($name) => $name !== '')->implode(' ');
+            ])->filter(fn($name) => $name !== '')->implode(' ');
 
             // Return email address and name...
             if (isset($this->data[$email_field->name ?? '--'])) {
