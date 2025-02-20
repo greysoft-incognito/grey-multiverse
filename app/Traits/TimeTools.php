@@ -115,7 +115,7 @@ trait TimeTools
                 [
                     "label" => ucwords($dataKey . " Stats"),
                     "data" => $results->pluck($countKey)->toArray(),
-                    "backgroundColor" => $results->map(fn() => fake()->safeHexColor())->toArray()
+                    "backgroundColor" => $results->map(fn() => $this->generateRandomHexColor())->toArray()
                 ]
             ]
         ];
@@ -194,4 +194,15 @@ trait TimeTools
             'monthly_change_percentage' => round($monthly_change_percentage, 2),
         ];
     }
+
+    private function generateRandomHexColor()
+    {
+        $characters = '0123456789ABCDEF';
+        $color = '#';
+        for ($i = 0; $i < 6; $i++) {
+            $color .= $characters[rand(0, 15)];
+        }
+        return $color;
+    }
+
 }
