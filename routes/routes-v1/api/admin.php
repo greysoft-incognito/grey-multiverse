@@ -26,7 +26,7 @@ Route::middleware(['auth:sanctum', 'admin'])->name('admin.')->prefix('admin')->g
 
     Route::apiResource('/transactions', TransactionController::class);
 
-    Route::apiResource('forms', SuFormController::class);
+    Route::apiResource('forms', SuFormController::class, ['as' => 'v1.forms']);
     Route::apiResource('form-infos/{form}', FormInfoController::class)->parameter('{form}', 'info');
 
     Route::name('form-fields.')->prefix('form-fields')->group(function () {
@@ -41,5 +41,5 @@ Route::middleware(['auth:sanctum', 'admin'])->name('admin.')->prefix('admin')->g
         Route::apiResource('/{form}', SuFormDataController::class)->parameters(['{form}' => 'id']);
     });
 
-    Route::apiResource('users', UsersController::class);
+    Route::apiResource('users', UsersController::class, ['as' => 'v1.users']);
 });
