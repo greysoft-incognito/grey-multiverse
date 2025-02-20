@@ -21,8 +21,18 @@ class FormDataController extends Controller
      */
     public function index(Request $request, Form $form)
     {
+        /** @var \App\Models\User $user */
+        $user = $request->user('sanctum');
+
         \Gate::authorize('usable', 'formdata.list');
-        $data = $form->data()->paginate($request->get('limit', 30))->withQueryString();
+
+        $query = $form->data();
+
+        if ($user->hasExactRoles(['reviewer'])) {
+            $query->forReviewer($user);
+        }
+
+        $data = $query->paginate($request->get('limit', 30))->withQueryString();
 
         return (new FormDataCollection($data))->additional([
             'form' => [
@@ -44,8 +54,18 @@ class FormDataController extends Controller
      */
     public function all(Request $request)
     {
+        /** @var \App\Models\User $user */
+        $user = $request->user('sanctum');
+
         \Gate::authorize('usable', 'formdata.list');
-        $forms = GenericFormData::paginate($request->get('limit', 30))->withQueryString();
+
+        $query = GenericFormData::query();
+
+        if ($user->hasExactRoles(['reviewer'])) {
+            $query->forReviewer($user);
+        }
+
+        $forms = $query->paginate($request->get('limit', 30))->withQueryString();
 
         return (new FormDataCollection($forms))->additional([
             'message' => HttpStatus::message(HttpStatus::OK),
@@ -136,81 +156,35 @@ class FormDataController extends Controller
     }
 
     /**
-     * Display the stats for the resources resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function stats(Request $request, Form $form)
-    {
-        \Gate::authorize('usable', 'formdata.stats');
-
-        if ($request->data) {
-            $request_data = str($request->data)->explode(',');
-            $data = $request_data->mapWithKeys(function ($value) use ($form, $request_data) {
-                $stat = str($value)->explode(':');
-
-                $key = is_numeric($stat[1] ?? $stat[0]) || is_bool($stat[1] ?? $stat[0])
-                    ? $stat[0]
-                    : $stat[1] ?? $stat[0];
-
-                $values = str($stat[1] ?? '')->explode('.');
-
-                if (str($stat[1] ?? '')->contains('.')) {
-                    $stat[2] = $values->get(1);
-                    $stat[3] = $values->get(2);
-                }
-
-                $stat[1] = $values->get(0);
-
-                $query = $form->data();
-                if (isset($stat[3])) {
-                    $query->whereJsonContains("data->{$stat[0]}", [$stat[1], $stat[2], $stat[3]]);
-                } elseif (isset($stat[2])) {
-                    $query->whereJsonContains("data->{$stat[0]}", [$stat[1], $stat[2]]);
-                } elseif ($stat[1]) {
-                    $field = $form->fields()->where('name', $stat[0])->first();
-
-                    if ($field && $field->type === 'multiple') {
-                        $query->whereJsonContains("data->{$stat[0]}", $stat[1]);
-                    } else {
-                        $query->whereJsonContains("data->{$stat[0]}", $stat[1]);
-                        $query->whereJsonDoesntContain("data->{$stat[0]}", [$stat[1]]);
-                    }
-
-                    $others = $request_data->filter(fn ($rd) => $rd !== "{$stat[0]}:{$stat[1]}")->toArray();
-                    foreach ($others as $other) {
-                        $query->whereJsonDoesntContain("data->{$stat[0]}", str_ireplace("{$stat[0]}:", '', $other));
-                    }
-                }
-
-                return [$key => $query->count()];
-            })->merge(['total' => $form->data()->count()]);
-        } else {
-            $data = ['total' => $form->data()->count()];
-        }
-        $data['form'] = $form;
-
-        return Providers::response()->success([
-            'data' => $data,
-        ]);
-    }
-
-    /**
      * Update the specified resource in storage.
      *
-     * @param  int  $id
+     * @param  Form $form
+     * @param  GenericFormData $data
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Form $form, GenericFormData $data)
     {
         \Gate::authorize('usable', 'formdata.update');
-        //
+
+        ['status' => $status] = $this->validate($request, [
+            'status' => 'required|in:pending,approved,rejected',
+        ]);
+
+        $data->status = $status;
+        $data->save();
+
+        return (new FormDataResource($data))->additional([
+            'message' => __('Submission status has successfully been changed to ":0"', [$status]),
+            'status' => 'success',
+            'statusCode' => HttpStatus::ACCEPTED->value,
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  Form $form
+     * @param  GenericFormData $data
      * @return \Illuminate\Http\Response
      */
     public function destroy(Form $form, GenericFormData $data)

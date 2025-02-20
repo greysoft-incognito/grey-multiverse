@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
 
 /**
@@ -15,9 +17,7 @@ use Illuminate\Notifications\Notifiable;
  */
 class GenericFormData extends Model
 {
-    use HasFactory, Notifiable;
-
-    protected $table = 'form_data';
+    use HasFactory, Notifiable; 
 
     /**
      * The attributes that should be cast.
@@ -52,6 +52,16 @@ class GenericFormData extends Model
     ];
 
     /**
+     * Get the table associated with the model.
+     *
+     * @return string
+     */
+    public function getTable()
+    {
+        return 'form_data';
+    }
+
+    /**
      * Retrieve the model for a bound value.
      *
      * @param  string|null  $field
@@ -79,6 +89,10 @@ class GenericFormData extends Model
     {
         return Attribute::make(
             get: function () {
+                if (!$this->form) {
+                    return '';
+                }
+
                 $fname_field = $this->form->fields()->fname()->first();
                 $lname_field = $this->form->fields()->lname()->first();
                 $fullname_field = $this->form->fields()->fullname()->first();
@@ -100,6 +114,16 @@ class GenericFormData extends Model
     public function fullname(): Attribute
     {
         return $this->name();
+    }
+
+    /**
+     * The users assigned as reviewers for the form data.
+     */
+    public function reviewers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'form_data_reviewer', 'form_data_id')
+        ->using(GenericFormDataReviewer::class)
+            ->withTimestamps();
     }
 
     /**
@@ -164,12 +188,21 @@ class GenericFormData extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function scopeScanned($query, $scanned = true)
+    public function scopeScanned(Builder $query, bool $scanned = true)
     {
         if ($scanned) {
             return $query->whereHas('scans');
         } else {
             return $query->whereDoesntHave('scans');
         }
+    }
+
+    public function scopeForReviewer(Builder $query, User|string $user): void
+    {
+        if ($user instanceof $user) {
+            $user = $user->id;
+        }
+
+        $query->whereHas('reviewers', fn($q) => $q->where('users.id', $user));
     }
 }

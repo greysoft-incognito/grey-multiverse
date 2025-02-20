@@ -47,6 +47,7 @@ class Form extends Model
      * @var array
      */
     protected $attributes = [
+        'config' => '{ "chartables": [], "statcards": [] }',
         'require_auth' => false,
     ];
 
@@ -58,8 +59,9 @@ class Form extends Model
     public function casts()
     {
         return [
-            'deadline' => 'datetime',
+            'config' => \Illuminate\Database\Eloquent\Casts\AsCollection::class,
             'socials' => 'array',
+            'deadline' => 'datetime',
             'dont_notify' => 'boolean',
             'require_auth' => 'boolean',
         ];
@@ -191,7 +193,7 @@ class Form extends Model
     public function reviewers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'form_reviewer')
-        ->using(FormReviewer::class)
+            ->using(FormReviewer::class)
             ->withTimestamps();
     }
 

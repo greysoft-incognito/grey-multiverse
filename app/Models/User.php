@@ -330,6 +330,16 @@ class User extends Authenticatable
     }
 
     /**
+     * The forms assigned to the user for review.
+     */
+    public function reviewFormData(): BelongsToMany
+    {
+        return $this->belongsToMany(GenericFormData::class, 'form_data_reviewer', 'form_data_id')
+        ->using(GenericFormDataReviewer::class)
+            ->withTimestamps();
+    }
+
+    /**
      * Scope to search for user.
      */
     public function scopeDoSearch(Builder $query, string $search): void

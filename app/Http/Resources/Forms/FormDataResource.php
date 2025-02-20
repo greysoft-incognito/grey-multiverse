@@ -39,6 +39,7 @@ class FormDataResource extends JsonResource
             'qr' => route('form.data.qr', ['form', $this->id]),
             'scan_date' => $form->scan_date,
             'fields' => $form->fields,
+            'status' => $this->status,
         ])
             ->merge($data)->except(['fields']);
     }

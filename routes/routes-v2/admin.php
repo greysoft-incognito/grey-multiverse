@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\ConfigurationController;
 use App\Http\Controllers\Admin\Forms\FormController;
 use App\Http\Controllers\Admin\Forms\FormDataController;
+use App\Http\Controllers\Admin\Forms\FormDataReviewerController;
+use App\Http\Controllers\Admin\Forms\FormExtraController;
 use App\Http\Controllers\Admin\Forms\FormFieldController;
 use App\Http\Controllers\Admin\Forms\FormInfoController;
 use App\Http\Controllers\Admin\Forms\ReviewerController;
@@ -39,11 +41,16 @@ Route::middleware(['auth:sanctum', $permissionMiddlewares])->prefix('admin')->gr
         Route::apiResource('{form}/fields', FormFieldController::class);
 
         Route::get('all/data', [FormDataController::class, 'all'])->name('data.all');
-        Route::get('{form}/stats', [FormDataController::class, 'stats'])->name('stats');
+        Route::get('{form}/stats', [FormExtraController::class, 'stats'])->name('stats');
+        Route::post('{form}/config', [FormExtraController::class, 'config'])->name('config');
 
         Route::apiResource('{form}/data', FormDataController::class)->scoped();
 
         Route::apiResource('/{form}/reviewers', ReviewerController::class)
+            ->except(['show', 'update'])
+            ->scoped();
+
+        Route::apiResource('/{form}/data/{data}/reviewers', FormDataReviewerController::class)
             ->except(['show', 'update'])
             ->scoped();
 
