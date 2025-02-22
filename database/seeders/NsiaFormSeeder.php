@@ -29,7 +29,8 @@ class NsiaFormSeeder extends Seeder
             'require_auth' => false,
             'dont_notify' => false,
             'data_emails' =>  [],
-            'success_message' => 'Hello :fullname, This is to confirm that your registration for Kaduna Agritech Conference 2025 was successfull.',
+            'success_message' => 'Hello :fullname, This is to confirm that your application for the NSIA Prize for innovation has been received successfully and will be reviewed
+            soon, we will notify you once we\'re done.',
             'failure_message' => 'Hello :fullname, Unfortunattely we could not complete your application, you may try again soon.',
         ];
 
@@ -397,5 +398,10 @@ class NsiaFormSeeder extends Seeder
                 $field->save();
             });
         });
+
+        $this->call([
+            NsiaCommercialFormSeeder::class,
+            NsiaImpactFormSeeder::class,
+        ]);
     }
 }

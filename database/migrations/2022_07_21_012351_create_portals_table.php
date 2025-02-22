@@ -33,9 +33,7 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('address')->nullable();
             $table->json('socials')->nullable();
-            $table->json('footer_groups')->default(json_encode([
-                'services', 'company', 'business',
-            ]));
+            $table->json('footer_groups')->nullable();
             $table->string('copyright')->nullable();
             $table->timestamps();
         });

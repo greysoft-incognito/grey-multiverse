@@ -130,6 +130,7 @@ class FormFieldController extends Controller
     public function multiple(Request $request, Form $form)
     {
         $validator = Validator::make($request->all(), [
+            'data' => 'required|array',
             'data.*.name' => 'required|string',
             'data.*.label' => 'required|string',
             'data.*.value' => 'nullable|string',
@@ -140,7 +141,7 @@ class FormFieldController extends Controller
             'data.*.required' => 'nullable|boolean',
             'data.*.required_if' => 'nullable|string',
             'data.*.restricted' => 'nullable|boolean',
-            'data.*.key' => 'required|string',
+            'data.*.key' => 'alpha_num',
             'data.*.min' => 'numeric',
             'data.*.max' => 'numeric',
             'data.*.priority' => 'numeric|nullable',
@@ -174,7 +175,9 @@ class FormFieldController extends Controller
 
         $validator->validate();
 
-        $fields = collect($request->data)->map(function ($data) use ($form) {
+        $count = count($request->data);
+
+        $fields = collect($request->data)->map(function ($data, $i) use ($form, $count) {
             $field = $form->fields()->where('id', $data['id'] ?? null)->firstOrNew();
             $field->name = $data['name'] ?? null;
             $field->field_id = $data['name'] ?? null;
@@ -190,7 +193,7 @@ class FormFieldController extends Controller
             $field->key = $data['key'] ?? null;
             $field->min = $data['min'] ?? null;
             $field->max = $data['max'] ?? null;
-            $field->priority = $data['priority'] ?? 0;
+            $field->priority = (int)$count - $i;
             $field->element = $data['element'] ?? null;
             $field->type = $data['type'] ?? null;
             $field->save();
@@ -278,15 +281,15 @@ class FormFieldController extends Controller
     public function destroy(Request $request, Form $form, $id)
     {
         \Gate::authorize('usable', 'formfield.delete');
-        if ($request->items) {
-            $count = collect($request->items)->map(function ($item) use ($form) {
-                $field = $form->fields()->find($item);
-                if ($field) {
-                    return $field->delete();
-                }
 
-                return false;
-            })->filter(fn($i) => $i !== false)->count();
+        $items = $this->validate($request, [
+            'items' => ['nullable', 'array'],
+            'items.*' => ['required', 'numeric'],
+        ]);
+
+        if ($items) {
+            $count = count($items);
+            $form->fields()->whereIn('id', $items)->delete();
 
             return Providers::response()->success([
                 'data' => [],

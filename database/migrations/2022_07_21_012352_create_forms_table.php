@@ -27,6 +27,7 @@ return new class extends Migration
             $table->json('socials')->nullable();
             $table->timestamp('deadline')->nullable();
             $table->boolean('dont_notify')->default(false);
+            $table->boolean('require_auth')->default(false);
             $table->text('data_emails')->nullable();
             $table->string('template')->default('default');
             $table->timestamps();

@@ -3,6 +3,7 @@
 use App\Enums\HttpStatus;
 use App\Models\Form;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +19,27 @@ Route::get('/', function () {
             : now(),
     ];
 });
+
+// Route::middleware('web')->get('install', function () {
+//     if (file_exists(database_path('dump.sql'))) {
+//         \Illuminate\Support\Facades\DB::unprepared(file_get_contents(database_path('dump.sql')));
+//     } else {
+//         Artisan::call('migrate:fresh');
+//         dump(\Artisan::output());
+//     }
+
+//     \Artisan::call('optimize:clear');
+//     dump(\Artisan::output());
+// })->name('install');
+
+Route::middleware('web')->get('refresh', function () {
+    Artisan::call('migrate');
+    dump(\Artisan::output());
+    \Artisan::call('app:sync-roles');
+    dump(\Artisan::output());
+    \Artisan::call('optimize:clear');
+    dump(\Artisan::output());
+})->name('install');
 
 Route::get('download/formdata/{timestamp}/{form}/{batch?}', function ($timestamp, $data, $batch = null) {
     $setTime = Carbon::createFromTimestamp($timestamp);

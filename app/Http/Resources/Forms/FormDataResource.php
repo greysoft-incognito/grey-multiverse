@@ -44,6 +44,6 @@ class FormDataResource extends JsonResource
      */
     public function with($request)
     {
-        return AppInfo::with(['fields' => $this->form->fields]);
+        return AppInfo::with(['fields' => new FormFieldCollection($this->form->fields)]);
     }
 }

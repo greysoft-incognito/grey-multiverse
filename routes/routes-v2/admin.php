@@ -16,13 +16,6 @@ use Illuminate\Support\Facades\Route;
 
 $permissionMiddlewares = 'role:' . implode('|', config('permission-defs.roles', []));
 
-Route::get('refresh', function () {
-    \Artisan::call('app:sync-roles');
-    dump(\Artisan::output());
-    \Artisan::call('optimize:clear');
-    dump(\Artisan::output());
-});
-
 Route::middleware(['auth:sanctum', $permissionMiddlewares])->prefix('admin')->name('admin.')->group(function () {
     Route::apiResource('users', UserController::class);
     Route::apiResource('configurations', ConfigurationController::class)->only(['index', 'show', 'store']);

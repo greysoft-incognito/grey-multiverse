@@ -27,6 +27,15 @@ class Portal extends Model
     ];
 
     /**
+     * The model's attributes.
+     *
+     * @var array
+     */
+    protected $attributes = [
+        'footer_groups' => '["services", "company", "business"]',
+    ];
+
+    /**
      * Retrieve the model for a bound value.
      *
      * @param  mixed  $value

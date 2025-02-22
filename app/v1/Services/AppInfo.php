@@ -2,7 +2,6 @@
 
 namespace V1\Services;
 
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
 
 class AppInfo
@@ -16,7 +15,9 @@ class AppInfo
             'name' => config('app.name'),
             'version' => env('APP_VERSION', config("api.version.{$version}", '1.0.0')),
             'author' => 'Greysoft',
-            'updated' => Carbon::createFromTimestamp(File::lastModified(base_path('.updated'))),
+            'updated' => File::exists(base_path('.updated'))
+                ? new \Carbon\Carbon(File::lastModified(base_path('.updated')))
+                : now(),
         ];
     }
 

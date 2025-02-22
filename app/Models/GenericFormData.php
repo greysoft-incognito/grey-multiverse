@@ -66,7 +66,7 @@ class GenericFormData extends Model
     {
         static::created(function (self $model) {
             if (Arr::get($model->form->config, 'auto_assign_reviewers')) {
-                $ids = $model->form->reviewers()->take(dbconfig('auto_assign_reviewers', 2) ?: 2)->pluck('id');
+                $ids = $model->form->reviewers()->take(dbconfig('auto_assign_reviewers', 2) ?: 2)->pluck('users.id');
                 $model->reviewers()->sync($ids);
             }
         });
