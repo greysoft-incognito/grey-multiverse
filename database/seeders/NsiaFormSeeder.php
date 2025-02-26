@@ -14,21 +14,28 @@ class NsiaFormSeeder extends Seeder
      */
     public function run(): void
     {
+        $reset = $this->command->confirm('Do you want to reset this form?', false);
+
+        if ($reset) {
+            Form::whereSlug('nsia-application')->delete();
+        }
+
         $data = [
+            'id' => 9,
             'name' => 'NSIA Application',
             'title' => 'NSIA Application',
             'banner_title' => 'Complete Your Application',
             'banner_info' => 'Complete Your Application',
-            'socials' => [
+            'socials' => json_encode([
                 'facebook' => 'http://facebook.com/nsia',
                 'twitter' => 'http://twitter.com/nsia',
                 'instagram' => 'http://instagram.com/nsia',
-            ],
+            ]),
             'deadline' => '2025/12/12',
             'template' => 'default',
             'require_auth' => false,
             'dont_notify' => false,
-            'data_emails' =>  [],
+            'data_emails' =>  json_encode([]),
             'success_message' => 'Hello :fullname, This is to confirm that your application for the NSIA Prize for innovation has been received successfully and will be reviewed
             soon, we will notify you once we\'re done.',
             'failure_message' => 'Hello :fullname, Unfortunattely we could not complete your application, you may try again soon.',
@@ -130,7 +137,7 @@ class NsiaFormSeeder extends Seeder
             "company_reg" => [
                 "Year of Incorporation",
                 "input",
-                "text",
+                "number",
                 [],
                 false,
                 null,
@@ -138,7 +145,7 @@ class NsiaFormSeeder extends Seeder
             "company_reg_year" => [
                 "Company Registration Number (if applicable)",
                 "input",
-                "number",
+                "text",
                 [],
                 true,
                 null,
@@ -402,6 +409,8 @@ class NsiaFormSeeder extends Seeder
         $this->call([
             NsiaCommercialFormSeeder::class,
             NsiaImpactFormSeeder::class,
+            NsiaAdditionalFormSeeder::class,
+            NsiaFormGroupSeeder::class,
         ]);
     }
 }

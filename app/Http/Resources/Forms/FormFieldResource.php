@@ -43,7 +43,9 @@ class FormFieldResource extends JsonResource
             'max' => $this->max,
             'element' => $this->element,
             'type' => $this->type,
-            'expected_value_type' => $this->ExpectedValueType,
+            // 'groups' => $this->groups,
+            'expected_value' => $this->expected_value,
+            'expected_value_type' => $this->expectedValueType,
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
         ];

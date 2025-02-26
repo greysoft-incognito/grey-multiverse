@@ -32,7 +32,7 @@ class RegisteredUserController extends Controller
             'phone' => 'required_without:email|string|max:255|unique:users,phone',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'firstname' => ['nullable', 'string', 'max:255'],
-            'laststname' => ['nullable', 'string', 'max:255'],
+            'lastname' => ['nullable', 'string', 'max:255'],
         ], [
             'name.required_without' => 'Please enter your fullname.',
         ], [
@@ -53,7 +53,7 @@ class RegisteredUserController extends Controller
     public function createUser(Request $request)
     {
         $firstname = str($request->get('name'))->explode(' ')->first(null, $request->firstname);
-        $lastname = str($request->get('name'))->explode(' ')->last(fn ($n) => $n !== $firstname, $request->lastname);
+        $lastname = str($request->get('name'))->explode(' ')->last(fn($n) => $n !== $firstname, $request->lastname);
 
         $user = User::create([
             'role' => 'user',
@@ -77,7 +77,7 @@ class RegisteredUserController extends Controller
         $dev = new DeviceDetector($request->userAgent());
 
         $device = $dev->getBrandName()
-            ? ($dev->getBrandName().$dev->getDeviceName())
+            ? ($dev->getBrandName() . $dev->getDeviceName())
             : $request->userAgent();
 
         $user->save();
@@ -111,12 +111,13 @@ class RegisteredUserController extends Controller
         $dateAdd = $datetime->addSeconds(PV::config('token_lifespan', 30));
         // dd($dateAdd->format('H:i:s'));
 
-        return PV::response()->success(new UserResource($user), HttpStatus::CREATED, [
+        return (new UserResource($user))->additional([
             'message' => 'Registration was successfull',
             'token' => $token,
             'time_left' => $dateAdd->shortAbsoluteDiffForHumans(),
             'try_at' => $dateAdd->toDateTimeLocalString(),
-        ]);
+            'statusCode' => HttpStatus::CREATED,
+        ])->response()->setStatusCode(HttpStatus::CREATED->value);
     }
 
     /**
@@ -131,7 +132,7 @@ class RegisteredUserController extends Controller
         $rule = $request->rule ?? 'unique';
         $type = $request->type ?? 'email';
 
-        $validator = static fn ($validator) => abort_if($validator->fails(), PV::response()->error([
+        $validator = static fn($validator) => abort_if($validator->fails(), PV::response()->error([
             'data' => [],
             'errors' => $validator->messages(),
             'message' => $validator->messages()->all()[0] ?? 'error',

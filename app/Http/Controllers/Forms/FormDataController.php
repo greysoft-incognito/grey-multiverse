@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Forms;
 
 use App\Enums\HttpStatus;
 use App\Helpers\Providers;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Requests\SaveFormdataRequest;
 use App\Http\Resources\Forms\FormDataCollection;
 use App\Http\Resources\Forms\FormDataResource;
@@ -12,6 +13,7 @@ use App\Models\GenericFormData;
 use App\Models\User;
 use App\Notifications\FormSubmitedSuccessfully;
 use Illuminate\Http\Request;
+use Valorin\Random\Random;
 
 class FormDataController
 {
@@ -58,19 +60,40 @@ class FormDataController
     public function store(SaveFormdataRequest $request, Form $form, $dontProcess = false)
     {
         $data = $request->input('data');
+        $user = null;
+        $token = null;
 
         if ($dontProcess === true) {
             return $data->first();
         }
 
         $formdata = $form->data()->createMany($data);
-        $formdata->each(fn (GenericFormData $data) => $data->notify(new FormSubmitedSuccessfully()));
+        $formdata->each(fn(GenericFormData $data) => $data->notify(new FormSubmitedSuccessfully()));
+        $userData = $formdata->first();
+
+        if ($form->fieldGroups()->where('authenticator', true)->exists() && $userData->email) {
+            $authCont = new RegisteredUserController();
+            $password = Random::string(8);
+            [
+                'data' => $user,
+                'token' => $token,
+            ] = $authCont->store($request->merge([
+                'name' => $userData->name,
+                'email' => $userData->email,
+                'phone' => $userData->phone,
+                'password' => $password,
+                'password_confirmation' => $password,
+                'firstname' => $userData->firstname,
+                'lastname' => $userData->lastname,
+            ]))->content();
+        }
 
         $resource = $request->hasMultipleEntries()
             ? new FormDataCollection($formdata)
-            : new FormDataResource($formdata->first());
+            : new FormDataResource($userData);
 
-        $user = ($uid = $request->input('user_id', $request->user)) ? User::find($uid) : $request->user('sanctum');
+        $user ??= ($uid = $request->input('user_id', $request->user)) ? User::find($uid) : $request->user('sanctum');
+
         if ($user && $user->reg_status !== 'completed') {
             $user->reg_status = 'ongoing';
             $user->saveQuietly();
@@ -79,7 +102,9 @@ class FormDataController
         return $resource->additional([
             'message' => __('You data has been submitted successfully.'),
             'status' => 'success',
+            'token' => $token,
             'statusCode' => HttpStatus::CREATED,
+            'user' => $user,
         ])->response()->setStatusCode(HttpStatus::CREATED->value);
     }
 
@@ -108,9 +133,7 @@ class FormDataController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(SaveFormdataRequest $request, Form $form, $id)
-    {
-    }
+    public function update(SaveFormdataRequest $request, Form $form, $id) {}
 
     /**
      * Remove the specified resource from storage.

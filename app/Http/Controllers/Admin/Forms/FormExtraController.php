@@ -34,15 +34,22 @@ class FormExtraController extends Controller
             'chartables.*.field_name' => ['required', 'string', $validateField()],
             'chartables.*.chart_type' => 'required|in:line,bar,pie',
             'chartables.*.cols' => 'required|numeric|in:12,8,6,4,3',
+
             'statcards' => 'nullable|array',
             'statcards.*.field' => ['required', 'string', $validateField()],
             'statcards.*.key' => 'required|string',
             'statcards.*.cols' => 'required|numeric|in:12,8,6,4,3',
             'statcards.*.value' => 'required|string',
+
             'fields_map' => 'required|array',
             'fields_map.name' => ['required', 'string', $validateField()],
             'fields_map.email' => ['required', 'string', $validateField()],
             'fields_map.phone' => ['required', 'string', $validateField()],
+
+            'sort_fields' => ['nullable', 'array'],
+            'sort_fields.*' => ['required', 'exists:form_fields,id'],
+
+            'base_url' => ['nullable', 'url'],
             'auto_assign_reviewers' => ['nullable', 'boolean'],
         ]);
 

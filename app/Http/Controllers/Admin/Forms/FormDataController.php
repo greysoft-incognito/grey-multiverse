@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Forms\FormDataController as GuestFormDataController;
 use App\Http\Resources\Forms\FormDataCollection;
 use App\Http\Resources\Forms\FormDataResource;
+use App\Http\Resources\SortFieldResource;
 use App\Models\Form;
 use App\Models\GenericFormData;
 use Illuminate\Http\Request;
@@ -41,6 +42,7 @@ class FormDataController extends Controller
                 'title' => $form->title,
                 'slug' => $form->slug,
             ],
+            ...($request->boolean('sortable') ? ['sortFields' => SortFieldResource::collection($form->sortFields)] : []),
             'message' => HttpStatus::message(HttpStatus::OK),
             'status' => 'success',
             'statusCode' => HttpStatus::OK->value,

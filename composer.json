@@ -26,6 +26,7 @@
         "matomo/device-detector": "^6.3",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/laravel-permission": "^6.4",
+        "staudenmeir/eloquent-json-relations": "^1.1",
         "toneflix-code/kudisms-notification": "^1.0.1",
         "toneflix-code/laravel-dbconfig": "^1.0",
         "toneflix-code/laravel-fileable": "^2.0.8",

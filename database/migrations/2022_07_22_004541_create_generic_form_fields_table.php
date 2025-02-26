@@ -27,6 +27,7 @@ return new class extends Migration
             $table->string('compare')->nullable();
             $table->json('options')->nullable();
             $table->string('required_if')->nullable();
+            $table->string('expected_value')->nullable();
             $table->boolean('require_auth')->default(false);
             $table->boolean('restricted')->default(false);
             $table->boolean('required')->default(true);

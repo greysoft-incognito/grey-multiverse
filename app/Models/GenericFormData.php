@@ -124,6 +124,26 @@ class GenericFormData extends Model
     }
 
     /**
+     * Get the firstname of user from the GenericFormData field
+     */
+    public function firstname(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => str($this->name)->before(' ')->toString()
+        );
+    }
+
+    /**
+     * Get the lastname of user from the GenericFormData field
+     */
+    public function lastname(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => str($this->name)->explode(' ')->count() > 1 ? str($this->name)->after(' ')->toString() : ''
+        );
+    }
+
+    /**
      * Get the email of user from the GenericFormData field
      */
     public function email(): Attribute

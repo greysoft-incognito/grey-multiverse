@@ -68,6 +68,7 @@ class FormFieldController extends Controller
             'required' => 'nullable|boolean',
             'required_if' => 'nullable|string',
             'restricted' => 'nullable|boolean',
+            'priority' => 'numeric|nullable',
             'key' => 'nullable|string',
             'min' => ['numeric', Rule::requiredIf($request->compare && $request->type === 'date' && ! $request->max)],
             'max' => ['numeric', Rule::requiredIf($request->compare && $request->type === 'date' && ! $request->min)],
@@ -87,9 +88,10 @@ class FormFieldController extends Controller
         $field->custom_error = $request->custom_error;
         $field->compare = $request->compare;
         $field->options = $request->options;
-        $field->required = $request->required;
+        $field->priority = $request->integer('priority');
+        $field->required = $request->boolean('required');
         $field->required_if = $request->required_if;
-        $field->restricted = $request->restricted;
+        $field->restricted = $request->boolean('restricted');
         $field->key = $request->key;
         $field->min = $request->min;
         $field->max = $request->max;
@@ -129,6 +131,8 @@ class FormFieldController extends Controller
      */
     public function multiple(Request $request, Form $form)
     {
+        \Gate::authorize('usable', ['formfield.update', 'formfield.create']);
+
         $validator = Validator::make($request->all(), [
             'data' => 'required|array',
             'data.*.name' => 'required|string',
@@ -278,34 +282,21 @@ class FormFieldController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, Form $form, $id)
+    public function destroy(Request $request, Form $form, string $id)
     {
         \Gate::authorize('usable', 'formfield.delete');
 
-        $items = $this->validate($request, [
+        @['items' => $items] = $this->validate($request, [
             'items' => ['nullable', 'array'],
             'items.*' => ['required', 'numeric'],
         ]);
 
-        if ($items) {
-            $count = count($items);
-            $form->fields()->whereIn('id', $items)->delete();
+        $count = count($items ?? []) ? count($items) : 1;
+        $form->fields()->whereIn('id', count($items ?? []) ? $items : [$id])->delete();
 
-            return Providers::response()->success([
-                'data' => [],
-                'message' => "{$count} form feilds have been deleted.",
-            ], HttpStatus::OK);
-        } else {
-            $field = $form->fields()->findOrFail($id);
-        }
-
-        if ($field) {
-            $field->delete();
-
-            return Providers::response()->info([
-                'data' => [],
-                'message' => "{$field->label} has been deleted.",
-            ], HttpStatus::ACCEPTED);
-        }
+        return Providers::response()->success([
+            'data' => [],
+            'message' => "{$count} form feilds have been deleted.",
+        ], HttpStatus::ACCEPTED);
     }
 }

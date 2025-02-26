@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
 
 class GenericFormField extends Model
 {
-    use HasFactory;
+    use HasFactory, HasJsonRelationships;
 
     protected $table = 'form_fields';
 
@@ -32,15 +34,19 @@ class GenericFormField extends Model
         return $this->belongsTo(Form::class);
     }
 
-    public function scopeEmail($query)
+    public function scopeEmail($query): void
     {
+        if (isset($this->form->config['fields_map']['email'])) {
+            $field = $this->form->config['fields_map']['email'] ?? 'email';
+            $query->where('name', $field);
+            return;
+        }
+
         $query->where('type', 'email');
         $query->orWhere('name', 'email');
         $query->orWhere('name', 'email_address');
         $query->orWhere('name', 'like', '%emailaddress%');
         $query->orWhere('name', 'like', '%email_address%');
-
-        return $query;
     }
 
     public function scopeFname($query)
@@ -61,6 +67,12 @@ class GenericFormField extends Model
 
     public function scopeFullname($query)
     {
+        if (isset($this->form->config['fields_map']['name'])) {
+            $field = $this->form->config['fields_map']['name'] ?? 'fullname';
+            $query->where('name', $field);
+            return;
+        }
+
         $query->where('name', 'like', '%fullname%')
             ->orWhere('name', 'like', '%full_name%')
             ->where('name', 'like', '%name%');
@@ -70,6 +82,12 @@ class GenericFormField extends Model
 
     public function scopePhone($query)
     {
+        if (isset($this->form->config['fields_map']['phone'])) {
+            $field = $this->form->config['fields_map']['phone'] ?? 'phone';
+            $query->where('name', $field);
+            return;
+        }
+
         $query->where(function ($q) {
             $q->where('type', 'tel')
                 ->orWhere('type', 'number');
@@ -84,13 +102,29 @@ class GenericFormField extends Model
 
         return $query;
     }
+    /**
+     * Cast the expected value to the expected value type.
+     *
+     * @return string
+     */
+    public function expectedValue(): Attribute
+    {
+        return Attribute::make(function ($val) {
+            return $val ? match ($this->expectedValueType) {
+                'array' => json_encode($val),
+                'integer' => (int)$val,
+                'boolean' => (bool)$val,
+                default => $val,
+            } : null;
+        });
+    }
 
     /**
      * Determine the expected value type based on element, type, and options.
      *
      * @return string
      */
-    public function ExpectedValueType(): Attribute
+    public function expectedValueType(): Attribute
     {
         // Define the expected types based on element and type
         $typeMapping = [
@@ -121,5 +155,24 @@ class GenericFormField extends Model
             // Default to string if no mapping is found
             return 'string';
         });
+    }
+
+    /**
+     * The groups this field is attached to.
+     */
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(FormFieldGroup::class, 'form_field_group_form_field', 'form_field_id')
+        ->using(FormFieldFieldGroup::class)
+            ->withTimestamps();
+    }
+
+    public function subValues()
+    {
+        return GenericFormData::query()
+            ->select("data->{$this->name} as {$this->name}")
+            ->whereFormId($this->form_id)
+            ->groupBy($this->name)
+            ->get();
     }
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\Forms\FormDataController;
 use App\Http\Controllers\Admin\Forms\FormDataReviewerController;
 use App\Http\Controllers\Admin\Forms\FormExtraController;
 use App\Http\Controllers\Admin\Forms\FormFieldController;
+use App\Http\Controllers\Admin\Forms\FormFieldGroupController;
 use App\Http\Controllers\Admin\Forms\FormInfoController;
 use App\Http\Controllers\Admin\Forms\ReviewerController;
 use App\Http\Controllers\Admin\RescheduleController;
@@ -33,6 +34,9 @@ Route::middleware(['auth:sanctum', $permissionMiddlewares])->prefix('admin')->na
 
         Route::apiResource('{form}/fields', FormFieldController::class);
 
+        Route::apiResource('/{form}/field-groups', FormFieldGroupController::class)->scoped();
+        Route::put('/{form}/field-groups/{field_group}/sync', [FormFieldGroupController::class, 'sync'])->name('sync');
+
         Route::get('all/data', [FormDataController::class, 'all'])->name('data.all');
         Route::get('{form}/stats', [FormExtraController::class, 'stats'])->name('stats');
         Route::post('{form}/config', [FormExtraController::class, 'config'])->name('config');
@@ -49,7 +53,6 @@ Route::middleware(['auth:sanctum', $permissionMiddlewares])->prefix('admin')->na
                 ->scoped();
         });
 
-        Route::apiResource('/', FormController::class)
-            ->parameter('', 'form');
+        Route::apiResource('/', FormController::class)->parameter('', 'form');
     });
 });

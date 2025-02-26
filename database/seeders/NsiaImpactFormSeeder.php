@@ -27,6 +27,7 @@ class NsiaImpactFormSeeder extends Seeder
                 ],
                 true,
                 null,
+                null,
             ],
             'impact_addressed_sustainable_dev_goals' => [
                 "How many UN Sustainable Development Goals (SDGs) does your work address?",
@@ -39,6 +40,7 @@ class NsiaImpactFormSeeder extends Seeder
                     ["label" => "None", "value" => "None"]
                 ],
                 true,
+                null,
                 null,
             ],
             'impact_market_underserved' => [
@@ -53,6 +55,7 @@ class NsiaImpactFormSeeder extends Seeder
                 ],
                 true,
                 null,
+                null,
             ],
             'impact_environmental_harm' => [
                 "Does your solution impact environmental harm?",
@@ -63,6 +66,7 @@ class NsiaImpactFormSeeder extends Seeder
                     ["label" => "No", "value" => false]
                 ],
                 true,
+                null,
                 null,
             ],
             'impact_how_product_reduces_environ_harm' => [
@@ -77,6 +81,7 @@ class NsiaImpactFormSeeder extends Seeder
                 ],
                 true,
                 null,
+                null,
             ],
             'impact_track_social_outcomes' => [
                 "How do you track social outcomes?",
@@ -89,6 +94,7 @@ class NsiaImpactFormSeeder extends Seeder
                     ["label" => "No tracking", "value" => "No tracking"]
                 ],
                 true,
+                null,
                 null,
             ],
             'impact_reduce_systemic_inequities' => [
@@ -103,6 +109,7 @@ class NsiaImpactFormSeeder extends Seeder
                 ],
                 true,
                 null,
+                null,
             ],
             'impact_beneficiary_involvement' => [
                 "How involved are beneficiaries in designing your solution?",
@@ -115,6 +122,7 @@ class NsiaImpactFormSeeder extends Seeder
                     ["label" => "No involvement", "value" => "No involvement"]
                 ],
                 true,
+                null,
                 null,
             ],
             'impact_replicate_in_new_regions' => [
@@ -129,6 +137,7 @@ class NsiaImpactFormSeeder extends Seeder
                 ],
                 true,
                 null,
+                null,
             ],
             'impact_endure_beyond_five_years' => [
                 "How will impact endure beyond 5 years?",
@@ -141,6 +150,7 @@ class NsiaImpactFormSeeder extends Seeder
                     ["label" => "No plan", "value" => "No plan"]
                 ],
                 true,
+                null,
                 null,
             ],
             'impact_ensure_ethical_practices' => [
@@ -155,6 +165,7 @@ class NsiaImpactFormSeeder extends Seeder
                 ],
                 true,
                 null,
+                null,
             ],
             'impact_self_reliant_users' => [
                 "Does your product/service empower users to be self-reliant?",
@@ -165,6 +176,7 @@ class NsiaImpactFormSeeder extends Seeder
                     ["label" => "Reduces dependency by 50%+", "value" => "Reduces dependency by 50%+"]
                 ],
                 true,
+                null,
                 null,
             ],
             'impact_solution_during_crises' => [
@@ -179,6 +191,7 @@ class NsiaImpactFormSeeder extends Seeder
                 ],
                 true,
                 null,
+                null,
             ],
             'impact_social_impact' => [
                 "How do you measure the social impact of your product/service?",
@@ -191,6 +204,7 @@ class NsiaImpactFormSeeder extends Seeder
                     ["label" => "We do not currently measure social impact", "value" => "We do not currently measure social impact"]
                 ],
                 true,
+                null,
                 null,
             ],
             'impact_share_growth' => [
@@ -205,6 +219,7 @@ class NsiaImpactFormSeeder extends Seeder
                 ],
                 true,
                 null,
+                null,
             ],
             'impact_local_context_tailored' => [
                 "Is your solution tailored to local contexts?",
@@ -217,6 +232,7 @@ class NsiaImpactFormSeeder extends Seeder
                     ["label" => "One-size-fits-all", "value" => "One-size-fits-all"],
                 ],
                 false,
+                null,
                 null,
             ],
             'impact_jobs_created' => [
@@ -231,6 +247,7 @@ class NsiaImpactFormSeeder extends Seeder
                 ],
                 false,
                 null,
+                null,
             ],
             'impact_gender_gaps' => [
                 "How does your product/service address gender gaps?",
@@ -243,6 +260,7 @@ class NsiaImpactFormSeeder extends Seeder
                     ["label" => "Worsens gaps", "value" => "Worsens gaps"],
                 ],
                 false,
+                null,
                 null,
             ],
             'impact_underserved_group_access' => [
@@ -257,6 +275,7 @@ class NsiaImpactFormSeeder extends Seeder
                 ],
                 false,
                 null,
+                null,
             ],
             'impact_optimize_resource' => [
                 "How does your solution optimize resource use?",
@@ -269,6 +288,7 @@ class NsiaImpactFormSeeder extends Seeder
                     ["label" => "No focus", "value" => "No focus"],
                 ],
                 false,
+                null,
                 null,
             ],
             'impact_policy_reforms' => [
@@ -283,6 +303,7 @@ class NsiaImpactFormSeeder extends Seeder
                 ],
                 false,
                 null,
+                null,
             ],
             'impact_protect_user_data' => [
                 "How do you protect user/customer data?",
@@ -295,6 +316,7 @@ class NsiaImpactFormSeeder extends Seeder
                     ["label" => "No protection", "value" => "No protection"]
                 ],
                 true,
+                null,
                 null,
             ],
             'impact_build_beneficiary_trust' => [
@@ -309,6 +331,7 @@ class NsiaImpactFormSeeder extends Seeder
                 ],
                 true,
                 null,
+                null,
             ],
             'impact_people_impacted' => [
                 "How many people has your product/service impacted?",
@@ -322,6 +345,7 @@ class NsiaImpactFormSeeder extends Seeder
                 ],
                 true,
                 null,
+                null,
             ],
             'impact_service_impact_data' => [
                 "Can you share data or statistics that demonstrate the impact your product/service has had so far?",
@@ -329,6 +353,7 @@ class NsiaImpactFormSeeder extends Seeder
                 "text",
                 [],
                 false,
+                null,
                 null,
             ],
             'impact_measurable_difference' => [
@@ -338,6 +363,7 @@ class NsiaImpactFormSeeder extends Seeder
                 [],
                 false,
                 null,
+                null,
             ],
             'impact_measurable_difference_details' => [
                 "If yes, please provide details (Top 3, 10, 25, 100)",
@@ -346,13 +372,32 @@ class NsiaImpactFormSeeder extends Seeder
                 [],
                 false,
                 null,
+                null,
+            ],
+            'impact_npi_data_protection_terms' => [
+                "I agree to the terms and conditions outlined in the NSIA Data Protection and Privacy Policy.",
+                "input",
+                "checkbox",
+                [],
+                true,
+                null,
+                "You must agree to the terms and conditions outlined in the NSIA Data Protection and Privacy Policy.",
+            ],
+            'impact_nsia_data_protection_terms' => [
+                "I agree to the terms and conditions of the NPI 3.0 Competition Submission Agreement.",
+                "input",
+                "checkbox",
+                [],
+                true,
+                null,
+                "You must agree to the terms and conditions of the NPI 3.0 Competition Submission Agreement.",
             ],
         ]);
 
         DB::transaction(function () use ($fields, $form) {
             $fields->each(function ($data, $name) use ($form) {
 
-                [$label, $element, $type, $options, $required, $required_if] = $data;
+                [$label, $element, $type, $options, $required, $required_if, $custom_error] = $data;
 
                 $field = $form->fields()->where('name', $name)->firstOrNew();
 
@@ -361,7 +406,7 @@ class NsiaImpactFormSeeder extends Seeder
                 $field->label = $label;
                 $field->value = null;
                 $field->hint = null;
-                $field->custom_error = null;
+                $field->custom_error = $custom_error;
                 $field->compare = null;
                 $field->options = $options;
                 $field->required = $required;
@@ -372,6 +417,10 @@ class NsiaImpactFormSeeder extends Seeder
                 $field->max = null;
                 $field->element = $element;
                 $field->type = $type;
+                $field->expected_value = in_array($name, [
+                    'impact_npi_data_protection_terms',
+                    'impact_nsia_data_protection_terms'
+                ]) ? true : null;
                 $field->save();
             });
         });

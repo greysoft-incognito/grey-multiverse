@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
+use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
 use ToneflixCode\LaravelFileable\Traits\Fileable;
 
 /**
@@ -25,12 +27,12 @@ use ToneflixCode\LaravelFileable\Traits\Fileable;
  * @property bool $dont_notify
  * @property \Carbon\Carbon $deadline
  * @property bool $require_auth
- * @property array{auto_assign_reviewers:bool,chartables:array,statcards:array,fields_map:array{name:string,email:string,phone:string}} $config
+ * @property array{auto_assign_reviewers:bool,base_url:string,sort_fields:array<int,string>,chartables:array,statcards:array,fields_map:array{name:string,email:string,phone:string}} $config
  * @property array<string,array{url:string,icon:string,label:string,name:string}> $socials
  */
 class Form extends Model
 {
-    use Fileable, HasFactory, ModelCanExtend;
+    use Fileable, HasFactory, ModelCanExtend, HasJsonRelationships;
 
     /**
      * The accessors to append to the model's array form.
@@ -52,7 +54,9 @@ class Form extends Model
             "chartables": [],
             "statcards": [],
             "fields_map": { "name":"name","email":"email","phone":"phone" },
-            "auto_assign_reviewers": false
+            "base_url": ""
+            "sort_fields": [],
+            "auto_assign_reviewers": false,
         }',
         'require_auth' => false,
     ];
@@ -144,6 +148,14 @@ class Form extends Model
     }
 
     /**
+     * Get all of the fields for the Form
+     */
+    public function fieldGroups(): HasMany
+    {
+        return $this->hasMany(FormFieldGroup::class)->orderBy('priority', 'desc');
+    }
+
+    /**
      * Get all of the infos for the Form
      */
     public function infos(): HasMany
@@ -191,6 +203,14 @@ class Form extends Model
                 return $parser($value, $name);
             })->toArray()[0] ?? []
         );
+    }
+
+    /**
+     * The sort fields for the form.
+     */
+    public function sortFields(): BelongsToJson
+    {
+        return $this->belongsToJson(GenericFormField::class, 'config->sort_fields');
     }
 
     /**
