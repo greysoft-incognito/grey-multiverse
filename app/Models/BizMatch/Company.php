@@ -4,6 +4,7 @@ namespace App\Models\BizMatch;
 
 use App\Models\User;
 use App\Traits\ModelCanExtend;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
