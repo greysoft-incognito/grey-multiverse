@@ -92,7 +92,7 @@ class Company extends Model
     /**
      * Scope to search for user.
      */
-    public function scopeDoSearch(Builder $query, string $search): void
+    public function scopeDoSearch(Builder $query, ?string $search): void
     {
         if (!$search) {
             return;

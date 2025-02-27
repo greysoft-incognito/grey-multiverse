@@ -342,8 +342,12 @@ class User extends Authenticatable
     /**
      * Scope to search for user.
      */
-    public function scopeDoSearch(Builder $query, string $search): void
+    public function scopeDoSearch(Builder $query, ?string $search): void
     {
+        if (!$search) {
+            return;
+        }
+        
         if (stripos($search, '@') === 0) {
             $query->where('username', str_ireplace('@', '', $search));
         } else {
