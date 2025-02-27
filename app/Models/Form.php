@@ -54,9 +54,9 @@ class Form extends Model
             "chartables": [],
             "statcards": [],
             "fields_map": { "name":"name","email":"email","phone":"phone" },
-            "base_url": ""
+            "base_url": "",
             "sort_fields": [],
-            "auto_assign_reviewers": false,
+            "auto_assign_reviewers": false
         }',
         'require_auth' => false,
     ];
