@@ -87,4 +87,22 @@ class Company extends Model
     {
         return $this->hasManyThrough(Appointment::class, User::class, 'invitee_id');
     }
+
+    /**
+     * Scope to search for user.
+     */
+    public function scopeDoSearch(Builder $query, string $search): void
+    {
+        if (!$search) {
+            return;
+        }
+
+        if (stripos($search, '@') === 0) {
+            $query->where('slug', str_ireplace('@', '', $search));
+        } else {
+            $query->where('name', 'like', "%{$search}%");
+            $query->orWhereFullText('description', $search);
+            $query->orWhereJsonContains('services', $search);
+        }
+    }
 }

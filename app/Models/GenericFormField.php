@@ -163,7 +163,7 @@ class GenericFormField extends Model
     public function groups(): BelongsToMany
     {
         return $this->belongsToMany(FormFieldGroup::class, 'form_field_group_form_field', 'form_field_id')
-        ->using(FormFieldFieldGroup::class)
+            ->using(FormFieldFieldGroup::class)
             ->withTimestamps();
     }
 
