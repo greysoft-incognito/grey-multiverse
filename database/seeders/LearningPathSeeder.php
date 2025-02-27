@@ -6,6 +6,7 @@ use App\Models\Form;
 use App\Models\Portal\LearningPath;
 use App\Models\Portal\Portal;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class LearningPathSeeder extends Seeder
 {
@@ -16,6 +17,7 @@ class LearningPathSeeder extends Seeder
      */
     public function run()
     {
+        Schema::disableForeignKeyConstraints();
         LearningPath::truncate();
         Portal::get()->map(function ($portal) {
             $portal->reg_form && $portal->reg_form->learning_paths()->insert([
@@ -105,5 +107,6 @@ class LearningPathSeeder extends Seeder
                 ],
             ]);
         });
+        Schema::enableForeignKeyConstraints();
     }
 }

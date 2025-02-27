@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\GenericFormField;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class GenericFormFieldSeeder extends Seeder
 {
@@ -14,8 +15,7 @@ class GenericFormFieldSeeder extends Seeder
      */
     public function run()
     {
-        GenericFormField::truncate();
-        GenericFormField::insert([
+        $fields = collect([
             [
                 'form_id' => '1',
                 'label' => 'Which Events Do You Want to Attend',
@@ -234,5 +234,14 @@ class GenericFormFieldSeeder extends Seeder
                 'custom_error' => null,
             ],
         ]);
+
+        DB::transaction(function () use ($fields) {
+            $fields->each(function ($data) {
+                GenericFormField::updateOrInsert(
+                    ['name' => $data['name']],
+                    $data
+                );
+            });
+        });
     }
 }
