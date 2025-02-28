@@ -11,13 +11,14 @@ jobs:
 
     strategy:
       matrix:
-        index: ['']
+        index: ['', '_NS_AY']
 
     env:
       DEPLOY_KEY: ${{ secrets[format('DEPLOY_KEY{0}', matrix.index)] }}
       DEPLOY_USER: ${{ secrets[format('DEPLOY_USER{0}', matrix.index)] }}
       DEPLOY_PATH: ${{ secrets[format('DEPLOY_PATH{0}', matrix.index)] }}
       DEPLOY_HOST: ${{ secrets[format('DEPLOY_HOST{0}', matrix.index)] }}
+      DEPLOY_USER_GROUP: ${{ secrets[format('DEPLOY_USER_GROUP{0}', matrix.index)] }}
 
     steps:
       - name: Set up SSH
