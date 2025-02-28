@@ -271,9 +271,9 @@ class User extends Authenticatable
     {
         return Attribute::make(
             get: fn() => $this->data,
-            set: fn($value) => is_array($value)
+            set: fn($value) => ['data' => is_array($value)
                 ? json_encode($value, JSON_FORCE_OBJECT)
-                : $value,
+                : $value],
         );
     }
 
@@ -347,7 +347,7 @@ class User extends Authenticatable
         if (!$search) {
             return;
         }
-        
+
         if (stripos($search, '@') === 0) {
             $query->where('username', str_ireplace('@', '', $search));
         } else {
