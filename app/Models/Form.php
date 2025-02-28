@@ -16,7 +16,7 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
 use ToneflixCode\LaravelFileable\Traits\Fileable;
 
 /**
- * @property \Illuminate\Database\Eloquent\Collection<int,GenericFormField> $fields
+ * @property \Illuminate\Database\Eloquent\Collection<int,FormField> $fields
  * @property \Illuminate\Database\Eloquent\Collection<int,GenericFormData> $data
  * @property \Illuminate\Database\Eloquent\Collection<int,FormInfo> $infos
  * @property \Illuminate\Database\Eloquent\Collection<int,LearningPath> $learningPaths
@@ -144,7 +144,7 @@ class Form extends Model
      */
     public function fields(): HasMany
     {
-        return $this->hasMany(GenericFormField::class)->orderBy('priority', 'desc');
+        return $this->hasMany(FormField::class)->orderBy('priority', 'desc');
     }
 
     /**
@@ -210,7 +210,7 @@ class Form extends Model
      */
     public function sortFields(): BelongsToJson
     {
-        return $this->belongsToJson(GenericFormField::class, 'config->sort_fields');
+        return $this->belongsToJson(FormField::class, 'config->sort_fields');
     }
 
     /**

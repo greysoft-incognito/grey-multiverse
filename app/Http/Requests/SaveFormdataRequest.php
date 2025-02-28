@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Form;
 use App\Models\GenericFormData;
-use App\Models\GenericFormField;
+use App\Models\FormField;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Http\FormRequest;
@@ -33,7 +33,7 @@ class SaveFormdataRequest extends FormRequest
     /**
      * The form fields
      *
-     * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\GenericFormField>
+     * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\FormField>
      */
     protected \Illuminate\Database\Eloquent\Collection $fields;
 
@@ -300,7 +300,7 @@ class SaveFormdataRequest extends FormRequest
          * I don't really need to the conversion
          */
 
-        // $parser = static fn(GenericFormField $field, $val) => match ($field->expectedValueType) {
+        // $parser = static fn(FormField $field, $val) => match ($field->expectedValueType) {
         //     'integer' => is_numeric($val) ? (int)$val : $val,
         //     'boolean' => (bool)$val,
         //     default => $val,

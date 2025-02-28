@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Forms\FormFieldCollection;
 use App\Http\Resources\Forms\FormFieldResource;
 use App\Models\Form;
-use App\Models\GenericFormField;
+use App\Models\FormField;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -40,7 +40,7 @@ class FormFieldController extends Controller
     public function all(Request $request)
     {
         \Gate::authorize('usable', 'formfield.list');
-        $fields = GenericFormField::paginate($request->get('limit', 30));
+        $fields = FormField::paginate($request->get('limit', 30));
 
         return (new FormFieldCollection($fields))->additional([
             'message' => HttpStatus::message(HttpStatus::OK),

@@ -54,7 +54,7 @@ class FormFieldGroup extends Model
      */
     public function fields(): BelongsToMany
     {
-        return $this->belongsToMany(GenericFormField::class, 'form_field_group_form_field',null, 'form_field_id')
+        return $this->belongsToMany(FormField::class, 'form_field_group_form_field', null, 'form_field_id')
             ->using(FormFieldFieldGroup::class)
             ->withTimestamps();
     }

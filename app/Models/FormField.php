@@ -9,11 +9,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
 
-class GenericFormField extends Model
+class FormField extends Model
 {
     use HasFactory, HasJsonRelationships;
-
-    protected $table = 'form_fields';
 
     /**
      * The attributes that should be cast.
@@ -27,7 +25,7 @@ class GenericFormField extends Model
     ];
 
     /**
-     * Get the form that owns the GenericFormData
+     * Get the form that owns the FormField
      */
     public function form(): BelongsTo
     {
@@ -173,6 +171,6 @@ class GenericFormField extends Model
             ->select("data->{$this->name} as {$this->name}")
             ->whereFormId($this->form_id)
             ->groupBy($this->name)
-            ->get();
+            ->pluck($this->name);
     }
 }

@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\GenericFormField;
+use App\Models\FormField;
 use App\Models\Portal\Portal;
 use Illuminate\Database\Seeder;
 
-class PortalGenericFormFieldSeeder extends Seeder
+class PortalFormFieldSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -17,7 +17,7 @@ class PortalGenericFormFieldSeeder extends Seeder
     {
         Portal::where('allow_registration', true)->get()->each(function ($portal) {
             $portal->forms->each(function ($form) {
-                GenericFormField::insert([
+                FormField::insert([
                     [
                         'form_id' => $form->id,
                         'label' => 'Fullame',

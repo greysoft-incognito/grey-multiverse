@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\GenericFormField;
+use App\Models\FormField;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class GenericFormFieldSeeder extends Seeder
+class FormFieldSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -237,7 +237,7 @@ class GenericFormFieldSeeder extends Seeder
 
         DB::transaction(function () use ($fields) {
             $fields->each(function ($data) {
-                GenericFormField::updateOrInsert(
+                FormField::updateOrInsert(
                     ['name' => $data['name']],
                     $data
                 );

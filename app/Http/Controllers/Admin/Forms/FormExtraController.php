@@ -6,7 +6,7 @@ use App\Enums\HttpStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Forms\FormResource;
 use App\Models\Form;
-use App\Models\GenericFormField;
+use App\Models\FormField;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Helpers\Providers;
@@ -27,7 +27,7 @@ class FormExtraController extends Controller
     {
         \Gate::authorize('usable', 'form.update');
 
-        $validateField = static fn() => Rule::exists(GenericFormField::class, 'name')->where('form_id', $form->id);
+        $validateField = static fn() => Rule::exists(FormField::class, 'name')->where('form_id', $form->id);
 
         $valid = $request->validate([
             'chartables' => 'nullable|array',

@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Forms\FormFieldCollection;
 use App\Http\Resources\Forms\FormFieldResource;
 use App\Models\Form;
-use App\Models\GenericFormField;
+use App\Models\FormField;
 use Illuminate\Http\Request;
 
 class FormFieldController extends Controller
@@ -19,7 +19,7 @@ class FormFieldController extends Controller
      */
     public function index(Request $request)
     {
-        $fields = GenericFormField::paginate($request->get('limit', 30));
+        $fields = FormField::paginate($request->get('limit', 30));
 
         return (new FormFieldCollection($fields))->additional([
             'message' => HttpStatus::message(HttpStatus::OK),
@@ -50,7 +50,7 @@ class FormFieldController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(GenericFormField $field)
+    public function show(FormField $field)
     {
         return (new FormFieldResource($field))->additional([
             'message' => HttpStatus::message(HttpStatus::OK),
