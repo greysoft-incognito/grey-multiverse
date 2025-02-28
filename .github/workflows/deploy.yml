@@ -9,18 +9,28 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        index: ['']
+
+    env:
+      DEPLOY_KEY: ${{ secrets[format('DEPLOY_KEY{0}', matrix.index)] }}
+      DEPLOY_USER: ${{ secrets[format('DEPLOY_USER{0}', matrix.index)] }}
+      DEPLOY_PATH: ${{ secrets[format('DEPLOY_PATH{0}', matrix.index)] }}
+      DEPLOY_HOST: ${{ secrets[format('DEPLOY_HOST{0}', matrix.index)] }}
+
     steps:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh/
-          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          echo "${{ env.DEPLOY_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ env.DEPLOY_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy and Run Updates
         run: |
-          ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} '
-            cd ${{ secrets.DEPLOY_PATH }} && \
+          ssh -i ~/.ssh/deploy_key ${{ env.DEPLOY_USER }}@${{ env.DEPLOY_HOST }} '
+            cd ${{ env.DEPLOY_PATH }} && \
             chmod +x deploy.sh && \
             ./deploy.sh
           '
