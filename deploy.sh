@@ -20,7 +20,6 @@ echo "Linking Storage."
 php artisan storage:link
 
 echo "Setting permissions..."
-chown -R greysoft-multiverse:greysoft-multiverse $(pwd)
 chmod -R 775 storage bootstrap/cache
 
 echo "Deployment complete."

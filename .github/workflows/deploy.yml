@@ -32,6 +32,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key ${{ env.DEPLOY_USER }}@${{ env.DEPLOY_HOST }} '
             cd ${{ env.DEPLOY_PATH }} && \
+            chown -R ${{ env.DEPLOY_USER_GROUP }} $(pwd) && \
             chmod +x deploy.sh && \
             ./deploy.sh
           '
