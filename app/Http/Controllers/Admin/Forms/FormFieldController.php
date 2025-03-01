@@ -72,8 +72,9 @@ class FormFieldController extends Controller
             'key' => 'nullable|string',
             'min' => ['numeric', Rule::requiredIf($request->compare && $request->type === 'date' && ! $request->max)],
             'max' => ['numeric', Rule::requiredIf($request->compare && $request->type === 'date' && ! $request->min)],
+            'points' => ['required', 'numeric'],
             'element' => 'required|string|in:input,textarea,select,locale',
-            'type' => 'required|string|in:hidden,text,number,email,password,date,time,datetime-local,file,tel,url,checkbox,radio,country,state,city',
+            'type' => 'required|string|in:hidden,text,number,email,password,date,time,datetime-local,file,tel,url,checkbox,radio,country,state,lga,city',
         ], [
             'min.required' => 'the Min field is required if Compare is set and Type equals date while Max is missing',
             'max.required' => 'the Max field is required if Compare is set and Type equals date while Min is missing',
@@ -95,6 +96,7 @@ class FormFieldController extends Controller
         $field->key = $request->key;
         $field->min = $request->min;
         $field->max = $request->max;
+        $field->points = $request->points;
         $field->element = $request->element;
         $field->type = $request->type;
         $field->save();
@@ -148,9 +150,10 @@ class FormFieldController extends Controller
             'data.*.key' => 'alpha_num',
             'data.*.min' => 'numeric',
             'data.*.max' => 'numeric',
+            'data.*.points' => ['required', 'numeric'],
             'data.*.priority' => 'numeric|nullable',
-            'data.*.element' => 'required|string|in:input,textarea,select',
-            'data.*.type' => 'required|string|in:hidden,text,number,email,password,date,time,datetime-local,file,tel,url,checkbox,radio',
+            'data.*.element' => 'required|string|in:input,textarea,select,locale',
+            'data.*.type' => 'required|string|in:hidden,text,number,email,password,date,time,datetime-local,file,tel,url,checkbox,radio,country,state,lga,city',
         ], [
             'data.*.min.required' => '[FIELD #:index] The Min field is required if Compare is set and Type equals date while Max is missing',
             'data.*.max.required' => '[FIELD #:index] The Max field is required if Compare is set and Type equals date while Min is missing',
@@ -168,6 +171,7 @@ class FormFieldController extends Controller
             'data.*.key' => '#:index Key',
             'data.*.min' => '#:index Min',
             'data.*.max' => '#:index Max',
+            'data.*.points' => '#:index Points',
             'data.*.priority' => '#:index Priority',
             'data.*.element' => '#:index Element',
             'data.*.type' => '#:index Type',
@@ -197,6 +201,7 @@ class FormFieldController extends Controller
             $field->key = $data['key'] ?? null;
             $field->min = $data['min'] ?? null;
             $field->max = $data['max'] ?? null;
+            $field->points = $data['points'] ?? 0;
             $field->priority = (int)$count - $i;
             $field->element = $data['element'] ?? null;
             $field->type = $data['type'] ?? null;
@@ -244,8 +249,9 @@ class FormFieldController extends Controller
             'key' => 'required|string',
             'min' => ['numeric', Rule::requiredIf($request->compare && $request->type === 'date' && ! $request->max)],
             'max' => ['numeric', Rule::requiredIf($request->compare && $request->type === 'date' && ! $request->min)],
-            'element' => 'required|string|in:input,textarea,select',
-            'type' => 'required|string|in:hidden,text,number,email,password,date,time,datetime-local,file,tel,url,checkbox,radio',
+            'points' => ['required', 'numeric'],
+            'element' => 'required|string|in:input,textarea,select,locale',
+            'type' => 'required|string|in:hidden,text,number,email,password,date,time,datetime-local,file,tel,url,checkbox,radio,country,state,lga,city',
         ], [
             'min.required' => 'the Min field is required if Compare is set and Type equals date while Max is missing',
             'max.required' => 'the Max field is required if Compare is set and Type equals date while Min is missing',
@@ -265,6 +271,7 @@ class FormFieldController extends Controller
         $field->key = $request->key;
         $field->min = $request->min;
         $field->max = $request->max;
+        $field->points = $request->points;
         $field->element = $request->element;
         $field->type = $request->type;
         $field->save();

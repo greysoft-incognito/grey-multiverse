@@ -53,6 +53,7 @@ return new class extends Migration
                 'country',
                 'state',
                 'city',
+                'lga',
             ])->default('text');
             $table->timestamps();
         });
