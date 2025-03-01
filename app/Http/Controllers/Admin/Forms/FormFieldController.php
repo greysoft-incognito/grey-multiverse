@@ -73,7 +73,7 @@ class FormFieldController extends Controller
             'min' => ['numeric', Rule::requiredIf($request->compare && $request->type === 'date' && ! $request->max)],
             'max' => ['numeric', Rule::requiredIf($request->compare && $request->type === 'date' && ! $request->min)],
             'points' => ['required', 'numeric'],
-            'element' => 'required|string|in:input,textarea,select,locale',
+            'element' => 'required|string|in:input,textarea,select,locale,checkboxgroup,radiogroup',
             'type' => 'required|string|in:hidden,text,number,email,password,date,time,datetime-local,file,tel,url,checkbox,radio,country,state,lga,city',
         ], [
             'min.required' => 'the Min field is required if Compare is set and Type equals date while Max is missing',
@@ -152,7 +152,7 @@ class FormFieldController extends Controller
             'data.*.max' => 'numeric',
             'data.*.points' => ['nullable', 'numeric'],
             'data.*.priority' => 'numeric|nullable',
-            'data.*.element' => 'required|string|in:input,textarea,select,locale',
+            'data.*.element' => 'required|string|in:input,textarea,select,locale,checkboxgroup,radiogroup',
             'data.*.type' => 'required|string|in:hidden,text,number,email,password,date,time,datetime-local,file,tel,url,checkbox,radio,country,state,lga,city',
         ], [
             'data.*.min.required' => '[FIELD #:index] The Min field is required if Compare is set and Type equals date while Max is missing',
@@ -250,7 +250,7 @@ class FormFieldController extends Controller
             'min' => ['numeric', Rule::requiredIf($request->compare && $request->type === 'date' && ! $request->max)],
             'max' => ['numeric', Rule::requiredIf($request->compare && $request->type === 'date' && ! $request->min)],
             'points' => ['required', 'numeric'],
-            'element' => 'required|string|in:input,textarea,select,locale',
+            'element' => 'required|string|in:input,textarea,select,locale,checkboxgroup,radiogroup',
             'type' => 'required|string|in:hidden,text,number,email,password,date,time,datetime-local,file,tel,url,checkbox,radio,country,state,lga,city',
         ], [
             'min.required' => 'the Min field is required if Compare is set and Type equals date while Max is missing',
