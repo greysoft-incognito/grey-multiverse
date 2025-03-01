@@ -68,6 +68,7 @@ class FormFieldController extends Controller
             'required' => 'nullable|boolean',
             'required_if' => 'nullable|string',
             'restricted' => 'nullable|boolean',
+            'expected_value' => 'nullable|string',
             'priority' => 'numeric|nullable',
             'key' => 'nullable|string',
             'min' => ['numeric', Rule::requiredIf($request->compare && $request->type === 'date' && ! $request->max)],
@@ -93,6 +94,7 @@ class FormFieldController extends Controller
         $field->required = $request->boolean('required');
         $field->required_if = $request->required_if;
         $field->restricted = $request->boolean('restricted');
+        $field->expected_value = $request->expected_value;
         $field->key = $request->key;
         $field->min = $request->min;
         $field->max = $request->max;
@@ -147,6 +149,7 @@ class FormFieldController extends Controller
             'data.*.required' => 'nullable|boolean',
             'data.*.required_if' => 'nullable|string',
             'data.*.restricted' => 'nullable|boolean',
+            'data.*.expected_value' => 'nullable|string',
             'data.*.key' => 'alpha_num',
             'data.*.min' => 'numeric',
             'data.*.max' => 'numeric',
@@ -198,6 +201,7 @@ class FormFieldController extends Controller
             $field->required = $data['required'] ?? null;
             $field->required_if = $data['required_if'] ?? null;
             $field->restricted = $data['restricted'] ?? null;
+            $field->expected_value = $data['expected_value'] ?? null;
             $field->key = $data['key'] ?? null;
             $field->min = $data['min'] ?? null;
             $field->max = $data['max'] ?? null;
@@ -246,6 +250,7 @@ class FormFieldController extends Controller
             'required' => 'nullable|boolean',
             'required_if' => 'nullable|string',
             'restricted' => 'nullable|boolean',
+            'expected_value' => 'nullable|string',
             'key' => 'required|string',
             'min' => ['numeric', Rule::requiredIf($request->compare && $request->type === 'date' && ! $request->max)],
             'max' => ['numeric', Rule::requiredIf($request->compare && $request->type === 'date' && ! $request->min)],
@@ -268,6 +273,7 @@ class FormFieldController extends Controller
         $field->required = $request->required;
         $field->required_if = $request->required_if;
         $field->restricted = $request->restricted;
+        $field->expected_value = $request->expected_value;
         $field->key = $request->key;
         $field->min = $request->min;
         $field->max = $request->max;
