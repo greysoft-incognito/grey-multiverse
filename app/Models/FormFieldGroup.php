@@ -22,6 +22,7 @@ class FormFieldGroup extends Model
         'priority',
         'description',
         'authenticator',
+        'requires_auth',
     ];
 
     /**
@@ -46,6 +47,7 @@ class FormFieldGroup extends Model
     {
         return [
             'authenticator' => 'boolean',
+            'requires_auth' => 'boolean',
         ];
     }
 

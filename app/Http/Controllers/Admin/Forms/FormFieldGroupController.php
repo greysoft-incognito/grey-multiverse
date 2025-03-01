@@ -49,6 +49,7 @@ class FormFieldGroupController extends Controller
             'icon' => 'nullable|string',
             'priority' => 'nullable|integer',
             'description' => 'nullable|string|min:3',
+            'requires_auth' => 'nullable|boolean',
             'authenticator' => 'nullable|boolean',
         ]);
 
@@ -91,6 +92,7 @@ class FormFieldGroupController extends Controller
             'icon' => 'nullable|string',
             'priority' => 'nullable|integer',
             'description' => 'nullable|string|min:3',
+            'requires_auth' => 'nullable|boolean',
             'authenticator' => 'nullable|boolean',
         ]);
 

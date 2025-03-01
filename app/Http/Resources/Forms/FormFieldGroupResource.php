@@ -26,6 +26,7 @@ class FormFieldGroupResource extends JsonResource
             "description" => $this->description,
             "field_count" => $this->id ? $this->fields()->count() : $form?->fields()->count(),
             "authenticator" => $this->authenticator,
+            'requires_auth' => $this->requires_auth,
             'fields' => $this->when(
                 $with->contains('fields'),
                 fn() => new FormFieldCollection($this->id ? $this->fields : $form->fields ?? []),
