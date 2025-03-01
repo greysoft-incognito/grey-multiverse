@@ -325,7 +325,7 @@ class User extends Authenticatable
     public function reviewForms(): BelongsToMany
     {
         return $this->belongsToMany(Form::class, 'form_reviewer')
-        ->using(FormReviewer::class)
+            ->using(FormReviewer::class)
             ->withTimestamps();
     }
 
@@ -335,7 +335,7 @@ class User extends Authenticatable
     public function reviewFormData(): BelongsToMany
     {
         return $this->belongsToMany(FormData::class, 'form_data_reviewer', 'form_data_id')
-        ->using(GenericFormDataReviewer::class)
+            ->using(GenericFormDataReviewer::class)
             ->withTimestamps();
     }
 
