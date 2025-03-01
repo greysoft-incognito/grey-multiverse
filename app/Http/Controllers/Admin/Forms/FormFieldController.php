@@ -150,7 +150,7 @@ class FormFieldController extends Controller
             'data.*.key' => 'alpha_num',
             'data.*.min' => 'numeric',
             'data.*.max' => 'numeric',
-            'data.*.points' => ['required', 'numeric'],
+            'data.*.points' => ['nullable', 'numeric'],
             'data.*.priority' => 'numeric|nullable',
             'data.*.element' => 'required|string|in:input,textarea,select,locale',
             'data.*.type' => 'required|string|in:hidden,text,number,email,password,date,time,datetime-local,file,tel,url,checkbox,radio,country,state,lga,city',
