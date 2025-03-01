@@ -167,7 +167,7 @@ class FormField extends Model
 
     public function subValues()
     {
-        return GenericFormData::query()
+        return FormData::query()
             ->select("data->{$this->name} as {$this->name}")
             ->whereFormId($this->form_id)
             ->groupBy($this->name)

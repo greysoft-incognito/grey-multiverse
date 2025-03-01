@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Form;
-use App\Models\GenericFormData;
+use App\Models\FormData;
 use App\Models\FormField;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
@@ -123,8 +123,19 @@ class SaveFormdataRequest extends FormRequest
                 $rules[] = 'email';
             }
 
+            // Validate the expected value
             if ($field->expected_value !== null) {
-                $rules[] = Rule::in($field->expected_value);
+                $rules[] = function (string $attribute, mixed $val, \Closure $fail) use ($field) {
+                    $valid = match ($field->expectedValueType) {
+                        'integer' => ((int)$val) === ((int)$field->expected_value),
+                        'boolean' => ((bool)$val) === ((bool)$field->expected_value),
+                        default => mb_strtolower($val) === mb_strtolower($field->expected_value),
+                    };
+
+                    if (!$valid) {
+                        $fail("We could not proccess your submission, {$attribute} is not an acceptable value.");
+                    }
+                };
             }
 
             if ($field->options) {
@@ -265,7 +276,7 @@ class SaveFormdataRequest extends FormRequest
                     }
                 }
 
-                if ($field->key && GenericFormData::whereJsonContains("data->{$key}", $value)->exists()) {
+                if ($field->key && FormData::whereJsonContains("data->{$key}", $value)->exists()) {
                     $errors->push([
                         'data.' . $ind . $key => __('The :0 has already been taken.', [$field->label]),
                     ]);
@@ -289,10 +300,10 @@ class SaveFormdataRequest extends FormRequest
         $this->load();
 
         if ($this->user_id && $this->hasMultipleEntries()) {
-            GenericFormData::whereFormId($this->form->id)
+            FormData::whereFormId($this->form->id)
                 ->whereUserId($this->user_id)
                 ->delete();
-            // $data = GenericFormData::whereFormId($this->form->id)->whereFormId($user_id)->first();
+            // $data = FormData::whereFormId($this->form->id)->whereFormId($user_id)->first();
         }
 
         /**

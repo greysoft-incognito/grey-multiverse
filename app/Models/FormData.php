@@ -12,11 +12,11 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Arr;
 
 /**
- * Class GenericFormData
+ * Class FormData
  *
  * @additions @property int $user_id
  */
-class GenericFormData extends Model
+class FormData extends Model
 {
     use HasFactory, Notifiable;
 
@@ -86,7 +86,7 @@ class GenericFormData extends Model
     }
 
     /**
-     * Get the form that owns the GenericFormData
+     * Get the form that owns the FormData
      */
     public function form(): BelongsTo
     {
@@ -94,7 +94,7 @@ class GenericFormData extends Model
     }
 
     /**
-     * Get the name of user from the GenericFormData field
+     * Get the name of user from the FormData field
      */
     public function name(): Attribute
     {
@@ -124,7 +124,7 @@ class GenericFormData extends Model
     }
 
     /**
-     * Get the firstname of user from the GenericFormData field
+     * Get the firstname of user from the FormData field
      */
     public function firstname(): Attribute
     {
@@ -134,7 +134,7 @@ class GenericFormData extends Model
     }
 
     /**
-     * Get the lastname of user from the GenericFormData field
+     * Get the lastname of user from the FormData field
      */
     public function lastname(): Attribute
     {
@@ -144,7 +144,7 @@ class GenericFormData extends Model
     }
 
     /**
-     * Get the email of user from the GenericFormData field
+     * Get the email of user from the FormData field
      */
     public function email(): Attribute
     {
@@ -165,7 +165,7 @@ class GenericFormData extends Model
     }
 
     /**
-     * Get the phone number of user from the GenericFormData field
+     * Get the phone number of user from the FormData field
      */
     public function phone(): Attribute
     {
@@ -186,7 +186,7 @@ class GenericFormData extends Model
     }
 
     /**
-     * Get the name of user from the GenericFormData field
+     * Get the name of user from the FormData field
      */
     public function fullname(): Attribute
     {
@@ -211,23 +211,12 @@ class GenericFormData extends Model
      */
     public function routeNotificationForMail()
     {
+        // Return email address and name...
         if ($this->user) {
             return [$this->user->email => $this->user->fullname];
         } else {
-            $email_field = $this->form->fields()->email()->first();
-            $fname_field = $this->form->fields()->fname()->first();
-            $lname_field = $this->form->fields()->lname()->first();
-            $fullname_field = $this->form->fields()->fullname()->first();
-
-            $name = collect([
-                $this->data[$fname_field->name ?? '--'] ?? '',
-                $this->data[$lname_field->name ?? '--'] ?? '',
-                ! $fname_field && ! $lname_field ? $this->data[$fullname_field->name ?? $email_field->name ?? '--'] : '',
-            ])->filter(fn($name) => $name !== '')->implode(' ');
-
-            // Return email address and name...
-            if (isset($this->data[$email_field->name ?? '--'])) {
-                return [$this->data[$email_field->name] ?? null => $name];
+            if (isset($this->email)) {
+                return [$this->email => $this->name ?? $this->email];
             }
         }
 
@@ -245,9 +234,7 @@ class GenericFormData extends Model
         if ($this->user) {
             return [$this->user->phone];
         } else {
-            $phone_field = $this->form->fields()->phone()->first();
-
-            return $this->data[$phone_field->name] ?? null;
+            return $this->phone;
         }
     }
 
@@ -258,11 +245,25 @@ class GenericFormData extends Model
     }
 
     /**
-     * Get the user that owns the GenericFormData
+     * Get the user that owns the FormData
      */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function scopeRanked(Builder $query, string $type)
+    {
+        return $query->reorder()->orderBy('rank', $type === 'top' ? 'desc' : 'asc');
+    }
+
+    public function scopeForReviewer(Builder $query, User|string $user): void
+    {
+        if ($user instanceof $user) {
+            $user = $user->id;
+        }
+
+        $query->whereHas('reviewers', fn($q) => $q->where('users.id', $user));
     }
 
     public function scopeScanned(Builder $query, bool $scanned = true)
@@ -274,12 +275,22 @@ class GenericFormData extends Model
         }
     }
 
-    public function scopeForReviewer(Builder $query, User|string $user): void
+    public function scopeSorted(Builder $query, string $sort_field, string $sort_value)
     {
-        if ($user instanceof $user) {
-            $user = $user->id;
+        $query->whereJsonContains("data->{$sort_field}", $sort_value);
+    }
+
+    /**
+     * Scope to search for user.
+     */
+    public function scopeDoSearch(Builder $query, ?string $search, ?Form $form): void
+    {
+        if (!$search) {
+            return;
         }
 
-        $query->whereHas('reviewers', fn($q) => $q->where('users.id', $user));
+        $nameField = collect($this->form->config['fields_map'] ?? $form->config['fields_map'] ?? [])->get('name', 'name');
+
+        $query->where("data->{$nameField}", 'like', "%{$search}%");
     }
 }

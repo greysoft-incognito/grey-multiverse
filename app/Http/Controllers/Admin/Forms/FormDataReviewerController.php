@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Models\Form;
-use App\Models\GenericFormData;
+use App\Models\FormData;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -17,7 +17,7 @@ class FormDataReviewerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request, Form $form, GenericFormData $data)
+    public function index(Request $request, Form $form, FormData $data)
     {
         @[
             'search' => $search,
@@ -40,7 +40,7 @@ class FormDataReviewerController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, Form $form, GenericFormData $data)
+    public function store(Request $request, Form $form, FormData $data)
     {
         @[
             'user_id' => $user_id,
@@ -67,7 +67,7 @@ class FormDataReviewerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Form $form, GenericFormData $data, User $reviewer)
+    public function destroy(Form $form, FormData $data, User $reviewer)
     {
         $data->reviewers()->detach($reviewer->id);
 

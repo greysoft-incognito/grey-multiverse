@@ -4,7 +4,7 @@ namespace App\Notifications;
 
 use App\Enums\SmsProvider;
 use App\Helpers\Providers;
-use App\Models\GenericFormData;
+use App\Models\FormData;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -53,7 +53,7 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
      *
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
-    public function toMail(GenericFormData $notifiable)
+    public function toMail(FormData $notifiable)
     {
         $submission = collect($notifiable->data)->merge(['fullname' => $notifiable->fullname])->toArray();
 
@@ -81,9 +81,9 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
     /**
      * Get the sms representation of the notification.
      *
-     * @param  GenericFormData  $notifiable  notifiable
+     * @param  FormData  $notifiable  notifiable
      */
-    public function toSms(GenericFormData $notifiable)
+    public function toSms(FormData $notifiable)
     {
         $submission = collect($notifiable->data)->merge(['fullname' => $notifiable->fullname])->toArray();
 

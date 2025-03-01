@@ -4,7 +4,7 @@ namespace App\Exports;
 
 use App\Exports\Sheets\FormDataSheets;
 use App\Models\Form;
-use App\Models\GenericFormData;
+use App\Models\FormData;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Excel;
@@ -59,7 +59,7 @@ class FormDataExports implements WithMultipleSheets, WithProperties
 
     public function properties(): array
     {
-        $data = GenericFormData::first();
+        $data = FormData::first();
 
         $title = $data->form->title;
         $keywords = str($data->form->name ?? $data->form->slug)

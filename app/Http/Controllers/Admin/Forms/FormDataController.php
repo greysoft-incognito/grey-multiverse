@@ -10,7 +10,7 @@ use App\Http\Resources\Forms\FormDataCollection;
 use App\Http\Resources\Forms\FormDataResource;
 use App\Http\Resources\SortFieldResource;
 use App\Models\Form;
-use App\Models\GenericFormData;
+use App\Models\FormData;
 use Illuminate\Http\Request;
 
 class FormDataController extends Controller
@@ -22,6 +22,18 @@ class FormDataController extends Controller
      */
     public function index(Request $request, Form $form)
     {
+        @[
+            'rank' => $rank,
+            'search' => $search,
+            'sort_field' => $sort_field,
+            'sort_value' => $sort_value,
+        ] = $this->validate($request, [
+            'rank' => ['nullable', 'in:top,least'],
+            'search' => ['nullable', 'string'],
+            'sort_field' => ['nullable', 'string', 'exists:form_fields,name'],
+            'sort_value' => ['nullable', 'string'],
+        ]);
+
         /** @var \App\Models\User $user */
         $user = $request->user('sanctum');
 
@@ -29,9 +41,11 @@ class FormDataController extends Controller
 
         $query = $form->data();
 
-        if ($user->hasExactRoles(['reviewer'])) {
-            $query->forReviewer($user);
-        }
+        $query
+            ->when($rank, fn($q) => $q->ranked($rank))
+            ->when($search, fn($q) => $q->doSearch($search, $form))
+            ->when($sort_field && $sort_value, fn($q) => $q->sorted($sort_field, $sort_value))
+            ->when($user->hasExactRoles(['reviewer']), fn($q) => $q->forReviewer($user));
 
         $data = $query->paginate($request->get('limit', 30))->withQueryString();
 
@@ -61,7 +75,7 @@ class FormDataController extends Controller
 
         \Gate::authorize('usable', 'formdata.list');
 
-        $query = GenericFormData::query();
+        $query = FormData::query();
 
         if ($user->hasExactRoles(['reviewer'])) {
             $query->forReviewer($user);
@@ -94,7 +108,7 @@ class FormDataController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Form $form, GenericFormData $data)
+    public function show(Form $form, FormData $data)
     {
         \Gate::authorize('usable', 'formdata.show');
 
@@ -133,7 +147,7 @@ class FormDataController extends Controller
         $form_data_id = $matches[2];
         $qr_code = $matches[0];
 
-        $data = GenericFormData::whereId($form_data_id)->firstOrFail();
+        $data = FormData::whereId($form_data_id)->firstOrFail();
         // save this scan to the history
         $data->scans()->create([
             'user_id' => auth()->user()->id,
@@ -161,10 +175,10 @@ class FormDataController extends Controller
      * Update the specified resource in storage.
      *
      * @param  Form $form
-     * @param  GenericFormData $data
+     * @param  FormData $data
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Form $form, GenericFormData $data)
+    public function update(Request $request, Form $form, FormData $data)
     {
         \Gate::authorize('usable', 'formdata.update');
 
@@ -186,10 +200,10 @@ class FormDataController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  Form $form
-     * @param  GenericFormData $data
+     * @param  FormData $data
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Form $form, GenericFormData $data)
+    public function destroy(Form $form, FormData $data)
     {
         \Gate::authorize('usable', 'formdata.delete');
 

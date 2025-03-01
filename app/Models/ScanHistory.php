@@ -17,7 +17,7 @@ class ScanHistory extends Model
     ];
 
     /**
-     * Get the form that owns the GenericFormData
+     * Get the form that owns the FormData
      */
     public function form(): BelongsTo
     {
@@ -25,10 +25,10 @@ class ScanHistory extends Model
     }
 
     /**
-     * Get the form that owns the GenericFormData
+     * Get the form that owns the FormData
      */
     public function formData(): BelongsTo
     {
-        return $this->belongsTo(GenericFormData::class, 'form_data_id', 'id');
+        return $this->belongsTo(FormData::class, 'form_data_id', 'id');
     }
 }

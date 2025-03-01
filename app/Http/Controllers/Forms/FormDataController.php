@@ -9,7 +9,7 @@ use App\Http\Requests\SaveFormdataRequest;
 use App\Http\Resources\Forms\FormDataCollection;
 use App\Http\Resources\Forms\FormDataResource;
 use App\Models\Form;
-use App\Models\GenericFormData;
+use App\Models\FormData;
 use App\Models\User;
 use App\Notifications\FormSubmitedSuccessfully;
 use Illuminate\Http\Request;
@@ -43,7 +43,7 @@ class FormDataController
      */
     public function all(Request $request)
     {
-        $forms = GenericFormData::where('user_id', auth('sanctum')->id())->paginate($request->get('limit', 30));
+        $forms = FormData::where('user_id', auth('sanctum')->id())->paginate($request->get('limit', 30));
 
         return (new FormDataCollection($forms))->additional([
             'message' => HttpStatus::message(HttpStatus::OK),
@@ -68,7 +68,7 @@ class FormDataController
         }
 
         $formdata = $form->data()->createMany($data);
-        $formdata->each(fn(GenericFormData $data) => $data->notify(new FormSubmitedSuccessfully()));
+        $formdata->each(fn(FormData $data) => $data->notify(new FormSubmitedSuccessfully()));
         $userData = $formdata->first();
 
         if ($form->fieldGroups()->where('authenticator', true)->exists() && $userData->email) {

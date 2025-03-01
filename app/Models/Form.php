@@ -17,7 +17,7 @@ use ToneflixCode\LaravelFileable\Traits\Fileable;
 
 /**
  * @property \Illuminate\Database\Eloquent\Collection<int,FormField> $fields
- * @property \Illuminate\Database\Eloquent\Collection<int,GenericFormData> $data
+ * @property \Illuminate\Database\Eloquent\Collection<int,FormData> $data
  * @property \Illuminate\Database\Eloquent\Collection<int,FormInfo> $infos
  * @property \Illuminate\Database\Eloquent\Collection<int,LearningPath> $learningPaths
  * @property \Illuminate\Support\Collection<int,\Illuminate\Support\Stringable> $data_emails
@@ -118,13 +118,13 @@ class Form extends Model
     }
 
     /**
-     * Get all of the GenericFormData for the Form
+     * Get all of the FormData for the Form
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<GenericFormData>
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<FormData>
      */
     public function data(): HasMany
     {
-        return $this->hasMany(GenericFormData::class);
+        return $this->hasMany(FormData::class);
     }
 
     /**

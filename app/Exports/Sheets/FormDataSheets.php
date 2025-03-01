@@ -2,7 +2,7 @@
 
 namespace App\Exports\Sheets;
 
-use App\Models\GenericFormData;
+use App\Models\FormData;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -20,7 +20,7 @@ class FormDataSheets implements FromCollection, WithTitle, WithHeadings, WithMap
      * The sheets constructor
      *
      * @param integer $page
-     * @param \Illuminate\Database\Eloquent\Collection<int, GenericFormData> $submisions
+     * @param \Illuminate\Database\Eloquent\Collection<int, FormData> $submisions
      */
     public function __construct(
         protected int $page = 100,
@@ -42,7 +42,7 @@ class FormDataSheets implements FromCollection, WithTitle, WithHeadings, WithMap
     /**
      * Undocumented function
      *
-     * @param GenericFormData $submision
+     * @param FormData $submision
      * @return array
      */
     public function map($submision): array

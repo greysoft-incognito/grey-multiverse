@@ -32,6 +32,7 @@ class FormDataResource extends JsonResource
             'scan_date' => $form->scan_date,
             'fields' => $form->fields,
             'status' => $this->status,
+            'rank' => $this->rank,
         ])
             ->merge($data)->except(['fields']);
     }

@@ -6,7 +6,7 @@ use App\Mail\ReportGenerated;
 use App\Models\BizMatch\Appointment;
 use App\Models\BizMatch\Company;
 use App\Models\Form;
-use App\Models\GenericFormData;
+use App\Models\FormData;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -112,7 +112,7 @@ class DataExporter
                 $this->data_emails->merge($dataset->data_emails);
             }
 
-            // Export GenericFormData dataset
+            // Export FormData dataset
             if (method_exists($dataset, 'data')) {
                 $formData = $dataset->data();
 
@@ -165,7 +165,7 @@ class DataExporter
         }
     }
 
-    private function parseGeneric(GenericFormData $item)
+    private function parseGeneric(FormData $item)
     {
         return $item->form->fields->mapWithKeys(function ($field) use ($item) {
             $label = $field->label ?? $field->name;

@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        index: ['', '_NS_AY']
+        index: ['_NS_AY', '']
 
     env:
       DEPLOY_KEY: ${{ secrets[format('DEPLOY_KEY{0}', matrix.index)] }}

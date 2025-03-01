@@ -306,7 +306,7 @@ class User extends Authenticatable
      */
     public function formData(): HasMany
     {
-        return $this->hasMany(GenericFormData::class);
+        return $this->hasMany(FormData::class);
     }
 
     public function company(): HasOne
@@ -334,7 +334,7 @@ class User extends Authenticatable
      */
     public function reviewFormData(): BelongsToMany
     {
-        return $this->belongsToMany(GenericFormData::class, 'form_data_reviewer', 'form_data_id')
+        return $this->belongsToMany(FormData::class, 'form_data_reviewer', 'form_data_id')
         ->using(GenericFormDataReviewer::class)
             ->withTimestamps();
     }
