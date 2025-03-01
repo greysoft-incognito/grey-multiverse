@@ -190,25 +190,25 @@ class FormFieldController extends Controller
 
         $fields = collect($request->data)->map(function ($data, $i) use ($form, $count) {
             $field = $form->fields()->where('id', $data['id'] ?? null)->firstOrNew();
-            $field->name = $data['name'] ?? null;
-            $field->field_id = $data['name'] ?? null;
-            $field->label = $data['label'] ?? null;
-            $field->value = $data['value'] ?? null;
-            $field->hint = $data['hint'] ?? null;
-            $field->custom_error = $data['custom_error'] ?? null;
-            $field->compare = $data['compare'] ?? null;
-            $field->options = $data['options'] ?? null;
-            $field->required = $data['required'] ?? null;
-            $field->required_if = $data['required_if'] ?? null;
-            $field->restricted = $data['restricted'] ?? null;
-            $field->expected_value = $data['expected_value'] ?? null;
-            $field->key = $data['key'] ?? null;
-            $field->min = $data['min'] ?? null;
-            $field->max = $data['max'] ?? null;
-            $field->points = $data['points'] ?? 0;
+            $field->name = $data['name'] ?? $field->name ?? null;
+            $field->field_id = $data['name'] ?? $field->field_id ?? null;
+            $field->label = $data['label'] ?? $field->label ?? null;
+            $field->value = $data['value'] ?? $field->value ?? null;
+            $field->hint = $data['hint'] ?? $field->hint ?? null;
+            $field->custom_error = $data['custom_error'] ?? $field->custom_error ?? null;
+            $field->compare = $data['compare'] ?? $field->compare ?? null;
+            $field->options = $data['options'] ?? $field->options ?? null;
+            $field->required = $data['required'] ?? $field->required ?? null;
+            $field->required_if = $data['required_if'] ?? $field->required_if ?? null;
+            $field->restricted = $data['restricted'] ?? $field->restricted ?? null;
+            $field->expected_value = $data['expected_value'] ?? $field->expected_value ?? null;
+            $field->key = $data['key'] ?? $field->key ?? null;
+            $field->min = $data['min'] ?? $field->min ?? null;
+            $field->max = $data['max'] ?? $field->max ?? null;
+            $field->points = $data['points'] ?? $field->points ?? 0;
             $field->priority = (int)$count - $i;
-            $field->element = $data['element'] ?? null;
-            $field->type = $data['type'] ?? null;
+            $field->element = $data['element'] ?? $field->element ?? null;
+            $field->type = $data['type'] ?? $field->type ?? null;
             $field->save();
             $field->updated = (bool) ($data['id'] ?? null);
 
