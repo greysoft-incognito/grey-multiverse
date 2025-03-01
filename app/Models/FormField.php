@@ -19,6 +19,7 @@ class FormField extends Model
      * @var array
      */
     protected $casts = [
+        'points' => 'integer',
         'options' => 'array',
         'restricted' => 'boolean',
         'required' => 'boolean',
@@ -129,6 +130,7 @@ class FormField extends Model
             'select' => 'string',
             'checkboxgroup' => 'array',
             'radiogroup' => 'string',
+            'locale' => 'string',
             'input' => [
                 'text' => 'string',
                 'number' => 'integer',

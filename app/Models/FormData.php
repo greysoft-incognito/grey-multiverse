@@ -27,6 +27,7 @@ class FormData extends Model
      */
     protected $casts = [
         'data' => 'array',
+        'rank' => 'integer',
         'scan_date' => 'datetime',
     ];
 

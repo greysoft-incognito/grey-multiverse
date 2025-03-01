@@ -72,8 +72,8 @@ class FormFieldController extends Controller
             'key' => 'nullable|string',
             'min' => ['numeric', Rule::requiredIf($request->compare && $request->type === 'date' && ! $request->max)],
             'max' => ['numeric', Rule::requiredIf($request->compare && $request->type === 'date' && ! $request->min)],
-            'element' => 'required|string|in:input,textarea,select',
-            'type' => 'required|string|in:hidden,text,number,email,password,date,time,datetime-local,file,tel,url,checkbox,radio',
+            'element' => 'required|string|in:input,textarea,select,locale',
+            'type' => 'required|string|in:hidden,text,number,email,password,date,time,datetime-local,file,tel,url,checkbox,radio,country,state,city',
         ], [
             'min.required' => 'the Min field is required if Compare is set and Type equals date while Max is missing',
             'max.required' => 'the Max field is required if Compare is set and Type equals date while Min is missing',

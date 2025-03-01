@@ -34,7 +34,7 @@ return new class extends Migration
             $table->boolean('key')->default(false);
             $table->integer('min')->nullable();
             $table->integer('max')->nullable();
-            $table->enum('element', ['input', 'textarea', 'select'])->default('input');
+            $table->enum('element', ['input', 'textarea', 'select', 'locale'])->default('input');
             $table->enum('type', [
                 'hidden',
                 'text',
@@ -50,6 +50,9 @@ return new class extends Migration
                 'checkbox',
                 'multiple',
                 'radio',
+                'country',
+                'state',
+                'city',
             ])->default('text');
             $table->timestamps();
         });
