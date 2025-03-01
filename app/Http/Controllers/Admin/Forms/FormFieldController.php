@@ -269,7 +269,7 @@ class FormFieldController extends Controller
         $field->hint = $request->hint;
         $field->custom_error = $request->custom_error;
         $field->compare = $request->compare;
-        $field->options = $request->options;
+        $field->options = $request->options ?? $field->options;
         $field->required = $request->required;
         $field->required_if = $request->required_if;
         $field->restricted = $request->restricted;
