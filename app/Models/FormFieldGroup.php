@@ -56,7 +56,7 @@ class FormFieldGroup extends Model
     {
         return $this->belongsToMany(FormField::class, 'form_field_group_form_field', null, 'form_field_id')
             ->using(FormFieldFieldGroup::class)
-            ->orderByPivot('priority', 'desc')
+            ->orderBy('priority', 'desc')
             ->withTimestamps();
     }
 }
