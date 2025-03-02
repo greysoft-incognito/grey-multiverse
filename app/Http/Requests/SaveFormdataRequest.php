@@ -84,10 +84,12 @@ class SaveFormdataRequest extends FormRequest
 
             $rules[] = 'bail';
 
-            if ($field->type === 'number') {
+            if ($field->expected_value_type === 'integer') {
                 $rules[] = 'numeric';
-            } elseif ($field->type === 'multiple') {
+            } elseif ($field->expected_value_type === 'array') {
                 $rules[] = 'array';
+            } elseif ($field->expected_value_type === 'boolean') {
+                $rules[] = 'boolean';
             } else {
                 $rules[] = 'string';
             }
