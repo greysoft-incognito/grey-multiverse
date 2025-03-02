@@ -115,10 +115,12 @@ class FormDataController
      */
     public function show(Form $form, string $id)
     {
-        $data = $form
-            ->data()
-            ->where('user_id', auth('sanctum')->id())
-            ->find($id);
+        /** @var \Illuminate\Database\Eloquent\Builder $query */
+        $query = $form->data()->where('user_id', auth('sanctum')->id());
+
+        $data = $id === 'current'
+            ? $query->latest()->firstOrNew()
+            : $query->find($id);
 
         return (new FormDataResource($data))->additional([
             'message' => HttpStatus::message(HttpStatus::OK),

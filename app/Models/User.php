@@ -158,13 +158,21 @@ class User extends Authenticatable
     /**
      * Get the user's fullname.
      *
-     * @return string
+     * @return Attribute
      */
     protected function fullname(): Attribute
     {
         return Attribute::make(
             get: fn() => collect([$this->firstname, $this->lastname])->filter()->join(' '),
         );
+    }
+
+    /**
+     * Alias of fullname().
+     */
+    protected function name(): Attribute
+    {
+        return $this->fullname();
     }
 
     public function hasVerifiedPhone()

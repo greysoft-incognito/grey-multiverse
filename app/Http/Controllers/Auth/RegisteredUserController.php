@@ -33,6 +33,7 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'firstname' => ['nullable', 'string', 'max:255'],
             'lastname' => ['nullable', 'string', 'max:255'],
+            'gender' => ['nullable', 'string', 'max:20'],
         ], [
             'name.required_without' => 'Please enter your fullname.',
         ], [
@@ -60,12 +61,21 @@ class RegisteredUserController extends Controller
             'type' => $request->get('type', 'farmer'),
             'email' => $request->get('email'),
             'phone' => $request->get('phone'),
+            'gender' => $request->get('gender'),
             'password' => $request->get('password'),
             'lastname' => $request->get('lastname', $lastname ?? ''),
             'firstname' => $request->get('firstname', $firstname),
-            'email_verified_at' => ! PV::config('verify_email', false) ? now() : null,
-            'phone_verified_at' => ! PV::config('verify_phone', false) ? now() : null,
+            'email_verified_at' => ! dbconfig('verify_email', false) ? now() : null,
+            'phone_verified_at' => ! dbconfig('verify_phone', false) ? now() : null,
         ]);
+
+        if (dbconfig('verify_email', false)) {
+            $user->sendEmailVerificationNotification();
+        }
+
+        if (dbconfig('verify_phone', false)) {
+            $user->sendPhoneVerificationNotification();
+        }
 
         return $user;
     }

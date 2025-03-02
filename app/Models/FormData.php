@@ -160,7 +160,7 @@ class FormData extends Model
                 }
 
                 $field = $this->form->fields()->email()->first();
-                return $this->data[$field->name ?? ''];
+                return $this->data[$field->name ?? ''] ?? null;
             },
         );
     }
@@ -181,7 +181,7 @@ class FormData extends Model
                 }
 
                 $field = $this->form->fields()->phone()->first();
-                return $this->data[$field->name ?? ''];
+                return $this->data[$field->name ?? ''] ?? null;
             },
         );
     }
