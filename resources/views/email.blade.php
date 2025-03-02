@@ -124,7 +124,7 @@
                                                     <tbody>
                                                         <tr>
                                                             <td style="width:600px;">
-                                                                <a href="https://app.5minutes.ng" target="_blank"
+                                                                <a href="{{ dbconfig('app_url') }}" target="_blank"
                                                                     style="color: #2e58ff; text-decoration: none;"> <img
                                                                         alt="image description" height="200"
                                                                         src="{{ $banner ?? dbconfig('email_banner') }}?v=2"

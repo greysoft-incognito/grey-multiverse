@@ -9,6 +9,9 @@ COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader -n
 echo "Running migrations..."
 php artisan migrate --force
 
+echo "Seeding Configuration..."
+php artisan db:seed ConfigurationSeeder
+
 echo "Refreshing cache..."
 php artisan optimize:clear
 php artisan optimize
