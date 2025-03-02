@@ -175,7 +175,7 @@ class FormField extends Model
      */
     public function isGrouped(): Attribute
     {
-        return Attribute::make(fn() => $this->groups()->exists());
+        return Attribute::make(fn() => $this->groups()->exists() || $this->form->fieldGroups()->doesntExist());
     }
 
     public function subValues()
