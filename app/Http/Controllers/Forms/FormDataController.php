@@ -67,7 +67,17 @@ class FormDataController
             return $data->first();
         }
 
-        $formdata = $form->data()->createMany($data);
+        if ($request->hasMultipleEntries() || (!$request->user_id && !$request->user('sanctum'))) {
+            $formdata = $form->data()->createMany($data);
+        } else {
+            $entry = $form->data()->updateOrCreate(
+                $data->first(),
+                ['user_id' => $request->user_id ?? $request->user('sanctum')?->id]
+            );
+
+            $formdata = collect([$entry]);
+        }
+
         $formdata->each(fn(FormData $data) => $data->notify(new FormSubmitedSuccessfully()));
         $userData = $formdata->first();
 

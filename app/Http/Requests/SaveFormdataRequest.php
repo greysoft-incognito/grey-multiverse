@@ -301,9 +301,9 @@ class SaveFormdataRequest extends FormRequest
     {
         $this->load();
 
-        if ($this->user_id && $this->hasMultipleEntries()) {
+        if (($this->user_id || $this->user('sanctum')) && $this->hasMultipleEntries()) {
             FormData::whereFormId($this->form->id)
-                ->whereUserId($this->user_id)
+                ->whereUserId($this->user_id ?? $this->user('sanctum')?->id)
                 ->delete();
             // $data = FormData::whereFormId($this->form->id)->whereFormId($user_id)->first();
         }
