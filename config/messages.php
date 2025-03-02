@@ -9,7 +9,7 @@ return [
     | This is required and will be attached to the end of every message
     |
     */
-    'signature' => 'Regards,<br />',
+    'signature' => 'Regards,<br />' . env('APP_NAME'),
 
     /*
     |--------------------------------------------------------------------------
