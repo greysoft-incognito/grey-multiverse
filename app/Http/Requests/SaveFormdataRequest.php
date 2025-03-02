@@ -140,7 +140,7 @@ class SaveFormdataRequest extends FormRequest
                 };
             }
 
-            if ($field->options) {
+            if ($field->options && in_array($field->element, ['select', 'checkboxgroup', 'radiogroup'])) {
                 $rules[] = 'in:' . collect($field->options)->pluck('value')->implode(',');
             }
 

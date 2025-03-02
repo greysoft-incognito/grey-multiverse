@@ -55,7 +55,10 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
      */
     public function toMail(FormData $notifiable)
     {
-        $submission = collect($notifiable->data)->merge(['fullname' => $notifiable->fullname])->toArray();
+        $submission = collect($notifiable->data)
+            ->merge(['fullname' => $notifiable->fullname])
+            ->filter(fn($v) => is_scalar($v))
+            ->toArray();
 
         $message = Providers::messageParser(
             'form_submited',
@@ -85,7 +88,10 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
      */
     public function toSms(FormData $notifiable)
     {
-        $submission = collect($notifiable->data)->merge(['fullname' => $notifiable->fullname])->toArray();
+        $submission = collect($notifiable->data)
+            ->merge(['fullname' => $notifiable->fullname])
+            ->filter(fn($v) => is_scalar($v))
+            ->toArray();
 
         $message = Providers::messageParser(
             'form_submited',
