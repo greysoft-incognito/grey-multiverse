@@ -101,6 +101,7 @@ class FormField extends Model
 
         return $query;
     }
+
     /**
      * Cast the expected value to the expected value type.
      *
@@ -165,6 +166,16 @@ class FormField extends Model
         return $this->belongsToMany(FormFieldGroup::class, 'form_field_group_form_field', 'form_field_id')
             ->using(FormFieldFieldGroup::class)
             ->withTimestamps();
+    }
+
+    /**
+     * Indicates if field has been added to a group
+     *
+     * @return string
+     */
+    public function isGrouped(): Attribute
+    {
+        return Attribute::make(fn() => $this->groups()->exists());
     }
 
     public function subValues()

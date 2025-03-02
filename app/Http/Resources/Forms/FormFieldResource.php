@@ -44,6 +44,7 @@ class FormFieldResource extends JsonResource
             'element' => $this->element,
             'type' => $this->type,
             // 'groups' => $this->groups,
+            'is_grouped' => $this->when($request->routeIs('admin.*'), fn() => $this->is_grouped, false),
             'expected_value' => $this->expected_value,
             'expected_value_type' => $this->expectedValueType,
             'createdAt' => $this->created_at,
