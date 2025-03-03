@@ -126,6 +126,12 @@ class User extends Authenticatable
         static::creating(function (self $model) {
             $userName = str($model->email)->before('@');
             $model->username ??= $model->generateUsername($userName);
+            if (! dbconfig('verify_email', false)) {
+                $model->email_verified_at ??= now();
+            }
+            if (! dbconfig('verify_phone', false)) {
+                $model->phone_verified_at ??= now();
+            }
             unset($model->privileges);
         });
     }

@@ -34,7 +34,6 @@ class FormDataResource extends JsonResource
 
         return collect([
             'id' => $this->id,
-            'draft' => $this->draft,
             'name' => $this->name,
             'firstname' => $name->first(),
             'lastname' => $name->count() > 1 ? $name->last() : '',
@@ -46,6 +45,7 @@ class FormDataResource extends JsonResource
             'fields' => $form->fields,
             'status' => $this->status,
             'rank' => $this->rank,
+            'draft' => $this->draft ?? ["draft_form_data" => false],
         ])
             ->merge($data)->except(['fields']);
     }

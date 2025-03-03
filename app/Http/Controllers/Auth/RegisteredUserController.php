@@ -65,8 +65,6 @@ class RegisteredUserController extends Controller
             'password' => $request->get('password'),
             'lastname' => $request->get('lastname', $lastname ?? ''),
             'firstname' => $request->get('firstname', $firstname),
-            'email_verified_at' => ! dbconfig('verify_email', false) ? now() : null,
-            'phone_verified_at' => ! dbconfig('verify_phone', false) ? now() : null,
         ]);
 
         if (dbconfig('verify_email', false)) {

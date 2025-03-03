@@ -21,18 +21,6 @@ class FormData extends Model
     use HasFactory, Notifiable;
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'data' => 'array',
-        'rank' => 'integer',
-        'draft' => 'boolean',
-        'scan_date' => 'datetime',
-    ];
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array
@@ -55,6 +43,32 @@ class FormData extends Model
     ];
 
     /**
+     * The model's attributes.
+     *
+     * @var array<string, string>
+     */
+    protected $attributes = [
+        'data' => '{}',
+        'draft' => '{"draft_form_data": true}',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return  [
+            'data' => 'array',
+            'draft' => \Illuminate\Database\Eloquent\Casts\AsArrayObject::class,
+            'rank' => 'integer',
+            'draft' => 'boolean',
+            'scan_date' => 'datetime',
+        ];
+    }
+
+    /**
      * Get the table associated with the model.
      *
      * @return string
@@ -67,7 +81,9 @@ class FormData extends Model
     public static function booted(): void
     {
         static::addGlobalScope('not-draft', function (Builder $builder) {
-            $builder->where('draft', false);
+            $builder->whereNull('draft');
+            $builder->orWhereNull('draft->draft_form_data');
+            $builder->orWhereJsonContains('draft->draft_form_data', false);
         });
 
         static::created(function (self $model) {

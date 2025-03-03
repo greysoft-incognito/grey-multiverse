@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('form_data', function (Blueprint $table) {
             if (!Schema::hasColumn('form_data', 'draft')) {
-                $table->boolean('draft')->default(0)->after('status');
+                $table->json('draft')->nullable()->after('data');
             }
             if (!Schema::hasColumn('form_data', 'rank')) {
                 $table->integer('rank')->nullable()->default(0)->after('draft');

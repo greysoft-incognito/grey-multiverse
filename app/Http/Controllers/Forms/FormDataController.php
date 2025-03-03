@@ -110,7 +110,7 @@ class FormDataController
         }
 
         return $resource->additional([
-            'message' => __('You data has been submitted successfully.'),
+            'message' => __('Your data has been submitted successfully.'),
             'status' => 'success',
             'token' => $token,
             'statusCode' => HttpStatus::CREATED,
@@ -146,6 +146,28 @@ class FormDataController
      * @return \Illuminate\Http\Response
      */
     public function update(SaveFormdataRequest $request, Form $form, $id) {}
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function draft(Request $request, Form $form, $id = null)
+    {
+        /** @var \Illuminate\Database\Eloquent\Builder $query */
+        $query = $form->data()->where('user_id', auth('sanctum')->id());
+
+        $form = !$id
+            ? $query->latest()->firstOrNew()
+            : $query->findOrFail($id);
+
+        return (new FormDataResource($form))->additional([
+            'message' => 'Successfully saved to draft.',
+            'status' => 'success',
+            'statusCode' => HttpStatus::ACCEPTED,
+        ])->response()->setStatusCode(HttpStatus::ACCEPTED->value);
+    }
 
     /**
      * Remove the specified resource from storage.
