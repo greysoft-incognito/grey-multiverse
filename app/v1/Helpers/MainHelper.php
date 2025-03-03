@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\Strings;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -7,7 +8,7 @@ use Illuminate\Support\Str;
 if (! function_exists('rangable')) {
     function rangable($range, $del = '-', $prepend = '0')
     {
-        $range = stripos($range, '-') === false ? ($prepend.$del.$range) : $range;
+        $range = stripos($range, '-') === false ? ($prepend . $del . $range) : $range;
 
         return explode($del, $range);
     }
@@ -35,7 +36,7 @@ if (! function_exists('img')) {
             return $image;
         }
 
-        if ($image && Storage::exists((config('filesystems.default') === 'local' ? 'public/' : '').$image)) {
+        if ($image && Storage::exists((config('filesystems.default') === 'local' ? 'public/' : '') . $image)) {
             $fpath = preg_match("/^(media\/|home\/){1,2}\w+/", $image) ? $image : $image;
             $photo = asset((config('filesystems.default') === 'local' ? $fpath : Storage::url($image)));
             // $photo    = asset( $image );
@@ -45,10 +46,10 @@ if (! function_exists('img')) {
             }
 
             $photo = asset((config('filesystems.default') === 'local'
-                ? env('default_'.$type, 'media/'.$type.(in_array($type, ['logo', 'avatar']) ? '.svg' : '.png'))
-                : Storage::url(env('default_'.$type, 'media/'.$type.(in_array($type, ['logo', 'avatar']) ? '.svg' : '.png')))));
+                ? env('default_' . $type, 'media/' . $type . (in_array($type, ['logo', 'avatar']) ? '.svg' : '.png'))
+                : Storage::url(env('default_' . $type, 'media/' . $type . (in_array($type, ['logo', 'avatar']) ? '.svg' : '.png')))));
 
-            $photo = config('settings.default_'.$type, $photo);
+            $photo = config('settings.default_' . $type, $photo);
         }
 
         if (($cache = config('imagecache.route')) && ! Str::contains($photo, ['.svg'])) {
@@ -60,7 +61,7 @@ if (! function_exists('img')) {
         $file_scheme = parse_url($photo, PHP_URL_SCHEME);
         $site_scheme = parse_url(config('app.url'), PHP_URL_SCHEME);
 
-        return Str::of($photo)->replace($file_scheme.'://', $site_scheme.'://');
+        return Str::of($photo)->replace($file_scheme . '://', $site_scheme . '://');
     }
 }
 
@@ -108,11 +109,11 @@ if (! function_exists('random_img')) {
             $file = collect($array)->random();
 
             if ($get_link === true) {
-                return asset($dir.'/'.$file->getFileName());
+                return asset($dir . '/' . $file->getFileName());
             }
 
             return $file;
-        } catch (\Symfony\Component\Finder\Exception\DirectoryNotFoundException|\InvalidArgumentException $e) {
+        } catch (\Symfony\Component\Finder\Exception\DirectoryNotFoundException | \InvalidArgumentException $e) {
             $get_link === true ? '' : $e->getMessage();
         }
     }
@@ -126,14 +127,28 @@ if (! function_exists('valid_json')) {
      */
     function valid_json(string $str, $get = false, $default = null)
     {
-        $data = json_decode($str);
-        $isValid = (json_last_error() == JSON_ERROR_NONE);
+        $isValid = json_validate($str);
 
         return $get === true && $isValid
-                ? $data
-                : ($default
-                    ? $default
-                    : $isValid
-                );
+            ? json_decode($str)
+            : ($default
+                ? $default
+                : $isValid
+            );
+    }
+}
+
+if (! function_exists('json_validate')) {
+    /**
+     * Validates a JSON string.
+     *
+     * @param  string  $json The JSON string to validate.
+     * @param  int  $depth Maximum depth. Must be greater than zero.
+     * @param  int  $flags Bitmask of JSON decode options.
+     * @return bool Returns true if the string is a valid JSON, otherwise false.
+     */
+    function json_validate($json, $depth = 512, $flags = 0)
+    {
+        return Strings::jsonValidate($json, $depth, $flags);
     }
 }

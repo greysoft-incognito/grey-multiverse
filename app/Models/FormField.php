@@ -180,10 +180,14 @@ class FormField extends Model
 
     public function subValues()
     {
+        $name = $this->name ?? 'value';
+
         return FormData::query()
-            ->select("data->{$this->name} as {$this->name}")
+            ->select("data->{$name} as {$name}")
             ->whereFormId($this->form_id)
-            ->groupBy($this->name)
-            ->pluck($this->name);
+            ->groupBy($name)
+            ->pluck($name)
+            ->map(fn($e) => valid_json($e) ? json_decode($e) : $e)
+            ->flatten();
     }
 }
