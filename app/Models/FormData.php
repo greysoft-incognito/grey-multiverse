@@ -86,7 +86,9 @@ class FormData extends Model
      */
     public function resolveRouteBinding($value, $field = null)
     {
-        return $this->where('id', $value)
+        return $this
+            ->withDraft()
+            ->where('id', $value)
             ->orWhere('key', $value)
             ->firstOrFail();
     }
