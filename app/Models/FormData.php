@@ -28,6 +28,7 @@ class FormData extends Model
     protected $casts = [
         'data' => 'array',
         'rank' => 'integer',
+        'draft' => 'boolean',
         'scan_date' => 'datetime',
     ];
 
@@ -65,6 +66,10 @@ class FormData extends Model
 
     public static function booted(): void
     {
+        static::addGlobalScope('not-draft', function (Builder $builder) {
+            $builder->where('draft', false);
+        });
+
         static::created(function (self $model) {
             if (Arr::get($model->form->config, 'auto_assign_reviewers')) {
                 $ids = $model->form->reviewers()->take(dbconfig('auto_assign_reviewers', 2) ?: 2)->pluck('users.id');
@@ -253,6 +258,13 @@ class FormData extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Scope to sort results by ranking
+     *
+     * @param Builder $query
+     * @param string<'top'|'least'> $type
+     * @return void
+     */
     public function scopeRanked(Builder $query, string $type)
     {
         return $query->reorder()->orderBy('rank', $type === 'top' ? 'desc' : 'asc');
@@ -274,6 +286,11 @@ class FormData extends Model
         } else {
             return $query->whereDoesntHave('scans');
         }
+    }
+
+    public function scopeWithDraft(Builder $query)
+    {
+        $query->withoutGlobalScope('not-draft');
     }
 
     public function scopeSorted(Builder $query, string $sort_field, string $sort_value)

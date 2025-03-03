@@ -34,6 +34,7 @@ class FormDataResource extends JsonResource
 
         return collect([
             'id' => $this->id,
+            'draft' => $this->draft,
             'name' => $this->name,
             'firstname' => $name->first(),
             'lastname' => $name->count() > 1 ? $name->last() : '',

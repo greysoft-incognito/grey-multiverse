@@ -12,8 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('form_data', function (Blueprint $table) {
+            if (!Schema::hasColumn('form_data', 'draft')) {
+                $table->boolean('draft')->default(0)->after('status');
+            }
             if (!Schema::hasColumn('form_data', 'rank')) {
-                $table->integer('rank')->nullable()->default(0)->after('status');
+                $table->integer('rank')->nullable()->default(0)->after('draft');
             }
         });
 
@@ -38,6 +41,9 @@ return new class extends Migration
         Schema::table('form_data', function (Blueprint $table) {
             if (Schema::hasColumn('form_data', 'rank')) {
                 $table->dropColumn(['rank']);
+            }
+            if (Schema::hasColumn('form_data', 'draft')) {
+                $table->dropColumn(['draft']);
             }
         });
 

@@ -27,11 +27,13 @@ class FormDataController extends Controller
             'search' => $search,
             'sort_field' => $sort_field,
             'sort_value' => $sort_value,
+            'load_drafts' => $load_drafts,
         ] = $this->validate($request, [
             'rank' => ['nullable', 'in:top,least'],
             'search' => ['nullable', 'string'],
             'sort_field' => ['nullable', 'string', 'exists:form_fields,name'],
             'sort_value' => ['nullable', 'string'],
+            'load_drafts' => ['nullable', 'boolean'],
         ]);
 
         /** @var \App\Models\User $user */
@@ -44,6 +46,7 @@ class FormDataController extends Controller
         $query
             ->when($rank, fn($q) => $q->ranked($rank))
             ->when($search, fn($q) => $q->doSearch($search, $form))
+            ->when($load_drafts, fn($q) => $q->withDraft())
             ->when($sort_field && $sort_value, fn($q) => $q->sorted($sort_field, $sort_value))
             ->when($user->hasExactRoles(['reviewer']), fn($q) => $q->forReviewer($user));
 
