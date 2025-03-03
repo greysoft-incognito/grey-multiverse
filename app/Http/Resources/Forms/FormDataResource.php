@@ -46,6 +46,8 @@ class FormDataResource extends JsonResource
             'status' => $this->status,
             'rank' => $this->rank,
             'draft' => $this->draft ?? ["draft_form_data" => false],
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ])
             ->merge($data)->except(['fields']);
     }
