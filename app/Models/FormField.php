@@ -178,16 +178,19 @@ class FormField extends Model
         return Attribute::make(fn() => $this->groups()->exists() || $this->form->fieldGroups()->doesntExist());
     }
 
-    public function subValues()
+    public function subValues(): Attribute
     {
         $name = $this->name ?? 'value';
 
-        return FormData::query()
-            ->select("data->{$name} as {$name}")
-            ->whereFormId($this->form_id)
-            ->groupBy($name)
-            ->pluck($name)
-            ->map(fn($e) => valid_json($e) ? json_decode($e) : $e)
-            ->flatten();
+        return Attribute::make(
+            fn() => FormData::query()
+                ->select("data->{$name} as {$name}")
+                ->whereFormId($this->form_id)
+                ->groupBy($name)
+                ->pluck($name)
+                ->map(fn($e) => valid_json($e) ? json_decode($e) : $e)
+                ->flatten()
+                ->unique()
+        );
     }
 }

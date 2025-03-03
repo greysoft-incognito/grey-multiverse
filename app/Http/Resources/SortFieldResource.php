@@ -18,7 +18,7 @@ class SortFieldResource extends JsonResource
             'id' => $this->id,
             'label' => $this->label,
             'value' => $this->name,
-            'options' => $this->subValues(),
+            'options' => $this->sub_values,
         ];
     }
 }
