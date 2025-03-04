@@ -162,6 +162,8 @@ class FormDataController extends Controller
     public function draft(Request $request, Form $form, $id = null)
     {
         $field_names = $form->fields->pluck('name');
+        $user = $request->user('sanctum');
+        $key = $form->fields->firstWhere('key', true)?->name;
 
         ['data' => $content] = $this->validate($request, [
             'data' => ['required', 'array'],
@@ -179,6 +181,7 @@ class FormDataController extends Controller
             ? $query->latest()->firstOrNew()
             : $query->findOrFail($id);
 
+        $form->key = $content[$key] ?? $user->email ?? $user->id;
         $form->draft = $content;
         $form->save();
 
