@@ -43,7 +43,7 @@ class FormDataResource extends JsonResource
             'qr' => $this->when($this->id, fn() => route('form.data.qr', ['form', $this->id]), null),
             'scan_date' => $form->scan_date,
             'fields' => $form->fields,
-            'status' => $this->status,
+            'status' => $this->status ?? 'pending',
             'rank' => $this->rank,
             'draft' => $this->draft ?? ["draft_form_data" => false],
             'created_at' => $this->created_at,
