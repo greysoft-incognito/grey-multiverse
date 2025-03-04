@@ -29,6 +29,7 @@ class FormData extends Model
         'scan_date',
         'form_id',
         'user_id',
+        'status',
         'data',
         'key',
     ];

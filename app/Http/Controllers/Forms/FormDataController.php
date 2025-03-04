@@ -81,8 +81,6 @@ class FormDataController extends Controller
         }
 
         $formdata->each(function (FormData $form) {
-            $form->draft->draft_form_data = false;
-            $form->saveQuietly();
             $form->notify(new FormSubmitedSuccessfully());
         });
 

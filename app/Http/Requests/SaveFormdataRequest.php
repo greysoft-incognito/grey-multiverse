@@ -347,12 +347,14 @@ class SaveFormdataRequest extends FormRequest
         if ($this->hasMultipleEntries()) {
             $data = collect($data)->map(fn($v, $i) => [
                 'user_id' => $this->user_id,
+                'status' => 'submitted',
                 'data' => $data[$i],
                 'key' => $data[$i][$key] ?? '',
             ]);
         } else {
             $data = collect([[
                 'user_id' => $this->user_id,
+                'status' => 'submitted',
                 'data' => $data,
                 'key' => $data[$key] ?? '',
             ]]);
