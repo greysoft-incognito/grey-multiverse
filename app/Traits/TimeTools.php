@@ -105,10 +105,11 @@ trait TimeTools
     {
         return [
             ...$config,
-            "labels" => $results->pluck($dataKey)->map(fn ($val) => match ($val) {
-                null => 'Unknown',
-                "0" => ucwords("Not $dataKey"),
-                "1" => ucwords($dataKey),
+            "labels" => $results->pluck($dataKey)->map(fn($val) => match (true) {
+                $val === null => 'Unknown',
+                $val === "0" => ucwords("Not $dataKey"),
+                $val === "1" => ucwords($dataKey),
+                json_validate($val) => collect(json_decode($val))->join(', '),
                 default => str($val)->replace(['-', '_'], ' ')->apa()->toString(),
             })->toArray(),
             "datasets" => [
@@ -204,5 +205,4 @@ trait TimeTools
         }
         return $color;
     }
-
 }
