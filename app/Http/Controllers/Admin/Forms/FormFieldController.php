@@ -62,6 +62,7 @@ class FormFieldController extends Controller
             'label' => 'required|string',
             'value' => 'nullable|string',
             'hint' => 'nullable|string|min:3',
+            'accept' => 'nullable|string',
             'custom_error' => 'nullable|string|min:3',
             'compare' => 'nullable|date',
             'options' => 'required_if:element,select|nullable|array',
@@ -87,6 +88,7 @@ class FormFieldController extends Controller
         $field->label = $request->label;
         $field->value = $request->value;
         $field->hint = $request->hint;
+        $field->accept = $request->accept;
         $field->custom_error = $request->custom_error;
         $field->compare = $request->compare;
         $field->options = $request->options;
@@ -143,6 +145,7 @@ class FormFieldController extends Controller
             'data.*.label' => 'required|string',
             'data.*.value' => 'nullable|string',
             'data.*.hint' => 'nullable|string|min:3',
+            'data.*.accept' => 'nullable|string',
             'data.*.custom_error' => 'nullable|string|min:3',
             'data.*.compare' => 'nullable|date',
             'data.*.options' => 'required_if:element,select|nullable|array',
@@ -193,15 +196,16 @@ class FormFieldController extends Controller
             $field->name = $data['name'] ?? $field->name ?? null;
             $field->field_id = $data['name'] ?? $field->field_id ?? null;
             $field->label = $data['label'] ?? $field->label ?? null;
-            $field->value = $data['value'] ?? $field->value ?? null;
-            $field->hint = $data['hint'] ?? $field->hint ?? null;
-            $field->custom_error = $data['custom_error'] ?? $field->custom_error ?? null;
-            $field->compare = $data['compare'] ?? $field->compare ?? null;
+            $field->value = $data['value'] ?? null;
+            $field->hint = $data['hint'] ?? null;
+            $field->accept = $data['accept'] ?? null;
+            $field->custom_error = $data['custom_error'] ?? null;
+            $field->compare = $data['compare'] ?? null;
             $field->options = $data['options'] ?? $field->options ?? null;
-            $field->required = $data['required'] ?? $field->required ?? null;
-            $field->required_if = $data['required_if'] ?? $field->required_if ?? null;
-            $field->restricted = $data['restricted'] ?? $field->restricted ?? null;
-            $field->expected_value = $data['expected_value'] ?? $field->expected_value ?? null;
+            $field->required = $data['required'] ?? false;
+            $field->required_if = $data['required_if'] ?? null;
+            $field->restricted = $data['restricted'] ?? false;
+            $field->expected_value = $data['expected_value'] ?? null;
             $field->key = $data['key'] ?? $field->key ?? null;
             $field->min = $data['min'] ?? $field->min ?? null;
             $field->max = $data['max'] ?? $field->max ?? null;
@@ -244,6 +248,7 @@ class FormFieldController extends Controller
             'label' => 'required|string',
             'value' => 'nullable|string',
             'hint' => 'nullable|string|min:3',
+            'accept' => 'nullable|string',
             'custom_error' => 'nullable|string|min:3',
             'compare' => 'nullable|date',
             'options' => 'required_if:element,select|nullable|array',
@@ -267,6 +272,7 @@ class FormFieldController extends Controller
         $field->label = $request->label;
         $field->value = $request->value;
         $field->hint = $request->hint;
+        $field->accept = $request->accept;
         $field->custom_error = $request->custom_error;
         $field->compare = $request->compare;
         $field->options = $request->options ?? $field->options;

@@ -24,6 +24,7 @@ class FormFieldResource extends JsonResource
             'value' => $this->value,
             'fieldId' => $this->field_id,
             'hint' => $this->hint,
+            'accept' => $this->accept,
             'customError' => $this->custom_error,
             'compare' => $this->compare,
             'options' => $this->when($this->alias === 'learning_paths' && (bool) $this->form?->learningPaths, function () {

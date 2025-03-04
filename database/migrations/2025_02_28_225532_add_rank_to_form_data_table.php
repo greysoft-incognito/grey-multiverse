@@ -31,6 +31,12 @@ return new class extends Migration
                 $table->integer('points')->nullable()->default(0)->after('max');
             }
         });
+
+        Schema::table('form_fields', function (Blueprint $table) {
+            if (!Schema::hasColumn('form_fields', 'accept')) {
+                $table->string('accept')->nullable()->after('hint');
+            }
+        });
     }
 
     /**
@@ -56,6 +62,12 @@ return new class extends Migration
         Schema::table('form_fields', function (Blueprint $table) {
             if (Schema::hasColumn('form_fields', 'points')) {
                 $table->dropColumn(['points']);
+            }
+        });
+
+        Schema::table('form_fields', function (Blueprint $table) {
+            if (Schema::hasColumn('form_fields', 'accept')) {
+                $table->dropColumn(['accept']);
             }
         });
     }

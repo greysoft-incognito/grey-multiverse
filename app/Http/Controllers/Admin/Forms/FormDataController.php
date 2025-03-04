@@ -22,15 +22,22 @@ class FormDataController extends Controller
      */
     public function index(Request $request, Form $form)
     {
+        $request->merge([
+            'sortable' => $request->boolean('sortable'),
+            'load_drafts' => $request->boolean('load_drafts'),
+        ]);
+
         @[
             'rank' => $rank,
             'search' => $search,
+            'sortable' => $sortable,
             'sort_field' => $sort_field,
             'sort_value' => $sort_value,
             'load_drafts' => $load_drafts,
         ] = $this->validate($request, [
             'rank' => ['nullable', 'in:top,least'],
             'search' => ['nullable', 'string'],
+            'sortable' => ['nullable', 'boolean'],
             'sort_field' => ['nullable', 'string', 'exists:form_fields,name'],
             'sort_value' => ['nullable', 'string'],
             'load_drafts' => ['nullable', 'boolean'],
@@ -59,7 +66,7 @@ class FormDataController extends Controller
                 'title' => $form->title,
                 'slug' => $form->slug,
             ],
-            ...($request->boolean('sortable') ? ['sortFields' => SortFieldResource::collection($form->sortFields)] : []),
+            ...($sortable ? ['sortFields' => SortFieldResource::collection($form->sortFields)] : []),
             'message' => HttpStatus::message(HttpStatus::OK),
             'status' => 'success',
             'statusCode' => HttpStatus::OK->value,
