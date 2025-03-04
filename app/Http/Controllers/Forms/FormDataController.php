@@ -181,6 +181,8 @@ class FormDataController extends Controller
             ? $query->latest()->firstOrNew()
             : $query->findOrFail($id);
 
+        $content['draft_form_data'] = true;
+
         $form->user_id = $user->id;
         $form->draft = $content;
         $form->key = $content[$key] ?? $user->email ?? $user->id;
