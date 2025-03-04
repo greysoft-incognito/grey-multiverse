@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Forms;
 use App\Enums\HttpStatus;
 use App\Helpers\Providers;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\SaveFormdataRequest;
 use App\Http\Resources\Forms\FormDataCollection;
 use App\Http\Resources\Forms\FormDataResource;
@@ -15,7 +16,7 @@ use App\Notifications\FormSubmitedSuccessfully;
 use Illuminate\Http\Request;
 use Valorin\Random\Random;
 
-class FormDataController
+class FormDataController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -78,7 +79,12 @@ class FormDataController
             $formdata = collect([$entry]);
         }
 
-        $formdata->each(fn(FormData $data) => $data->notify(new FormSubmitedSuccessfully()));
+        $formdata->each(function (FormData $form) {
+            $form->draft = null;
+            $form->saveQuietly();
+            $form->notify(new FormSubmitedSuccessfully());
+        });
+
         $userData = $formdata->first();
 
         if ($form->fieldGroups()->where('authenticator', true)->exists() && $userData->email) {
@@ -155,12 +161,26 @@ class FormDataController
      */
     public function draft(Request $request, Form $form, $id = null)
     {
+        $field_names = $form->fields->pluck('name');
+
+        ['data' => $content] = $this->validate($request, [
+            'data' => ['required', 'array'],
+            'data.*' => ['required', function (string $key, string $val, \Closure $fail) use ($field_names) {
+                if ($field_names->doesntContain(str($key)->after('.'))) {
+                    $fail(str($key)->after('.')->append(' is not a valid input'));
+                }
+            }],
+        ]);
+
         /** @var \Illuminate\Database\Eloquent\Builder $query */
         $query = $form->data()->where('user_id', auth('sanctum')->id());
 
         $form = !$id
             ? $query->latest()->firstOrNew()
             : $query->findOrFail($id);
+
+        $form->draft = $content;
+        $form->save();
 
         return (new FormDataResource($form))->additional([
             'message' => 'Successfully saved to draft.',

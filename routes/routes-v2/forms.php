@@ -18,7 +18,7 @@ Route::name('v2.forms.')->prefix('forms')->group(function () {
         ->except(['update'])
         ->scoped();
 
-    Route::put('{form}/data/draft/{data}', [FormDataController::class, 'draft'])
+    Route::put('{form}/data/draft/{data?}', [FormDataController::class, 'draft'])
         ->middleware([CheckFormDataAccess::class]);
 
     Route::apiResource('/{form}/field-groups', FormFieldGroupController::class)

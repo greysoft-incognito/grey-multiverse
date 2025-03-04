@@ -63,7 +63,6 @@ class FormData extends Model
             'data' => 'array',
             'draft' => \Illuminate\Database\Eloquent\Casts\AsArrayObject::class,
             'rank' => 'integer',
-            'draft' => 'boolean',
             'scan_date' => 'datetime',
         ];
     }
