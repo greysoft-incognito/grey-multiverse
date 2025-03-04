@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('alias')->nullable()->nullable();
             $table->string('value')->nullable();
             $table->string('field_id')->nullable()->default('field');
-            $table->string('hint')->nullable();
+            $table->text('hint')->nullable();
             $table->string('custom_error')->nullable();
             $table->string('compare')->nullable();
             $table->json('options')->nullable();
