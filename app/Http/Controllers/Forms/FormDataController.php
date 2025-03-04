@@ -28,6 +28,7 @@ class FormDataController extends Controller
         $forms = $form
             ->data()
             ->where('user_id', auth('sanctum')->id())
+            ->withDraft()
             ->paginate($request->get('limit', 30));
 
         return (new FormDataCollection($forms))->additional([
@@ -44,7 +45,7 @@ class FormDataController extends Controller
      */
     public function all(Request $request)
     {
-        $forms = FormData::where('user_id', auth('sanctum')->id())->paginate($request->get('limit', 30));
+        $forms = FormData::where('user_id', auth('sanctum')->id())->withDraft()->paginate($request->get('limit', 30));
 
         return (new FormDataCollection($forms))->additional([
             'message' => HttpStatus::message(HttpStatus::OK),
@@ -69,9 +70,9 @@ class FormDataController extends Controller
         }
 
         if ($request->hasMultipleEntries() || (!$request->user_id && !$request->user('sanctum'))) {
-            $formdata = $form->data()->createMany($data);
+            $formdata = $form->data()->withDraft()->createMany($data);
         } else {
-            $entry = $form->data()->updateOrCreate(
+            $entry = $form->data()->withDraft()->updateOrCreate(
                 $data->first(),
                 ['user_id' => $request->user_id ?? $request->user('sanctum')?->id]
             );
@@ -129,10 +130,12 @@ class FormDataController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(Form $form, string $id)
+    public function show(Request $request, Form $form, string $id)
     {
+        $user = $request->user('sanctum');
+
         /** @var \Illuminate\Database\Eloquent\Builder $query */
-        $query = $form->data()->where('user_id', auth('sanctum')->id());
+        $query = $form->data()->where('user_id', $user->id)->withDraft();
 
         $data = $id === 'current'
             ? $query->latest()->firstOrNew()
@@ -175,7 +178,7 @@ class FormDataController extends Controller
         ]);
 
         /** @var \Illuminate\Database\Eloquent\Builder $query */
-        $query = $form->data()->where('user_id', $user->id);
+        $query = $form->data()->where('user_id', $user->id)->withDraft();
 
         $form = !$id
             ? $query->latest()->firstOrNew()
@@ -207,6 +210,7 @@ class FormDataController extends Controller
             ->data()
             ->where('user_id', auth('sanctum')->id())
             ->where('id', $id)
+            ->withDraft()
             ->delete();
 
         return Providers::response()->success([
