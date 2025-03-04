@@ -175,7 +175,7 @@ class FormDataController extends Controller
         ]);
 
         /** @var \Illuminate\Database\Eloquent\Builder $query */
-        $query = $form->data()->where('user_id', auth('sanctum')->id());
+        $query = $form->data()->where('user_id', $user->id);
 
         $form = !$id
             ? $query->latest()->firstOrNew()
