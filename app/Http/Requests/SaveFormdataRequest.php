@@ -348,6 +348,7 @@ class SaveFormdataRequest extends FormRequest
             $data = collect($data)->map(fn($v, $i) => [
                 'user_id' => $this->user_id,
                 'status' => 'submitted',
+                'draft' => ['draft_form_data' => false],
                 'data' => $data[$i],
                 'key' => $data[$i][$key] ?? '',
             ]);
@@ -355,6 +356,7 @@ class SaveFormdataRequest extends FormRequest
             $data = collect([[
                 'user_id' => $this->user_id,
                 'status' => 'submitted',
+                'draft' => ['draft_form_data' => false],
                 'data' => $data,
                 'key' => $data[$key] ?? '',
             ]]);

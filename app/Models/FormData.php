@@ -30,6 +30,7 @@ class FormData extends Model
         'form_id',
         'user_id',
         'status',
+        'draft',
         'data',
         'key',
     ];
@@ -81,7 +82,8 @@ class FormData extends Model
     public static function booted(): void
     {
         static::addGlobalScope('not-draft', function (Builder $builder) {
-            $builder->whereNull('draft');
+            $builder->whereNot('status', 'pending');
+            $builder->orWhereNull('draft');
             $builder->orWhereNull('draft->draft_form_data');
             $builder->orWhereJsonContains('draft->draft_form_data', false);
         });
