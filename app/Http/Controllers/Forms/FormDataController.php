@@ -167,7 +167,7 @@ class FormDataController extends Controller
 
         ['data' => $content] = $this->validate($request, [
             'data' => ['required', 'array'],
-            'data.*' => ['required', function (string $key, string $val, \Closure $fail) use ($field_names) {
+            'data.*' => ['required', function (string $key, mixed $val, \Closure $fail) use ($field_names) {
                 if ($field_names->doesntContain(str($key)->after('.'))) {
                     $fail(str($key)->after('.')->append(' is not a valid input'));
                 }
