@@ -62,7 +62,7 @@ class AccountVerified extends Notification
     public function toArray(object $notifiable): array
     {
         $message = Providers::messageParser(
-            'send_verified:sms',
+            'send_verified::sms',
             $notifiable,
             [
                 'type' => $this->type,
@@ -89,7 +89,7 @@ class AccountVerified extends Notification
         $n ??= $n->user ?? $n;
 
         $message = Providers::messageParser(
-            'send_verified:sms',
+            'send_verified::sms',
             $n,
             [
                 'type' => $this->type,

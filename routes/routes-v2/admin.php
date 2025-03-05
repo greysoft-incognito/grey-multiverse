@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\Forms\FormFieldController;
 use App\Http\Controllers\Admin\Forms\FormFieldGroupController;
 use App\Http\Controllers\Admin\Forms\FormInfoController;
 use App\Http\Controllers\Admin\Forms\ReviewerController;
+use App\Http\Controllers\Admin\NotificationTemplateController;
 use App\Http\Controllers\Admin\RescheduleController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,10 @@ $permissionMiddlewares = 'role:' . implode('|', config('permission-defs.roles', 
 Route::middleware(['auth:sanctum', $permissionMiddlewares])->prefix('admin')->name('admin.')->group(function () {
     Route::apiResource('users', UserController::class);
     Route::apiResource('configurations', ConfigurationController::class)->only(['index', 'show', 'store']);
+
+    // Notifications Templates
+    Route::apiResource('configurations/notifications/templates', NotificationTemplateController::class)
+        ->except(['store', 'destroy']);
 
     Route::apiResource('companies', CompanyController::class)->except(['store']);
     Route::apiResource('reschedules', RescheduleController::class)->except(['store']);

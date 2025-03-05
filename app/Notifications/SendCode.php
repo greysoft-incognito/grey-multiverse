@@ -39,10 +39,10 @@ class SendCode extends Notification implements ShouldQueue
             : (
                 str($this->type)->is('verify')
                 ? ['mail']
-        : dbconfig('prefered_notification_channels', ['mail', 'sms'])
+            : dbconfig('prefered_notification_channels', ['mail', 'sms'])
             );
 
-        return collect($channels)->map(fn ($ch) => $ch == 'sms' ? SmsProvider::getChannel() : $ch)->toArray();
+        return collect($channels)->map(fn($ch) => $ch == 'sms' ? SmsProvider::getChannel() : $ch)->toArray();
     }
 
     /**
@@ -53,7 +53,7 @@ class SendCode extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         $this->code ??= $notifiable->code;
-        $this->token ??= $notifiable->token ?? Url::base64urlEncode($this->code.'|'.md5(time()));
+        $this->token ??= $notifiable->token ?? Url::base64urlEncode($this->code . '|' . md5(time()));
         $notifiable = $notifiable->user ?? $notifiable;
 
         /** @var \Carbon\Carbon */
@@ -111,11 +111,9 @@ class SendCode extends Notification implements ShouldQueue
             ]),
         ];
 
-        if (isset($message[$this->type])) {
-            $message = __('Hi :0, ', [$n->firstname]).$message[$this->type];
+        $message = __('Hi :0, ', [$n->firstname]) . $message[$this->type] ?? $message['reset'];
 
-            return SmsProvider::getMessage($message);
-        }
+        return SmsProvider::getMessage($message);
     }
 
     public function toTwilio($n): \NotificationChannels\Twilio\TwilioSmsMessage

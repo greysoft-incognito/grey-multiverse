@@ -60,6 +60,14 @@ return [
             'This verification code will expire in :duration.',
             'If you do not recognize this activity, no further action is required as the associated account will be deleted in few days if left unverified.',
         ],
+        "allowed" => ['html']
+    ],
+    'send_code::verify::sms' => [
+        "subject" => "Verify your phone number on :app_name.",
+        "lines" => [
+            "Use this code :code to verify your :app_name phone number, It expires in :duration.",
+        ],
+        "allowed" => ['sms']
     ],
     'send_code::otp' => [
         'subject' => 'Your One Time Password.',
@@ -90,12 +98,13 @@ return [
             ],
         ],
     ],
-    'send_verified:sms' => [
+    'send_verified::sms' => [
         'subject' => 'Welcome to the :app_name community.',
         'lines' => [
             'Hello :firstname,',
             'Your :app_name account :label has been verified sucessfully, welcome to our community.',
         ],
+        "allowed" => ['sms']
     ],
 
     /*
