@@ -60,6 +60,7 @@ return [
         'manage-admins',
         'configuration',
         'manage-configuration',
+        'notifications-temps',
 
         'users.list',
         'users.create',
@@ -204,6 +205,7 @@ return [
             'reschedule.update',
             'reschedule.delete',
             'reschedule.manage',
+            'notifications-temps',
         ],
     ],
     /*
