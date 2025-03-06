@@ -74,7 +74,7 @@ class SendCode extends Notification implements ShouldQueue
                 'code' => $this->code,
                 'token' => $this->token,
                 'label' => 'email address',
-                'app_url' => config('app.frontend_url', config('app.url')),
+                'app_url' => config('app.frontend_url', dbconfig('app_url')),
                 'app_name' => dbconfig('app_name'),
                 'duration' => $dateAdd->longAbsoluteDiffForHumans(),
             ]

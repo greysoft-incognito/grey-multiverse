@@ -49,7 +49,7 @@ class AccountVerified extends Notification
             [
                 'type' => $this->type,
                 'label' => 'email address',
-                'app_url' => config('app.frontend_url', config('app.url')),
+                'app_url' => config('app.frontend_url', dbconfig('app_url')),
                 'app_name' => dbconfig('app_name'),
             ]
         );
