@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\GenericFormData;
+use App\Models\FormData;
 use App\Models\Reservation;
 use App\Services\HttpStatus;
 use Illuminate\Support\Facades\Response;
@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/{type}/data/qr/{id}', function ($type, $id) {
     // header('Content-Type: image/png');
     if ($type === 'form') {
-        $data = GenericFormData::findOrFail($id);
+        $data = FormData::findOrFail($id);
         $encoded = "grey:multiverse:form={$data->form_id}:data={$data->id}";
     } elseif ($type === 'reservation') {
         $data = Reservation::findOrFail($id);
