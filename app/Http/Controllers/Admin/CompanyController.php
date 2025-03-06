@@ -18,7 +18,7 @@ class CompanyController extends Controller
     {
         $query = Company::query();
 
-        $query->when($request->has('search'), fn($q) => $q->doSearch($request->search));
+        $query->when($request->has('search'), fn ($q) => $q->doSearch($request->search));
 
         $data = $query->paginate($request->input('limit', 30));
 

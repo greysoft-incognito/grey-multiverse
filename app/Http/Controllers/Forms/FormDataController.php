@@ -69,7 +69,7 @@ class FormDataController extends Controller
             return $data->first();
         }
 
-        if ($request->hasMultipleEntries() || (!$request->user_id && !$request->user('sanctum'))) {
+        if ($request->hasMultipleEntries() || (! $request->user_id && ! $request->user('sanctum'))) {
             $formdata = $form->data()->withDraft()->createMany($data);
         } else {
             $entry = $form->data()->withDraft()->updateOrCreate(
@@ -178,7 +178,7 @@ class FormDataController extends Controller
         /** @var \Illuminate\Database\Eloquent\Builder $query */
         $query = $form->data()->where('user_id', $user->id)->withDraft();
 
-        $form = !$id
+        $form = ! $id
             ? $query->latest()->firstOrNew()
             : $query->findOrFail($id);
 

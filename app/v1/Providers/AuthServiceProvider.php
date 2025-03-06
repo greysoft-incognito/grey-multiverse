@@ -43,30 +43,6 @@ class AuthServiceProvider extends ServiceProvider
                     ? Response::allow()
                     : Response::deny($check);
             });
-        } else {
-            Gate::define('usable', function (V1User $user, $permission) {
-                $permissions = is_array($permission) ? $permission : [$permission];
-
-                $pname = str(collect($permissions)->join(', '))->replace('.', ' ')->headline()->lower();
-
-                return $user->hasAllPermissions($permission)
-                    ? Response::allow()
-                    : Response::deny(__('You do not have the ":0" permission.', [$pname]));
-            });
-
-            Gate::define('can-do', function (V1User $user, $permission, $item = null) {
-                $permissions = is_array($permission) ? $permission : [$permission];
-
-                $pname = str(collect($permissions)->join(', '))->replace('.', ' ')->headline()->lower();
-
-                return $user->hasAllPermissions($permission)
-                    ? Response::allow()
-                    : Response::deny(__('You do not have the ":0" permission.', [$pname]));
-            });
-
-            Gate::after(function ($user) {
-                return $user->hasRole(config('permission-defs.super-admin-role'));
-            });
         }
     }
 }

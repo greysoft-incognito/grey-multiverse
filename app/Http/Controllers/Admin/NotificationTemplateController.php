@@ -16,6 +16,8 @@ class NotificationTemplateController extends Controller
      */
     public function index(/*Request $request*/)
     {
+        \App\Enums\Permission::NOTIFICATIONS_TEMPS->authorize();
+
         $query = NotificationTemplate::query();
 
         $templates = $query->latest()->get();
@@ -36,6 +38,8 @@ class NotificationTemplateController extends Controller
      */
     public function show(NotificationTemplate $template)
     {
+        \App\Enums\Permission::NOTIFICATIONS_TEMPS->authorize();
+
         return (new NotificationTemplateResource($template))->additional([
             'message' => HttpStatus::message(HttpStatus::OK),
             'status' => 'success',
@@ -48,6 +52,8 @@ class NotificationTemplateController extends Controller
      */
     public function update(Request $request, NotificationTemplate $template)
     {
+        \App\Enums\Permission::NOTIFICATIONS_TEMPS->authorize();
+
         if ($template->id === -1) {
             unset($template->id);
         }

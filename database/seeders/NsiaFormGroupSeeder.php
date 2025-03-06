@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Form;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class NsiaFormGroupSeeder extends Seeder
@@ -19,53 +18,53 @@ class NsiaFormGroupSeeder extends Seeder
 
         $fields = collect([
             [
-                "Personal Information",
-                "person",
-                "",
+                'Personal Information',
+                'person',
+                '',
                 true,
                 'applicant_',
             ],
             [
-                "Company Information",
-                "business",
-                "",
+                'Company Information',
+                'business',
+                '',
                 false,
                 'company_',
             ],
             [
-                "Team Information",
-                "groups",
-                "",
+                'Team Information',
+                'groups',
+                '',
                 false,
                 'founders_',
             ],
             [
-                "Product Information",
-                "shopping_cart",
-                "",
+                'Product Information',
+                'shopping_cart',
+                '',
                 false,
                 'product_',
             ],
             [
-                "Commercial",
-                "wallet",
-                "",
+                'Commercial',
+                'wallet',
+                '',
                 false,
                 'commercial_',
             ],
             [
-                "Impact and Sustainability",
-                "emoji_nature",
-                "",
+                'Impact and Sustainability',
+                'emoji_nature',
+                '',
                 false,
-                'impact_'
+                'impact_',
             ],
             [
-                "Additional Information(optional)",
-                "read_more",
-                "",
+                'Additional Information(optional)',
+                'read_more',
+                '',
                 false,
-                'additional_'
+                'additional_',
             ],
         ]);
 

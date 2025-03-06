@@ -8,33 +8,33 @@ use Illuminate\Support\Carbon;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class AppointmentDataSheets implements FromCollection, WithTitle, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
+class AppointmentDataSheets implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     use Exportable;
 
     /**
      * The sheets constructor
      *
-     * @param integer $page
-     * @param \Illuminate\Database\Eloquent\Collection<int, Appointment> $submisions
+     * @param  \Illuminate\Database\Eloquent\Collection<int, Appointment>  $submisions
      */
     public function __construct(
-        protected int $page = 100,
+        protected int $page,
         protected \Illuminate\Database\Eloquent\Collection $submisions
-    ) {}
+    ) {
+    }
 
     public function headings(): array
     {
         $submision = $this->submisions->first();
 
         return collect(array_keys($this->map($submision)))->map(
-            fn($e) => str($e)
+            fn ($e) => str($e)
                 ->replace('_', ' ')
                 ->title()
                 ->replace([' Id', 'Id'], ['', 'ID'])
@@ -50,8 +50,7 @@ class AppointmentDataSheets implements FromCollection, WithTitle, WithHeadings, 
     /**
      * Undocumented function
      *
-     * @param Appointment $submision
-     * @return array
+     * @param  Appointment  $submision
      */
     public function map($submision): array
     {
@@ -82,7 +81,7 @@ class AppointmentDataSheets implements FromCollection, WithTitle, WithHeadings, 
             return [$key => match (true) {
                 in_array($key, ['requestor_id', 'invitee_id']) => $user->company->name ?? 'N/A',
                 in_array($key, ['booked_for', 'created_at', 'date']) => Carbon::parse($value)->isoFormat(
-                    'MMM DD, YYYY' . ($key === 'booked_for' ? ': hh:mm A' : '')
+                    'MMM DD, YYYY'.($key === 'booked_for' ? ': hh:mm A' : '')
                 ),
                 default => (string) $value
             }];
@@ -93,19 +92,16 @@ class AppointmentDataSheets implements FromCollection, WithTitle, WithHeadings, 
         return $data->toArray();
     }
 
-    /**
-     * @return string
-     */
     public function title(): string
     {
-        return 'Page ' . $this->page;
+        return 'Page '.$this->page;
     }
 
     public function styles(Worksheet $sheet)
     {
         return [
             // Style the first row as bold text.
-            1    => ['font' => ['bold' => true]],
+            1 => ['font' => ['bold' => true]],
 
             // Styling a specific cell by coordinate.
             'A' => ['font' => ['bold' => true]],

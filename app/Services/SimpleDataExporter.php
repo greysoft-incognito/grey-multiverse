@@ -27,7 +27,7 @@ class SimpleDataExporter
         protected int $perPage = 50,
         protected bool $scanned = false,
     ) {
-        $this->data_emails = dbconfig('notifiable_emails', collect([]))->map(fn($e) => str($e));
+        $this->data_emails = dbconfig('notifiable_emails', collect([]))->map(fn ($e) => str($e));
     }
 
     /**
@@ -40,12 +40,12 @@ class SimpleDataExporter
     ): void {
         $this->data_emails
             ->unique()
-            ->filter(fn($e) => $e->isNotEmpty())
+            ->filter(fn ($e) => $e->isNotEmpty())
             ->each(function ($email) use ($dataset, $batch, $title) {
                 RateLimiter::attempt(
-                    'send-report:' . $email . $batch,
+                    'send-report:'.$email.$batch,
                     5,
-                    fn() => Mail::to($email->toString())->send(new ReportGenerated($dataset, $batch, $title))
+                    fn () => Mail::to($email->toString())->send(new ReportGenerated($dataset, $batch, $title))
                 );
             });
     }
@@ -53,7 +53,7 @@ class SimpleDataExporter
     private function exportCompanies()
     {
         if (Company::count() > 0) {
-            $path = "exports/companies-dataset/data-batch-0.xlsx";
+            $path = 'exports/companies-dataset/data-batch-0.xlsx';
             (new CompanyDataExports($this->perPage))->store($path);
 
             $this->dispatchMails(new Company(), 'Companies Data', 0);
@@ -63,7 +63,7 @@ class SimpleDataExporter
     private function exportUsers()
     {
         if (User::count() > 0) {
-            $path = "exports/users-dataset/data-batch-0.xlsx";
+            $path = 'exports/users-dataset/data-batch-0.xlsx';
             (new UserDataExports($this->perPage))->store($path);
 
             $this->dispatchMails(new User(), 'User Data', 0);
@@ -73,7 +73,7 @@ class SimpleDataExporter
     private function exportAppointment()
     {
         if (Appointment::count() > 0) {
-            $path = "exports/appointments-dataset/data-batch-0.xlsx";
+            $path = 'exports/appointments-dataset/data-batch-0.xlsx';
             (new AppointmentDataExports($this->perPage))->store($path);
 
             $this->dispatchMails(new Appointment(), 'Appointment Data', 0);
@@ -84,7 +84,7 @@ class SimpleDataExporter
     {
         $query = Form::query()->whereHas('data')->where('data_emails', '!=', null);
 
-        $query->when($this->scanned === true, fn($q) => $q->whereHas('data.scans'));
+        $query->when($this->scanned === true, fn ($q) => $q->whereHas('data.scans'));
 
         foreach ($query->cursor() as $batch => $form) {
             $name = str('forms')->append('-')->append($form->id)->slug();
@@ -102,6 +102,7 @@ class SimpleDataExporter
     {
         if ($this->scanned) {
             $this->exportForms();
+
             return;
         }
 

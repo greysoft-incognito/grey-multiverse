@@ -26,7 +26,7 @@ class FormDataReviewerController extends Controller
         ]);
 
         $query = $data->reviewers();
-        $query->when($search, fn(Builder $query) => $query->doSearch($search));
+        $query->when($search, fn (Builder $query) => $query->doSearch($search));
 
         $users = $query->paginate($request->input('limit', 30));
 

@@ -24,6 +24,7 @@ use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Permission\Traits\HasRoles;
 use ToneflixCode\LaravelFileable\Traits\Fileable;
 use Valorin\Random\Random;
+use Propaganistas\LaravelPhone\Casts\E164PhoneNumberCast;
 
 /**
  * @property \App\Models\BizMatch\Company $company
@@ -52,6 +53,7 @@ class User extends Authenticatable
         'city',
         'email',
         'phone',
+        'phone_country',
         'username',
         'password',
         'otp',
@@ -85,6 +87,7 @@ class User extends Authenticatable
         'data' => '{}',
         'reg_status' => 'pending',
         'access_data' => '{}',
+        'phone_country' => 'NG',
     ];
 
     /**
@@ -108,6 +111,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'data' => \Illuminate\Database\Eloquent\Casts\AsCollection::class,
             'access_data' => \Illuminate\Database\Eloquent\Casts\AsCollection::class,
+            'phone' => E164PhoneNumberCast::class . ':' . ($this->phone_country ?? 'NG'),
             'last_attempt' => 'datetime',
             'email_verified_at' => 'datetime',
             'phone_verified_at' => 'datetime',
@@ -163,8 +167,6 @@ class User extends Authenticatable
 
     /**
      * Get the user's fullname.
-     *
-     * @return Attribute
      */
     protected function fullname(): Attribute
     {
@@ -358,7 +360,7 @@ class User extends Authenticatable
      */
     public function scopeDoSearch(Builder $query, ?string $search): void
     {
-        if (!$search) {
+        if (! $search) {
             return;
         }
 

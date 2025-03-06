@@ -6,8 +6,8 @@ use App\Exports\Sheets\UserDataSheets;
 use App\Models\User;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-use Maatwebsite\Excel\Excel;
 use Maatwebsite\Excel\Concerns\WithProperties;
+use Maatwebsite\Excel\Excel;
 
 class UserDataExports implements WithMultipleSheets, WithProperties
 {
@@ -32,11 +32,9 @@ class UserDataExports implements WithMultipleSheets, WithProperties
 
     public function __construct(
         protected int $perPage = 50,
-    ) {}
+    ) {
+    }
 
-    /**
-     * @return array
-     */
     public function sheets(): array
     {
         $formData = User::query();
@@ -55,9 +53,9 @@ class UserDataExports implements WithMultipleSheets, WithProperties
         return [
             'creator' => 'GreyMultiverese',
             'lastModifiedBy' => 'GreyMultiverse',
-            'title' => "Users Submitted Data",
+            'title' => 'Users Submitted Data',
             'description' => 'Users Submitted Data',
-            'keywords' => "submissions,export,spreadsheet,greysoft,greymultiverse,users",
+            'keywords' => 'submissions,export,spreadsheet,greysoft,greymultiverse,users',
             'category' => 'Submitted Data',
             'company' => 'GreyMultiverse',
         ];

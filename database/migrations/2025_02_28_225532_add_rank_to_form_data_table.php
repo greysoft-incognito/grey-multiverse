@@ -12,28 +12,31 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('form_data', function (Blueprint $table) {
-            if (!Schema::hasColumn('form_data', 'draft')) {
+            if (! Schema::hasColumn('form_data', 'draft')) {
                 $table->json('draft')->nullable()->after('data');
             }
-            if (!Schema::hasColumn('form_data', 'rank')) {
+            if (! Schema::hasColumn('form_data', 'rank')) {
                 $table->integer('rank')->nullable()->default(0)->after('draft');
+            }
+            if (! Schema::hasColumn('form_data', 'phone_country')) {
+                $table->string('phone_country')->nullable()->after('rank');
             }
         });
 
         Schema::table('form_field_groups', function (Blueprint $table) {
-            if (!Schema::hasColumn('form_field_groups', 'requires_auth')) {
+            if (! Schema::hasColumn('form_field_groups', 'requires_auth')) {
                 $table->boolean('requires_auth')->default(false)->after('authenticator');
             }
         });
 
         Schema::table('form_fields', function (Blueprint $table) {
-            if (!Schema::hasColumn('form_fields', 'points')) {
+            if (! Schema::hasColumn('form_fields', 'points')) {
                 $table->integer('points')->nullable()->default(0)->after('max');
             }
         });
 
         Schema::table('form_fields', function (Blueprint $table) {
-            if (!Schema::hasColumn('form_fields', 'accept')) {
+            if (! Schema::hasColumn('form_fields', 'accept')) {
                 $table->string('accept')->nullable()->after('hint');
             }
         });
@@ -50,6 +53,9 @@ return new class extends Migration
             }
             if (Schema::hasColumn('form_data', 'draft')) {
                 $table->dropColumn(['draft']);
+            }
+            if (Schema::hasColumn('form_data', 'phone_country')) {
+                $table->dropColumn(['phone_country']);
             }
         });
 

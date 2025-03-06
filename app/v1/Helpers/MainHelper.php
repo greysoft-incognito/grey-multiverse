@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 if (! function_exists('rangable')) {
     function rangable($range, $del = '-', $prepend = '0')
     {
-        $range = stripos($range, '-') === false ? ($prepend . $del . $range) : $range;
+        $range = stripos($range, '-') === false ? ($prepend.$del.$range) : $range;
 
         return explode($del, $range);
     }
@@ -36,7 +36,7 @@ if (! function_exists('img')) {
             return $image;
         }
 
-        if ($image && Storage::exists((config('filesystems.default') === 'local' ? 'public/' : '') . $image)) {
+        if ($image && Storage::exists((config('filesystems.default') === 'local' ? 'public/' : '').$image)) {
             $fpath = preg_match("/^(media\/|home\/){1,2}\w+/", $image) ? $image : $image;
             $photo = asset((config('filesystems.default') === 'local' ? $fpath : Storage::url($image)));
             // $photo    = asset( $image );
@@ -46,10 +46,10 @@ if (! function_exists('img')) {
             }
 
             $photo = asset((config('filesystems.default') === 'local'
-                ? env('default_' . $type, 'media/' . $type . (in_array($type, ['logo', 'avatar']) ? '.svg' : '.png'))
-                : Storage::url(env('default_' . $type, 'media/' . $type . (in_array($type, ['logo', 'avatar']) ? '.svg' : '.png')))));
+                ? env('default_'.$type, 'media/'.$type.(in_array($type, ['logo', 'avatar']) ? '.svg' : '.png'))
+                : Storage::url(env('default_'.$type, 'media/'.$type.(in_array($type, ['logo', 'avatar']) ? '.svg' : '.png')))));
 
-            $photo = config('settings.default_' . $type, $photo);
+            $photo = config('settings.default_'.$type, $photo);
         }
 
         if (($cache = config('imagecache.route')) && ! Str::contains($photo, ['.svg'])) {
@@ -61,7 +61,7 @@ if (! function_exists('img')) {
         $file_scheme = parse_url($photo, PHP_URL_SCHEME);
         $site_scheme = parse_url(config('app.url'), PHP_URL_SCHEME);
 
-        return Str::of($photo)->replace($file_scheme . '://', $site_scheme . '://');
+        return Str::of($photo)->replace($file_scheme.'://', $site_scheme.'://');
     }
 }
 
@@ -109,11 +109,11 @@ if (! function_exists('random_img')) {
             $file = collect($array)->random();
 
             if ($get_link === true) {
-                return asset($dir . '/' . $file->getFileName());
+                return asset($dir.'/'.$file->getFileName());
             }
 
             return $file;
-        } catch (\Symfony\Component\Finder\Exception\DirectoryNotFoundException | \InvalidArgumentException $e) {
+        } catch (\Symfony\Component\Finder\Exception\DirectoryNotFoundException|\InvalidArgumentException $e) {
             $get_link === true ? '' : $e->getMessage();
         }
     }

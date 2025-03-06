@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Enums\SmsProvider;
 use App\Helpers\Providers;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -27,7 +28,14 @@ class AccountVerified extends Notification
      */
     public function via(object $notifiable): array
     {
-        return [...dbconfig('prefered_notification_channels', ['mail', 'sms']), 'database'];
+        $pref = collect(dbconfig('prefered_notification_channels', ['mail', 'sms']))->toArray();
+
+        return in_array('sms', $pref) && in_array('mail', $pref)
+            ? ['mail', SmsProvider::getChannel(), 'database']
+            : (in_array('sms', $pref)
+                ? [SmsProvider::getChannel(), 'database']
+                : ['mail', 'database']
+            );
     }
 
     /**
@@ -108,6 +116,11 @@ class AccountVerified extends Notification
     }
 
     public function toKudiSms($n): \ToneflixCode\KudiSmsNotification\KudiSmsMessage
+    {
+        return $this->toSms($n);
+    }
+
+    public function toTermii($n): \App\Notifications\Channels\TermiiChannel\TermiiMessage
     {
         return $this->toSms($n);
     }

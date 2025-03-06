@@ -42,10 +42,11 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
         $pref = collect(dbconfig('prefered_notification_channels', ['mail', 'sms']))->toArray();
 
         return in_array('sms', $pref) && in_array('mail', $pref)
-            ? ['mail', TwilioChannel::class]
+            ? ['mail', SmsProvider::getChannel()]
             : (in_array('sms', $pref)
-                ? [TwilioChannel::class]
-                : ['mail']);
+                ? [SmsProvider::getChannel()]
+                : ['mail']
+            );
     }
 
     /**
@@ -113,6 +114,11 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
     }
 
     public function toKudiSms($n): \ToneflixCode\KudiSmsNotification\KudiSmsMessage
+    {
+        return $this->toSms($n);
+    }
+
+    public function toTermii($n): \App\Notifications\Channels\TermiiChannel\TermiiMessage
     {
         return $this->toSms($n);
     }

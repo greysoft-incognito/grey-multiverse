@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Enums\OtpProvider;
 use App\Enums\SmsProvider;
 use App\Helpers\Providers;
 use App\Helpers\Url;
@@ -34,6 +35,10 @@ class SendCode extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
+        if (dbconfig('prefered_otp_channel', 'DEFAULT')) {
+            return [OtpProvider::getChannel()];
+        }
+
         $channels = str($this->type)->after('verify-')->is('phone')
             ? [SmsProvider::getChannel()]
             : (
@@ -124,5 +129,19 @@ class SendCode extends Notification implements ShouldQueue
     public function toKudiSms($n): \ToneflixCode\KudiSmsNotification\KudiSmsMessage
     {
         return $this->toSms($n);
+    }
+
+    public function toTermii($n): \App\Notifications\Channels\TermiiChannel\TermiiMessage
+    {
+        return $this->toSms($n);
+    }
+
+    public function toOtp(object $notifiable)
+    {
+        $type = OtpProvider::tryFromName(dbconfig('prefered_otp_channel', 'DEFAULT'));
+
+        if ($type) {
+            return $type->getMessage($this->code);
+        }
     }
 }

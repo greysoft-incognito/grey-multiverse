@@ -62,7 +62,7 @@ Route::get('download/formdata/{timestamp}/{form}/{batch?}', function ($timestamp
         $groupName = str(get_class($model))->afterLast('\\')->lower()->plural()->append('-dataset')->toString();
     }
 
-    $path = 'exports/' . $groupName . '/data-batch-' . $batch . '.xlsx';
+    $path = 'exports/'.$groupName.'/data-batch-'.$batch.'.xlsx';
 
     if ($storage->exists($path)) {
         $mime = $storage->mimeType($path);

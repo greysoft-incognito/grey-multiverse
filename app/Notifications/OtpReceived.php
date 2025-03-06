@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Enums\OtpProvider;
 use App\Enums\SmsProvider;
 use App\Models\TempUser;
 use App\Models\User;
@@ -16,9 +17,7 @@ class OtpReceived extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(public $type = 'mail')
-    {
-    }
+    public function __construct(public $type = 'mail') {}
 
     /**
      * Get the notification's delivery channels.
@@ -27,6 +26,10 @@ class OtpReceived extends Notification
      */
     public function via(object $notifiable): array
     {
+        if (dbconfig('prefered_otp_channel', 'DEFAULT')) {
+            return [OtpProvider::getChannel()];
+        }
+
         return $this->type === 'sms' ? [SmsProvider::getChannel()] : ['mail'];
     }
 
@@ -74,5 +77,19 @@ class OtpReceived extends Notification
     public function toKudiSms($n): \ToneflixCode\KudiSmsNotification\KudiSmsMessage
     {
         return $this->toSms($n);
+    }
+
+    public function toTermii($n): \App\Notifications\Channels\TermiiChannel\TermiiMessage
+    {
+        return $this->toSms($n);
+    }
+
+    public function toOtp(object $notifiable)
+    {
+        $type = OtpProvider::tryFromName(dbconfig('prefered_otp_channel', 'DEFAULT'));
+
+        if ($type) {
+            return $type->getMessage($notifiable->otp);
+        }
     }
 }

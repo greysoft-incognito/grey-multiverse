@@ -38,6 +38,7 @@ class FormField extends Model
         if (isset($this->form->config['fields_map']['email'])) {
             $field = $this->form->config['fields_map']['email'] ?? 'email';
             $query->where('name', $field);
+
             return;
         }
 
@@ -69,6 +70,7 @@ class FormField extends Model
         if (isset($this->form->config['fields_map']['name'])) {
             $field = $this->form->config['fields_map']['name'] ?? 'fullname';
             $query->where('name', $field);
+
             return;
         }
 
@@ -84,6 +86,7 @@ class FormField extends Model
         if (isset($this->form->config['fields_map']['phone'])) {
             $field = $this->form->config['fields_map']['phone'] ?? 'phone';
             $query->where('name', $field);
+
             return;
         }
 
@@ -112,8 +115,8 @@ class FormField extends Model
         return Attribute::make(function ($val) {
             return $val ? match ($this->expectedValueType) {
                 'array' => json_encode($val),
-                'integer' => (int)$val,
-                'boolean' => (bool)$val,
+                'integer' => (int) $val,
+                'boolean' => (bool) $val,
                 default => $val,
             } : null;
         });
@@ -175,7 +178,7 @@ class FormField extends Model
      */
     public function isGrouped(): Attribute
     {
-        return Attribute::make(fn() => $this->groups()->exists() || $this->form->fieldGroups()->doesntExist());
+        return Attribute::make(fn () => $this->groups()->exists() || $this->form->fieldGroups()->doesntExist());
     }
 
     public function subValues(): Attribute
@@ -183,12 +186,12 @@ class FormField extends Model
         $name = $this->name ?? 'value';
 
         return Attribute::make(
-            fn() => FormData::query()
+            fn () => FormData::query()
                 ->select("data->{$name} as {$name}")
                 ->whereFormId($this->form_id)
                 ->groupBy($name)
                 ->pluck($name)
-                ->map(fn($e) => valid_json($e) ? json_decode($e) : $e)
+                ->map(fn ($e) => valid_json($e) ? json_decode($e) : $e)
                 ->flatten()
                 ->unique()
         );

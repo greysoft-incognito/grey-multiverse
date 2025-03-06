@@ -6,8 +6,8 @@ use App\Exports\Sheets\CompanyDataSheets;
 use App\Models\BizMatch\Company;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-use Maatwebsite\Excel\Excel;
 use Maatwebsite\Excel\Concerns\WithProperties;
+use Maatwebsite\Excel\Excel;
 
 class CompanyDataExports implements WithMultipleSheets, WithProperties
 {
@@ -32,11 +32,9 @@ class CompanyDataExports implements WithMultipleSheets, WithProperties
 
     public function __construct(
         protected int $perPage = 50,
-    ) {}
+    ) {
+    }
 
-    /**
-     * @return array
-     */
     public function sheets(): array
     {
         $formData = Company::query();
@@ -55,9 +53,9 @@ class CompanyDataExports implements WithMultipleSheets, WithProperties
         return [
             'creator' => 'GreyMultiverese',
             'lastModifiedBy' => 'GreyMultiverse',
-            'title' => "Companies Submitted Data",
+            'title' => 'Companies Submitted Data',
             'description' => 'Companies Submitted Data',
-            'keywords' => "submissions,export,spreadsheet,greysoft,greymultiverse,companies",
+            'keywords' => 'submissions,export,spreadsheet,greysoft,greymultiverse,companies',
             'category' => 'Submited Data',
             'company' => 'GreyMultiverse',
         ];

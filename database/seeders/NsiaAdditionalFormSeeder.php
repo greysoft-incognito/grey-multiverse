@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Form;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class NsiaAdditionalFormSeeder extends Seeder
@@ -18,16 +17,16 @@ class NsiaAdditionalFormSeeder extends Seeder
 
         $fields = collect([
             'additional_documents' => [
-                "Upload any additional documents (Optional)",
-                "input",
-                "file",
+                'Upload any additional documents (Optional)',
+                'input',
+                'file',
                 'e.g., Business Plan, Financial Projections',
             ],
             'additional_documents_details' => [
-                "Document Details",
-                "textarea",
-                "text",
-                'Provide details about the documents you uploaded, if any.'
+                'Document Details',
+                'textarea',
+                'text',
+                'Provide details about the documents you uploaded, if any.',
             ],
         ]);
 

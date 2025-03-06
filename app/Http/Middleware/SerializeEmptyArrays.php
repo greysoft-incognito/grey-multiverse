@@ -16,6 +16,7 @@ class SerializeEmptyArrays
     public function handle(Request $request, Closure $next): Response
     {
         $request->merge($this->convertEmptyStringsToArrays($request->all()));
+
         return $next($request);
     }
 
@@ -27,6 +28,7 @@ class SerializeEmptyArrays
             } elseif (is_array($value)) {
                 return $this->convertEmptyStringsToArrays($value); // Recursively handle nested arrays
             }
+
             return $value;
         }, $data);
     }

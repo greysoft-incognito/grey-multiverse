@@ -6,26 +6,26 @@ use App\Models\FormData;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class FormDataSheets implements FromCollection, WithTitle, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
+class FormDataSheets implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     use Exportable;
 
     /**
      * The sheets constructor
      *
-     * @param integer $page
-     * @param \Illuminate\Database\Eloquent\Collection<int, FormData> $submisions
+     * @param  \Illuminate\Database\Eloquent\Collection<int, FormData>  $submisions
      */
     public function __construct(
-        protected int $page = 100,
+        protected int $page,
         protected \Illuminate\Database\Eloquent\Collection $submisions
-    ) {}
+    ) {
+    }
 
     public function headings(): array
     {
@@ -42,8 +42,7 @@ class FormDataSheets implements FromCollection, WithTitle, WithHeadings, WithMap
     /**
      * Undocumented function
      *
-     * @param FormData $submision
-     * @return array
+     * @param  FormData  $submision
      */
     public function map($submision): array
     {
@@ -65,7 +64,7 @@ class FormDataSheets implements FromCollection, WithTitle, WithHeadings, WithMap
                 return [$label => is_array($value) ? implode(', ', $value) : $value];
             })
             ->merge([
-                'Submission Date' => $submision->created_at->format('Y/m/d')
+                'Submission Date' => $submision->created_at->format('Y/m/d'),
             ]);
 
         // $data->prepend($submision->id, '#');
@@ -73,19 +72,16 @@ class FormDataSheets implements FromCollection, WithTitle, WithHeadings, WithMap
         return $data->toArray();
     }
 
-    /**
-     * @return string
-     */
     public function title(): string
     {
-        return 'Page ' . $this->page;
+        return 'Page '.$this->page;
     }
 
     public function styles(Worksheet $sheet)
     {
         return [
             // Style the first row as bold text.
-            1    => ['font' => ['bold' => true]],
+            1 => ['font' => ['bold' => true]],
 
             // Styling a specific cell by coordinate.
             'A' => ['font' => ['bold' => true]],

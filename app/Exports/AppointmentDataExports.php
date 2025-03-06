@@ -6,8 +6,8 @@ use App\Exports\Sheets\AppointmentDataSheets;
 use App\Models\BizMatch\Appointment;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-use Maatwebsite\Excel\Excel;
 use Maatwebsite\Excel\Concerns\WithProperties;
+use Maatwebsite\Excel\Excel;
 
 class AppointmentDataExports implements WithMultipleSheets, WithProperties
 {
@@ -32,11 +32,9 @@ class AppointmentDataExports implements WithMultipleSheets, WithProperties
 
     public function __construct(
         protected int $perPage = 50,
-    ) {}
+    ) {
+    }
 
-    /**
-     * @return array
-     */
     public function sheets(): array
     {
         $formData = Appointment::query();
@@ -55,9 +53,9 @@ class AppointmentDataExports implements WithMultipleSheets, WithProperties
         return [
             'creator' => 'GreyMultiverese',
             'lastModifiedBy' => 'GreyMultiverse',
-            'title' => "Appointment Data",
+            'title' => 'Appointment Data',
             'description' => 'Appointment Data',
-            'keywords' => "submissions,export,spreadsheet,greysoft,greymultiverse,appointments",
+            'keywords' => 'submissions,export,spreadsheet,greysoft,greymultiverse,appointments',
             'category' => 'Appointments Data',
             'company' => 'GreyMultiverse',
         ];

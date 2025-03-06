@@ -94,7 +94,7 @@ class Company extends Model
      */
     public function scopeDoSearch(Builder $query, ?string $search): void
     {
-        if (!$search) {
+        if (! $search) {
             return;
         }
 

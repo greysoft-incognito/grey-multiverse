@@ -19,13 +19,13 @@ class FormDataResource extends JsonResource
         $data = $this->data;
 
         $user = $request->user('sanctum');
-        $fields_map = $form->config['fields_map'] ?? ["name" => "name", "email" => "email", "phone" => "phone"];
+        $fields_map = $form->config['fields_map'] ?? ['name' => 'name', 'email' => 'email', 'phone' => 'phone'];
 
-        foreach (["name", "email", "phone", "gender"] as $field) {
+        foreach (['name', 'email', 'phone', 'gender'] as $field) {
             if (empty($data[$fields_map[$field] ?? $field]) && $user) {
                 $data[$fields_map[$field] ?? $field] = $user[$field] ?? $this->{$field};
             }
-            if (empty($this->{$field}) && !empty($user[$field])) {
+            if (empty($this->{$field}) && ! empty($user[$field])) {
                 $this->{$field} = $user[$field];
             }
         }
@@ -40,12 +40,12 @@ class FormDataResource extends JsonResource
             'form_id' => $this->form_id,
             'email' => $this->whenNotNull($this->email),
             'phone' => $this->whenNotNull($this->phone),
-            'qr' => $this->when($this->id, fn() => route('form.data.qr', ['form', $this->id]), null),
+            'qr' => $this->when($this->id, fn () => route('form.data.qr', ['form', $this->id]), null),
             'scan_date' => $form->scan_date,
             'fields' => $form->fields,
             'status' => $this->status ?? 'pending',
             'rank' => $this->rank,
-            'draft' => $this->draft ?? ["draft_form_data" => false],
+            'draft' => $this->draft ?? ['draft_form_data' => false],
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ])

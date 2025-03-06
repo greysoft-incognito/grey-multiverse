@@ -19,13 +19,13 @@ return new class extends Migration
         });
 
         Schema::table('form_data', function (Blueprint $table) {
-            if (!Schema::hasColumn('form_data', 'status')) {
+            if (! Schema::hasColumn('form_data', 'status')) {
                 $table->enum('status', ['pending', 'submitted', 'approved', 'rejected'])->default('pending')->after('data');
             }
         });
 
         Schema::table('forms', function (Blueprint $table) {
-            if (!Schema::hasColumn('forms', 'config')) {
+            if (! Schema::hasColumn('forms', 'config')) {
                 $table->json('config')->nullable()->after('template');
             }
         });

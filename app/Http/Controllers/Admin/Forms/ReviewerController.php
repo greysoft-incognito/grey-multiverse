@@ -25,7 +25,7 @@ class ReviewerController extends Controller
         ]);
 
         $query = $form->reviewers();
-        $query->when($search, fn(Builder $query) => $query->doSearch($search));
+        $query->when($search, fn (Builder $query) => $query->doSearch($search));
 
         $users = $query->paginate($request->input('limit', 30));
 
@@ -53,7 +53,7 @@ class ReviewerController extends Controller
         $reviewer->syncRoles($reviewer->getRoleNames()->merge(['reviewer']));
 
         return (new UserResource($reviewer))->additional([
-            'message' => __(":0 has been added as as reviewer of :1", [$reviewer->fullname, $form->title]),
+            'message' => __(':0 has been added as as reviewer of :1', [$reviewer->fullname, $form->title]),
             'status' => 'success',
             'status_code' => HttpStatus::CREATED,
         ]);
@@ -67,7 +67,7 @@ class ReviewerController extends Controller
         $form->reviewers()->detach($reviewer->id);
 
         return (new UserCollection([]))->additional([
-            'message' => __(":0 has been removed as reviewer of :1", [$reviewer->fullname, $form->title]),
+            'message' => __(':0 has been removed as reviewer of :1', [$reviewer->fullname, $form->title]),
             'status' => 'success',
             'status_code' => HttpStatus::ACCEPTED,
         ]);

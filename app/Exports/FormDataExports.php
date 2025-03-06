@@ -7,8 +7,8 @@ use App\Models\Form;
 use App\Models\FormData;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-use Maatwebsite\Excel\Excel;
 use Maatwebsite\Excel\Concerns\WithProperties;
+use Maatwebsite\Excel\Excel;
 
 class FormDataExports implements WithMultipleSheets, WithProperties
 {
@@ -35,11 +35,9 @@ class FormDataExports implements WithMultipleSheets, WithProperties
         protected Form $form,
         protected bool $scanned = false,
         protected int $perPage = 50,
-    ) {}
+    ) {
+    }
 
-    /**
-     * @return array
-     */
     public function sheets(): array
     {
         $formData = $this->form->data();

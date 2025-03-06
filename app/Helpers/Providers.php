@@ -194,9 +194,10 @@ class Providers
 
             return (! $user->last_attempt || $dateAdd->isPast())
                 ? Limit::none()
-                : response()->info(['message' => __('We already sent you an OTP, you can try again :0.', [
-                    $dateAdd->diffForHumans(),
-                ]),
+                : response()->info([
+                    'message' => __('We already sent you an OTP, you can try again :0.', [
+                        $dateAdd->diffForHumans(),
+                    ]),
                     'time_left' => $dateAdd->shortAbsoluteDiffForHumans(),
                     'try_at' => $dateAdd->toDateTimeLocalString(),
                 ], HttpStatus::TOO_MANY_REQUESTS);

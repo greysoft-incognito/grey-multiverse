@@ -60,7 +60,7 @@ class FormFieldGroupController extends Controller
         $group = $form->fieldGroups()->create($valid);
 
         return (new FormFieldGroupResource($group))->additional([
-            'message' => __("Field Group created successfully"),
+            'message' => __('Field Group created successfully'),
             'status' => 'success',
             'statusCode' => HttpStatus::CREATED,
         ])->response()->setStatusCode(HttpStatus::CREATED->value);
@@ -103,7 +103,7 @@ class FormFieldGroupController extends Controller
         $field_group->update($valid);
 
         return (new FormFieldGroupResource($field_group))->additional([
-            'message' => __("Field Group updated successfully"),
+            'message' => __('Field Group updated successfully'),
             'status' => 'success',
             'statusCode' => HttpStatus::ACCEPTED,
         ])->response()->setStatusCode(HttpStatus::ACCEPTED->value);
@@ -124,7 +124,7 @@ class FormFieldGroupController extends Controller
         $field_group->fields()->sync($field_ids);
 
         return (new FormFieldGroupResource($field_group))->additional([
-            'message' => __("Field Group has successfully been synced with selected fields"),
+            'message' => __('Field Group has successfully been synced with selected fields'),
             'status' => 'success',
             'statusCode' => HttpStatus::ACCEPTED,
         ])->response()->setStatusCode(HttpStatus::ACCEPTED->value);

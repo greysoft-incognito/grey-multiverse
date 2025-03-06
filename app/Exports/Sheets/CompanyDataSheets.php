@@ -8,33 +8,33 @@ use Illuminate\Support\Carbon;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class CompanyDataSheets implements FromCollection, WithTitle, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
+class CompanyDataSheets implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     use Exportable;
 
     /**
      * The sheets constructor
      *
-     * @param integer $page
-     * @param \Illuminate\Database\Eloquent\Collection<int, Company> $submisions
+     * @param  \Illuminate\Database\Eloquent\Collection<int, Company>  $submisions
      */
     public function __construct(
-        protected int $page = 100,
+        protected int $page,
         protected \Illuminate\Database\Eloquent\Collection $submisions
-    ) {}
+    ) {
+    }
 
     public function headings(): array
     {
         $submision = $this->submisions->first();
 
         return collect(array_keys($this->map($submision)))->map(
-            fn($e) => str($e)
+            fn ($e) => str($e)
                 ->replace('_', ' ')
                 ->title()
                 ->replace(['User Id', 'Id'], ['Contact Person', 'ID'])
@@ -50,8 +50,7 @@ class CompanyDataSheets implements FromCollection, WithTitle, WithHeadings, With
     /**
      * Undocumented function
      *
-     * @param Company $submision
-     * @return array
+     * @param  Company  $submision
      */
     public function map($submision): array
     {
@@ -93,19 +92,16 @@ class CompanyDataSheets implements FromCollection, WithTitle, WithHeadings, With
         return $data->toArray();
     }
 
-    /**
-     * @return string
-     */
     public function title(): string
     {
-        return 'Page ' . $this->page;
+        return 'Page '.$this->page;
     }
 
     public function styles(Worksheet $sheet)
     {
         return [
             // Style the first row as bold text.
-            1    => ['font' => ['bold' => true]],
+            1 => ['font' => ['bold' => true]],
 
             // Styling a specific cell by coordinate.
             'A' => ['font' => ['bold' => true]],

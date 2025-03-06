@@ -51,11 +51,11 @@ class FormDataController extends Controller
         $query = $form->data();
 
         $query
-            ->when($rank, fn($q) => $q->ranked($rank))
-            ->when($search, fn($q) => $q->doSearch($search, $form))
-            ->when($load_drafts, fn($q) => $q->withDraft())
-            ->when($sort_field && $sort_value, fn($q) => $q->sorted($sort_field, $sort_value))
-            ->when($user->hasExactRoles(['reviewer']), fn($q) => $q->forReviewer($user));
+            ->when($rank, fn ($q) => $q->ranked($rank))
+            ->when($search, fn ($q) => $q->doSearch($search, $form))
+            ->when($load_drafts, fn ($q) => $q->withDraft())
+            ->when($sort_field && $sort_value, fn ($q) => $q->sorted($sort_field, $sort_value))
+            ->when($user->hasExactRoles(['reviewer']), fn ($q) => $q->forReviewer($user));
 
         $data = $query->paginate($request->get('limit', 30))->withQueryString();
 
@@ -184,8 +184,6 @@ class FormDataController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  Form $form
-     * @param  FormData $data
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Form $form, FormData $data)
@@ -209,8 +207,6 @@ class FormDataController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  Form $form
-     * @param  FormData $data
      * @return \Illuminate\Http\Response
      */
     public function destroy(Form $form, FormData $data)

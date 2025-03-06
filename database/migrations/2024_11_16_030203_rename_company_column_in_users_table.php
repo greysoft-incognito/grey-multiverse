@@ -14,6 +14,10 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->renameColumn('company', 'company_name');
             $table->dropColumn('privileges');
+
+            if (! Schema::hasColumn('users', 'phone_country')) {
+                $table->string('phone_country')->nullable()->after('email_verified_at');
+            }
         });
     }
 
@@ -25,6 +29,10 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->renameColumn('company_name', 'company');
             $table->json('privileges')->nullable()->after('country');
+
+            if (Schema::hasColumn('users', 'phone_country')) {
+                $table->dropColumn(['phone_country']);
+            }
         });
     }
 };

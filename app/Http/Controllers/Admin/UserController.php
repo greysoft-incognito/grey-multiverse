@@ -39,7 +39,7 @@ class UserController extends Controller
                     $query->whereDoesntHave('permissions');
                 }
             })
-            ->when($search, fn(Builder $query) => $query->doSearch($search));
+            ->when($search, fn (Builder $query) => $query->doSearch($search));
 
         $users = $query->paginate($request->input('limit', 30));
 
@@ -79,7 +79,7 @@ class UserController extends Controller
         ]);
 
         $valid['firstname'] = str($request->get('name'))->explode(' ')->first(null, $request->firstname);
-        $valid['lastname'] = str($request->get('name'))->explode(' ')->last(fn($n) => $n !== $valid['firstname'], $request->lastname);
+        $valid['lastname'] = str($request->get('name'))->explode(' ')->last(fn ($n) => $n !== $valid['firstname'], $request->lastname);
 
         /** @var \App\Models\User $user */
         $user = User::create($valid);
@@ -122,8 +122,8 @@ class UserController extends Controller
         $valid = $this->validate($request, [
             'image' => ['nullable', 'image'],
             'name' => ['required_without:firstname', 'string', 'max:255'],
-            'email' => ['required_without:phone', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
-            'phone' => 'required_without:email|string|max:255|unique:users,phone,' . $user->id,
+            'email' => ['required_without:phone', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
+            'phone' => 'required_without:email|string|max:255|unique:users,phone,'.$user->id,
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
             'firstname' => ['nullable', 'string', 'max:255'],
             'laststname' => ['nullable', 'string', 'max:255'],
@@ -140,7 +140,7 @@ class UserController extends Controller
         ]);
 
         $valid['firstname'] = str($request->name)->explode(' ')->first(null, $request->firstname);
-        $valid['lastname'] = str($request->name)->explode(' ')->last(fn($n) => $n !== $valid['firstname'], $request->lastname);
+        $valid['lastname'] = str($request->name)->explode(' ')->last(fn ($n) => $n !== $valid['firstname'], $request->lastname);
 
         $user->update($valid);
 
@@ -167,7 +167,7 @@ class UserController extends Controller
         $ids = $request->input('items', [$id]);
         User::whereIn('id', $ids)->delete();
 
-        return (new UserCollection([]))->additional(['message' => (count($ids) > 1 ? count($ids) . ' users' : 'User') . ' deleted successfully',
+        return (new UserCollection([]))->additional(['message' => (count($ids) > 1 ? count($ids).' users' : 'User').' deleted successfully',
             'status' => 'success',
             'status_code' => HttpStatus::ACCEPTED,
         ])->response()->setStatusCode(HttpStatus::ACCEPTED->value);

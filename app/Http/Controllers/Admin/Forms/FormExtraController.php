@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Admin\Forms;
 
 use App\Enums\HttpStatus;
+use App\Helpers\Providers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Forms\FormResource;
 use App\Models\Form;
 use App\Models\FormField;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use App\Helpers\Providers;
 use App\Traits\TimeTools;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class FormExtraController extends Controller
 {
@@ -25,9 +25,9 @@ class FormExtraController extends Controller
      */
     public function config(Request $request, Form $form)
     {
-        \Gate::authorize('usable', 'form.update');
+        \App\Enums\Permission::FORM_UPDATE->authorize();
 
-        $validateField = static fn() => Rule::exists(FormField::class, 'name')->where('form_id', $form->id);
+        $validateField = static fn () => Rule::exists(FormField::class, 'name')->where('form_id', $form->id);
 
         $valid = $request->validate([
             'chartables' => 'nullable|array',
@@ -70,7 +70,7 @@ class FormExtraController extends Controller
      */
     public function stats(Request $request, Form $form)
     {
-        \Gate::authorize('usable', 'formdata.stats');
+        \App\Enums\Permission::FORMDATA_STATS->authorize();
 
         $fields = $form->fields;
         $partern = '[a-zA-Z0-9_]+\|[a-zA-Z0-9_]+:[a-zA-Z0-9._]';
@@ -90,9 +90,9 @@ class FormExtraController extends Controller
                             $stat = str($group)->explode(':');
                             [$_, $field_name] = str($stat->first())->explode('|');
 
-                            if (!$fields->contains(fn($field) => $field->name === $field_name)) {
+                            if (! $fields->contains(fn ($field) => $field->name === $field_name)) {
                                 $fail(__("`{$field_name}` is an invalid field name, supported fields include: :0.", [
-                                    $fields->map(fn($field) => $field->name)->join(', ', ' and ')
+                                    $fields->map(fn ($field) => $field->name)->join(', ', ' and '),
                                 ]));
                             }
                         });
@@ -100,37 +100,37 @@ class FormExtraController extends Controller
                 ],
             ],
             [
-                'data.regex' => 'The data field format is invalid, a valid format looks like `key|field:value` or `key|field:value,key|field:value`, underscores are supported and periods are also supported for values if you need to check a list.'
+                'data.regex' => 'The data field format is invalid, a valid format looks like `key|field:value` or `key|field:value,key|field:value`, underscores are supported and periods are also supported for values if you need to check a list.',
             ]
         );
 
         if ($request->data) {
             $request_data = str($request->data)->explode(',');
 
-            $data = $request_data->map(function ($value) use ($form, $fields) {
+            $data = $request_data->map(function ($value) use ($form) {
                 $stat = str($value)->explode(':');
 
                 [$key, $field] = str($stat->first())->explode('|');
                 $options = str($stat->last())->explode('.');
 
                 $query = $form->data();
-                $query->where(fn($q) => $options->each(fn($val) => $q->orWhereJsonContains("data->{$field}", $val)));
+                $query->where(fn ($q) => $options->each(fn ($val) => $q->orWhereJsonContains("data->{$field}", $val)));
 
                 return [
                     'label' => $key,
                     'value' => $query->count(),
-                    'cols' => 3
+                    'cols' => 3,
                 ];
             })->prepend([
                 'label' => 'total_submissions',
                 'value' => $form->data()->count(),
-                'cols' => 3
+                'cols' => 3,
             ]);
         } else {
             $data = collect([[
                 'label' => 'total_submissions',
                 'value' => $form->data()->count(),
-                'cols' => 3
+                'cols' => 3,
             ]]);
         }
 
@@ -145,7 +145,7 @@ class FormExtraController extends Controller
                 return [
                     'label' => $statcard['key'],
                     'value' => $query->count(),
-                    'cols' => 3
+                    'cols' => 3,
                 ];
             }));
         }

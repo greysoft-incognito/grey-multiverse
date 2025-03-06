@@ -17,7 +17,8 @@ trait TimeTools
      */
     protected function fmt(?bool $formatMetric = false): self
     {
-        $this->formatMetric = !!$formatMetric;
+        $this->formatMetric = (bool) $formatMetric;
+
         return $this;
     }
 
@@ -29,7 +30,7 @@ trait TimeTools
      * @param  ?Carbon  $base
      * @return ($useRange is true ? Carbon[] : Carbon)
      */
-    private function getStartDate(?string $timeframe, $useRange = false, ?Carbon $base = null): Carbon|array
+    private function getStartDate(?string $timeframe, $useRange = false, Carbon $base = null): Carbon|array
     {
         $base ??= now();
 
@@ -42,7 +43,7 @@ trait TimeTools
             default => [$base->clone()->startOfYear(), $base->clone()->endOfYear()],
         };
 
-        if (!$useRange) {
+        if (! $useRange) {
             return match ($timeframe) {
                 'today' => $range[0],
                 'yesterday' => $range[0],
@@ -95,30 +96,27 @@ trait TimeTools
     /**
      * Transform data for Chart.js
      *
-     * @param Collection $results
-     * @param string $dataKey
-     * @param string $countKey
-     * @param array{type:string,cols:int} $config
-     * @return array
+     * @param  string  $countKey
+     * @param  array{type:string,cols:int}  $config
      */
     public function formatForChartJs(Collection $results, string $dataKey, $countKey = 'count', array $config = []): array
     {
         return [
             ...$config,
-            "labels" => $results->pluck($dataKey)->map(fn($val) => match (true) {
+            'labels' => $results->pluck($dataKey)->map(fn ($val) => match (true) {
                 $val === null => 'Unknown',
-                $val === "0" => ucwords("Not $dataKey"),
-                $val === "1" => ucwords($dataKey),
+                $val === '0' => ucwords("Not $dataKey"),
+                $val === '1' => ucwords($dataKey),
                 json_validate($val) => collect(json_decode($val))->join(', '),
                 default => str($val)->replace(['-', '_'], ' ')->apa()->toString(),
             })->toArray(),
-            "datasets" => [
+            'datasets' => [
                 [
-                    "label" => str($dataKey)->replace(['-', '_'], ' ')->apa()->toString(),
-                    "data" => $results->pluck($countKey)->toArray(),
-                    "backgroundColor" => $results->map(fn() => $this->generateRandomHexColor())->toArray()
-                ]
-            ]
+                    'label' => str($dataKey)->replace(['-', '_'], ' ')->apa()->toString(),
+                    'data' => $results->pluck($countKey)->toArray(),
+                    'backgroundColor' => $results->map(fn () => $this->generateRandomHexColor())->toArray(),
+                ],
+            ],
         ];
     }
 
@@ -127,7 +125,7 @@ trait TimeTools
         $aggr = 'sum',
         $field = 'amount',
         $format = false,
-        ?Carbon $base = null
+        Carbon $base = null
     ) {
         $base ??= now();
         $format = $this->formatMetric || $format;
@@ -203,6 +201,7 @@ trait TimeTools
         for ($i = 0; $i < 6; $i++) {
             $color .= $characters[rand(0, 15)];
         }
+
         return $color;
     }
 }

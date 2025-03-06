@@ -24,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         \App\Helpers\Providers::buildResponseMacros();
+        \App\Helpers\Access::adminGateCrasher();
 
         // Force https
         if (config('app.env') === 'production' || config('app.force_https')) {

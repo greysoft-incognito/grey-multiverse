@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Arr;
+use Propaganistas\LaravelPhone\PhoneNumber;
 
 /**
  * Class FormData
@@ -26,6 +27,7 @@ class FormData extends Model
      * @var array
      */
     protected $fillable = [
+        'phone_country',
         'scan_date',
         'form_id',
         'user_id',
@@ -52,6 +54,7 @@ class FormData extends Model
     protected $attributes = [
         'data' => '{}',
         'draft' => '{"draft_form_data": true}',
+        'phone_country' => 'NG',
     ];
 
     /**
@@ -61,7 +64,7 @@ class FormData extends Model
      */
     protected function casts(): array
     {
-        return  [
+        return [
             'data' => 'array',
             'draft' => \Illuminate\Database\Eloquent\Casts\AsArrayObject::class,
             'rank' => 'integer',
@@ -126,7 +129,7 @@ class FormData extends Model
     {
         return Attribute::make(
             get: function () {
-                if (!$this->form) {
+                if (! $this->form) {
                     return '';
                 }
 
@@ -176,7 +179,7 @@ class FormData extends Model
     {
         return Attribute::make(
             get: function () {
-                if (!$this->form) {
+                if (! $this->form) {
                     return '';
                 }
 
@@ -185,6 +188,7 @@ class FormData extends Model
                 }
 
                 $field = $this->form->fields()->email()->first();
+
                 return $this->data[$field->name ?? ''] ?? null;
             },
         );
@@ -197,16 +201,19 @@ class FormData extends Model
     {
         return Attribute::make(
             get: function () {
-                if (!$this->form) {
+                if (! $this->form) {
                     return '';
                 }
 
                 if (isset($this->form->config['fields_map']['phone'])) {
-                    return $this->data[$this->form->config['fields_map']['phone'] ?? '--'] ?? '';
+                    $phone = $this->data[$this->form->config['fields_map']['phone'] ?? '--'] ?? null;
+                } else {
+                    $field = $this->form->fields()->phone()->first();
+
+                    $phone = $this->data[$field->name ?? ''] ?? null;
                 }
 
-                $field = $this->form->fields()->phone()->first();
-                return $this->data[$field->name ?? ''] ?? null;
+                return $phone ? new PhoneNumber($phone, $this->phone_country ?? 'NG') : null;
             },
         );
     }
@@ -281,8 +288,7 @@ class FormData extends Model
     /**
      * Scope to sort results by ranking
      *
-     * @param Builder $query
-     * @param string<'top'|'least'> $type
+     * @param  string<'top'|'least'>  $type
      * @return void
      */
     public function scopeRanked(Builder $query, string $type)
@@ -323,7 +329,7 @@ class FormData extends Model
      */
     public function scopeDoSearch(Builder $query, ?string $search, ?Form $form): void
     {
-        if (!$search) {
+        if (! $search) {
             return;
         }
 

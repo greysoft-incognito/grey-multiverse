@@ -9,7 +9,7 @@ return [
     | This is required and will be attached to the end of every message
     |
     */
-    'signature' => 'Regards,<br />' . env('APP_NAME'),
+    'signature' => 'Regards,<br />'.env('APP_NAME'),
 
     /*
     |--------------------------------------------------------------------------
@@ -60,14 +60,14 @@ return [
             'This verification code will expire in :duration.',
             'If you do not recognize this activity, no further action is required as the associated account will be deleted in few days if left unverified.',
         ],
-        "allowed" => ['html']
+        'allowed' => ['html'],
     ],
     'send_code::verify::sms' => [
-        "subject" => "Verify your phone number on :app_name.",
-        "lines" => [
-            "Use this code :code to verify your :app_name phone number, It expires in :duration.",
+        'subject' => 'Verify your phone number on :app_name.',
+        'lines' => [
+            'Use this code :code to verify your :app_name phone number, It expires in :duration.',
         ],
-        "allowed" => ['sms']
+        'allowed' => ['sms'],
     ],
     'send_code::otp' => [
         'subject' => 'Your One Time Password.',
@@ -104,7 +104,7 @@ return [
             'Hello :firstname,',
             'Your :app_name account :label has been verified sucessfully, welcome to our community.',
         ],
-        "allowed" => ['sms']
+        'allowed' => ['sms'],
     ],
 
     /*
