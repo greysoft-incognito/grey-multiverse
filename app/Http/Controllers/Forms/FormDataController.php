@@ -70,19 +70,19 @@ class FormDataController extends Controller
             return $data->first();
         }
 
-        /** @var \Illuminate\Database\Eloquent\Builder $query */
         if ($user) {
             $query = $form->data()->where('user_id', $user->id)->withDraft();
         } else {
             $query = $form->data()->withDraft();
         }
+        /** @var \Illuminate\Database\Eloquent\Builder $query */
 
         if ($request->hasMultipleEntries() || (! $request->user_id && ! $request->user('sanctum'))) {
             $formdata = $query->createMany($data);
         } else {
             $entry = $query->updateOrCreate(
+                ['user_id' => $user->id ?? $request->user_id],
                 $data->first(),
-                ['user_id' => $user->id ?? $request->user_id]
             );
 
             $formdata = collect([$entry]);
