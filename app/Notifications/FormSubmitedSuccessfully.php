@@ -73,7 +73,7 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
         );
 
         return (new MailMessage())
-            ->subject($this->subject)
+            ->subject($message->subject)
             ->view(['email', 'email-plain'], [
                 'subject' => $message->subject,
                 'lines' => $message->lines,
