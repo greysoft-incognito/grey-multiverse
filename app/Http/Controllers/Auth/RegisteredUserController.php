@@ -29,7 +29,7 @@ class RegisteredUserController extends Controller
         $this->validate($request, [
             'name' => ['required_without:firstname', 'string', 'max:255'],
             'email' => ['required_without:phone', 'string', 'email', 'max:255', 'unique:users,email'],
-            'phone' => 'required_without:email|string|max:255|unique:users,phone',
+            'phone' => ['required_without:email', 'string', 'max:255', 'unique:users,phone', 'phone:INTERNATIONAL,NG'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'firstname' => ['nullable', 'string', 'max:255'],
             'lastname' => ['nullable', 'string', 'max:255'],
