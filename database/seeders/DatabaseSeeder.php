@@ -36,7 +36,7 @@ class DatabaseSeeder extends Seeder
             ConfigurationSeeder::class,
             FormSeeder::class,
             FormInfoSeeder::class,
-            GenericFormFieldSeeder::class,
+            FormFieldSeeder::class,
             CompanySeeder::class,
             PortalDatabaseSeeder::class,
         ]);

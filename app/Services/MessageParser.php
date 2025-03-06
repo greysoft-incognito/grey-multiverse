@@ -155,4 +155,15 @@ class MessageParser
 
         return $plainMessage;
     }
+
+    public function toSms(): string
+    {
+        $template = (new NotificationTemplate())->resolveRouteBinding($this->configKey);
+
+        $smsMessage = $template && $template->active && $template->sms
+            ? (string) trans($template->sms, $this->params)
+            : $this->plainBody;
+
+        return $smsMessage;
+    }
 }

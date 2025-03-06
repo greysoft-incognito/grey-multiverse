@@ -72,14 +72,7 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
             ]
         );
 
-        return (new MailMessage())
-            ->subject($message->subject)
-            ->view(['email', 'email-plain'], [
-                'subject' => $message->subject,
-                'banner' => $notifiable->form->files['banner'] ?? null,
-                'lines' => $message->lines,
-                // 'logo' => $notifiable->form->files['logo'] ?? null,
-            ]);
+        return $message->toMail();
     }
 
     /**
@@ -105,7 +98,7 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
             ]
         );
 
-        return SmsProvider::getMessage($message->plainBody);
+        return SmsProvider::getMessage($message->toSms());
     }
 
     public function toTwilio($n): \NotificationChannels\Twilio\TwilioSmsMessage
