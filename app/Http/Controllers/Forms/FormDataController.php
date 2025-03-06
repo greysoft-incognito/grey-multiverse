@@ -62,19 +62,27 @@ class FormDataController extends Controller
     public function store(SaveFormdataRequest $request, Form $form, $dontProcess = false)
     {
         $data = $request->input('data');
-        $user = null;
+        $user = $request->user('sanctum');
+
         $token = null;
 
         if ($dontProcess === true) {
             return $data->first();
         }
 
-        if ($request->hasMultipleEntries() || (! $request->user_id && ! $request->user('sanctum'))) {
-            $formdata = $form->data()->withDraft()->createMany($data);
+        /** @var \Illuminate\Database\Eloquent\Builder $query */
+        if ($user) {
+            $query = $form->data()->where('user_id', $user->id)->withDraft();
         } else {
-            $entry = $form->data()->withDraft()->updateOrCreate(
+            $query = $form->data()->withDraft();
+        }
+
+        if ($request->hasMultipleEntries() || (! $request->user_id && ! $request->user('sanctum'))) {
+            $formdata = $query->createMany($data);
+        } else {
+            $entry = $query->updateOrCreate(
                 $data->first(),
-                ['user_id' => $request->user_id ?? $request->user('sanctum')?->id]
+                ['user_id' => $user->id ?? $request->user_id]
             );
 
             $formdata = collect([$entry]);

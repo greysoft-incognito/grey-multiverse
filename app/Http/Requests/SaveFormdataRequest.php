@@ -222,7 +222,7 @@ class SaveFormdataRequest extends FormRequest
         ];
     }
 
-    protected function buildRules(array $data, int $index = null)
+    protected function buildRules(array $data, ?int $index = null)
     {
         $errors = collect([]);
         $ind = ! is_null($index) ? $index.'.' : '';
