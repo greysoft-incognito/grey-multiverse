@@ -124,6 +124,11 @@ class SaveFormdataRequest extends FormRequest
                 $rules[] = 'email';
             }
 
+            if ($field->type === 'tel') {
+                $rules[] = 'unique:users,phone';
+                $rules[] = 'phone:INTERNATIONAL,NG';
+            }
+
             // Validate the expected value
             if ($field->expected_value !== null) {
                 $rules[] = function (string $attribute, mixed $val, \Closure $fail) use ($field) {
