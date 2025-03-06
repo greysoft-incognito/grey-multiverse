@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/{type}/data/qr/{id}', function ($type, $id) {
     // header('Content-Type: image/png');
     if ($type === 'form') {
-        $data = FormData::findOrFail($id);
+        $data = FormData::withDraft()->findOrFail($id);
         $encoded = "grey:multiverse:form={$data->form_id}:data={$data->id}";
     } elseif ($type === 'reservation') {
         $data = Reservation::findOrFail($id);
