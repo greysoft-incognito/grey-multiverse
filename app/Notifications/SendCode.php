@@ -55,7 +55,38 @@ class SendCode extends Notification implements ShouldQueue
      *
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
+    {
+        $this->code ??= $notifiable->code;
+        $this->token ??= $notifiable->token ?? Url::base64urlEncode($this->code . '|' . md5(time()));
+        $notifiable = $notifiable->user ?? $notifiable;
+
+        /** @var \Carbon\Carbon */
+        $datetime = $notifiable->last_attempt;
+
+        $dateAdd = $datetime?->addSeconds(dbconfig('token_lifespan', 30));
+
+        return Providers::messageParser(
+            "send_code::$this->type",
+            $notifiable,
+            [
+                'type' => $this->type,
+                'code' => $this->code,
+                'token' => $this->token,
+                'label' => 'email address',
+                'app_url' => config('app.frontend_url', dbconfig('app_url')),
+                'app_name' => dbconfig('app_name'),
+                'duration' => $dateAdd->longAbsoluteDiffForHumans(),
+            ]
+        )->toMail();
+    }
+
+    /**
+     * Get the sms representation of the notification.
+     *
+     * @param  mixed  $notifiable  notifiable
+     */
+    public function toSms($notifiable)
     {
         $this->code ??= $notifiable->code;
         $this->token ??= $notifiable->token ?? Url::base64urlEncode($this->code . '|' . md5(time()));
@@ -80,45 +111,7 @@ class SendCode extends Notification implements ShouldQueue
             ]
         );
 
-        return (new MailMessage())
-            ->subject($message->subject)
-            ->view(['email', 'email-plain'], [
-                'subject' => $message->subject,
-                'lines' => $message->lines,
-            ]);
-    }
-
-    /**
-     * Get the sms representation of the notification.
-     *
-     * @param  mixed  $n  notifiable
-     */
-    public function toSms($n)
-    {
-        $this->code ??= $n->code;
-        $this->token ??= $n->token;
-        $n ??= $n->user ?? $n;
-
-        /** @var \Carbon\Carbon */
-        $datetime = $n->last_attempt;
-        $dateAdd = $datetime?->addSeconds(dbconfig('token_lifespan', 30));
-
-        $message = [
-            'reset' => __('Use this code :0 to reset your :1 password, It expires in :2.', [
-                $this->code,
-                dbconfig('app_name'),
-                $dateAdd->longAbsoluteDiffForHumans(),
-            ]),
-            'verify-phone' => __('use this code :0 to verify your :1 phone number, It expires in :2.', [
-                $this->code,
-                dbconfig('app_name'),
-                $dateAdd->longAbsoluteDiffForHumans(),
-            ]),
-        ];
-
-        $message = __('Hi :0, ', [$n->firstname]) . $message[$this->type] ?? $message['reset'];
-
-        return SmsProvider::getMessage($message);
+        return SmsProvider::getMessage($message->toSms());
     }
 
     public function toTwilio($n): \NotificationChannels\Twilio\TwilioSmsMessage

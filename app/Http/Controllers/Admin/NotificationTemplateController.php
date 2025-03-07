@@ -59,7 +59,8 @@ class NotificationTemplateController extends Controller
         }
 
         $template->args = $request->args;
-        $template->html = $request->html;
+        $template->html = $request->boolean('active') ? $request->html : null;
+        $template->lines = $request->lines;
         $template->plain = $request->plain;
         $template->active = $request->boolean('active');
         $template->subject = $request->subject;

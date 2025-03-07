@@ -81,7 +81,8 @@
 <body style="background-color:#ffffff;" data-new-gr-c-s-check-loaded="14.1167.0" data-gr-ext-installed="">
     <div
         style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">
-        {!! str(collect($lines)->filter(fn($l) => is_string($l))->join(' '))->limit(100) ?: $subject !!} </div>
+        {{ str(collect($lines)->filter(fn($l) => is_string($l))->join(' ') ?? ($subject ?? ''))->stripTags()->words(50) }}
+    </div>
     <div style="background-color:#ffffff;">
         @if (!dbconfig('disable_email_banners'))
             <div style="margin:0px auto;max-width:600px;">

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Helpers\Providers;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -35,6 +36,7 @@ class NotificationTemplate extends Model
         'sms',
         'html',
         'args',
+        'lines',
         'plain',
         'active',
         'subject',
@@ -48,6 +50,7 @@ class NotificationTemplate extends Model
      */
     protected $attributes = [
         'args' => '[]',
+        'lines' => '[]',
         'allowed' => '[]',
         'active' => true,
     ];
@@ -61,6 +64,7 @@ class NotificationTemplate extends Model
     {
         return [
             'args' => \Illuminate\Database\Eloquent\Casts\AsCollection::class,
+            'lines' => \Illuminate\Database\Eloquent\Casts\AsCollection::class,
             'allowed' => \Illuminate\Database\Eloquent\Casts\AsCollection::class,
             'active' => 'boolean',
         ];
@@ -91,8 +95,8 @@ class NotificationTemplate extends Model
     public static function loadDefaults(): Collection
     {
         return new Collection(collect(config('messages'))->map(
-            fn ($_, $key) => self::buildDefault($key)
-        )->filter(fn ($_, $key) => $key !== 'signature')->values());
+            fn($_, $key) => self::buildDefault($key)
+        )->filter(fn($_, $key) => $key !== 'signature')->values());
     }
 
     /**
@@ -122,6 +126,7 @@ class NotificationTemplate extends Model
             'key' => $key,
             'sms' => $parsed->plainBody,
             'html' => $html,
+            'lines' => $parsed->lines,
             'plain' => $parsed->plainBody,
             'subject' => $parsed->subject,
             'args' => collect([
@@ -140,5 +145,23 @@ class NotificationTemplate extends Model
         $template->id = -1;
 
         return $template;
+    }
+
+    public function html(): Attribute
+    {
+        return new Attribute(
+            get: function ($value) {
+                if ($value) {
+                    return $value;
+                }
+
+                $parsed = Providers::messageParser($this->key);
+                return (new MailMessage())
+                    ->view(['email', 'email-plain'], [
+                        'lines' => $parsed->lines,
+                        'subject' => $parsed->subject,
+                    ])->render();
+            },
+        );
     }
 }

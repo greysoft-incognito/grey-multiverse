@@ -61,7 +61,7 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
             ->filter(fn($v) => is_scalar($v))
             ->toArray();
 
-        $message = Providers::messageParser(
+        return Providers::messageParser(
             'form_submited',
             [
                 'fullname' => $notifiable->fullname,
@@ -70,15 +70,7 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
                 'qr_code' => route('form.data.qr', ['form', $notifiable->id]),
                 'app_name' => dbconfig('app_name'),
             ]
-        );
-
-        return (new MailMessage())
-            ->subject($message->subject)
-            ->view(['email', 'email-plain'], [
-                'subject' => $message->subject,
-                'lines' => $message->lines,
-            ]);
-        // return $message->toMail();
+        )->toMail();
     }
 
     /**

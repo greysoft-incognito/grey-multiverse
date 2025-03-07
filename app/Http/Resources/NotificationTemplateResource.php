@@ -20,6 +20,7 @@ class NotificationTemplateResource extends JsonResource
             'sms' => $this->sms ?? $this->plain,
             'html' => $this->html,
             'args' => $this->args,
+            'lines' => $this->lines ?? [],
             'plain' => $this->plain,
             'active' => $this->active,
             'subject' => $this->subject,
