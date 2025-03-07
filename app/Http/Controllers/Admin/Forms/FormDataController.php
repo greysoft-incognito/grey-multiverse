@@ -30,12 +30,14 @@ class FormDataController extends Controller
         @[
             'rank' => $rank,
             'search' => $search,
+            'status' => $status,
             'sortable' => $sortable,
             'sort_field' => $sort_field,
             'sort_value' => $sort_value,
             'load_drafts' => $load_drafts,
         ] = $this->validate($request, [
             'rank' => ['nullable', 'in:top,least'],
+            'status' => ['nullable', 'in:approved,pending,rejected,submitted'],
             'search' => ['nullable', 'string'],
             'sortable' => ['nullable', 'boolean'],
             'sort_field' => ['nullable', 'string', 'exists:form_fields,name'],
@@ -51,11 +53,12 @@ class FormDataController extends Controller
         $query = $form->data();
 
         $query
-            ->when($rank, fn ($q) => $q->ranked($rank))
-            ->when($search, fn ($q) => $q->doSearch($search, $form))
-            ->when($load_drafts, fn ($q) => $q->withDraft())
-            ->when($sort_field && $sort_value, fn ($q) => $q->sorted($sort_field, $sort_value))
-            ->when($user->hasExactRoles(['reviewer']), fn ($q) => $q->forReviewer($user));
+            ->when($rank, fn($q) => $q->ranked($rank))
+            ->when($status, fn($q) => $q->whereStatus($status))
+            ->when($search, fn($q) => $q->doSearch($search, $form))
+            ->when($load_drafts, fn($q) => $q->withDraft())
+            ->when($sort_field && $sort_value, fn($q) => $q->sorted($sort_field, $sort_value))
+            ->when($user->hasExactRoles(['reviewer']), fn($q) => $q->forReviewer($user));
 
         $data = $query->paginate($request->get('limit', 30))->withQueryString();
 
