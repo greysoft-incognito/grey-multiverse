@@ -72,4 +72,15 @@ class NotificationTemplateController extends Controller
             'statusCode' => HttpStatus::OK,
         ])->response()->setStatusCode(HttpStatus::OK->value);
     }
+
+    public function destroy(Request $request, NotificationTemplate $template)
+    {
+        $template->delete();
+
+        return (new NotificationTemplateResource($template->resolveRouteBinding($template->key)))->additional([
+            'message' => __('Notification template has been reset to default state.'),
+            'status' => 'success',
+            'statusCode' => HttpStatus::OK,
+        ])->response()->setStatusCode(HttpStatus::OK->value);
+    }
 }

@@ -24,7 +24,7 @@ Route::middleware(['auth:sanctum', $permissionMiddlewares])->prefix('admin')->na
 
     // Notifications Templates
     Route::apiResource('configurations/notifications/templates', NotificationTemplateController::class)
-        ->except(['store', 'destroy']);
+        ->except(['store']);
 
     Route::apiResource('companies', CompanyController::class)->except(['store']);
     Route::apiResource('reschedules', RescheduleController::class)->except(['store']);
