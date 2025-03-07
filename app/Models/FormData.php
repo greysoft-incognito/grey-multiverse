@@ -271,6 +271,14 @@ class FormData extends Model
         }
     }
 
+    /**
+     * Get the user that reviewed the FormData
+     */
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     // Load scans
     public function scans()
     {

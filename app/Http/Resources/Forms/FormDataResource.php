@@ -32,15 +32,17 @@ class FormDataResource extends JsonResource
 
         $name = str($this->name)->explode(' ');
 
-        return collect([
-            'id' => $this->id,
-            'name' => $this->name,
-            'firstname' => $name->first(),
-            'lastname' => $name->count() > 1 ? $name->last() : '',
-            'form_id' => $this->form_id,
-            'email' => $this->whenNotNull($this->email),
-            'phone' => $this->whenNotNull($this->phone),
-            'qr' => $this->when($this->id, fn () => route('form.data.qr', ['form', $this->id]), null),
+        return collect($data)
+            ->except(['fields'])
+            ->merge([
+                'id' => $this->id,
+                'name' => $this->name,
+                'firstname' => $name->first(),
+                'lastname' => $name->count() > 1 ? $name->last() : '',
+                'form_id' => $this->form_id,
+                'email' => $this->whenNotNull($this->email),
+                'phone' => $this->whenNotNull($this->phone),
+            'qr' => $this->when($this->id, fn() => route('form.data.qr', ['form', $this->id]), null),
             'scan_date' => $form->scan_date,
             'fields' => $form->fields,
             'status' => $this->status ?? 'pending',
@@ -48,8 +50,12 @@ class FormDataResource extends JsonResource
             'draft' => $this->draft ?? ['draft_form_data' => false],
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-        ])
-            ->merge($data)->except(['fields']);
+                'status_reason' => $this->status_reason,
+                'reviewer' => $this->when($this->reviewer, fn() => [
+                    'id' => $this->reviewer->id,
+                    'name' => $this->reviewer->name
+                ]),
+            ]);
     }
 
     /**

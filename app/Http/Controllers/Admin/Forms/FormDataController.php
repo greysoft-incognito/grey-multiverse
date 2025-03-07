@@ -193,11 +193,17 @@ class FormDataController extends Controller
     {
         \Gate::authorize('usable', 'formdata.update');
 
-        ['status' => $status] = $this->validate($request, [
+        [
+            'status' => $status,
+            'reason' => $reason
+        ] = $this->validate($request, [
             'status' => 'required|in:pending,approved,rejected',
+            'reason' => 'required|string|min:15'
         ]);
 
         $data->status = $status;
+        $data->reviewer_id = $request->user('sanctum')?->id;
+        $data->status_reason = $reason;
         $data->save();
 
         return (new FormDataResource($data))->additional([
