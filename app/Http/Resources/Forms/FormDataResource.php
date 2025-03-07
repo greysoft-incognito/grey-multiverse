@@ -44,12 +44,12 @@ class FormDataResource extends JsonResource
                 'phone' => $this->whenNotNull($this->phone),
             'qr' => $this->when($this->id, fn() => route('form.data.qr', ['form', $this->id]), null),
             'scan_date' => $form->scan_date,
-            'fields' => $form->fields,
             'status' => $this->status ?? 'pending',
             'rank' => $this->rank,
             'draft' => $this->draft ?? ['draft_form_data' => false],
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'fields' => $form->fields,
                 'status_reason' => $this->status_reason,
                 'reviewer' => $this->when($this->reviewer, fn() => [
                     'id' => $this->reviewer->id,

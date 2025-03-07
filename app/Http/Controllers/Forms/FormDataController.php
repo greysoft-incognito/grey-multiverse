@@ -94,7 +94,7 @@ class FormDataController extends Controller
 
         $userData = $formdata->first();
 
-        if ($form->fieldGroups()->where('authenticator', true)->exists() && $userData->email) {
+        if (!$user && $form->fieldGroups()->where('authenticator', true)->exists() && $userData->email) {
             $authCont = new RegisteredUserController();
             $password = Random::string(8);
             [

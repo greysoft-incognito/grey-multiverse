@@ -34,6 +34,7 @@ class FormData extends Model
         'status',
         'draft',
         'data',
+        'rank',
         'key',
     ];
 
@@ -97,6 +98,39 @@ class FormData extends Model
                 $model->reviewers()->sync($ids);
             }
         });
+
+        static::saving(function (self $model) {
+            $model->rank = $model->calculatePoints();
+        });
+    }
+
+    /**
+     * Calculate the total point earned by the user
+     * based on their form entries.
+     *
+     * @return integer
+     */
+    protected function calculatePoints(): int
+    {
+        return $this->form->fields->map(function ($field) {
+            // Calculate the point earned from the selected options
+            $optionsSum = collect($field->options ?? [])->map(function ($opt) use ($field) {
+                if (isset($this->data[$field->name], $opt['value']) && $opt['value'] === $this->data[$field->name]) {
+                    return (int) ($opt['points'] ?? 0);
+                }
+                return 0;
+            })->sum();
+
+            if ($optionsSum > 0) {
+                return $field->points + $optionsSum;
+            }
+
+            if (isset($this->data[$field->name])) {
+                return $field->points;
+            }
+
+            return 0;
+        })->sum();
     }
 
     /**
