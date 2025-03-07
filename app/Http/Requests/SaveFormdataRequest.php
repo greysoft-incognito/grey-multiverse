@@ -362,7 +362,6 @@ class SaveFormdataRequest extends FormRequest
                 'draft' => ['draft_form_data' => false],
                 'data' => $data,
                 'key' => $data[$key] ?? '',
-                'rank' => 100,
             ]]);
         }
 

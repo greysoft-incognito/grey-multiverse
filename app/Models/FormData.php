@@ -112,25 +112,46 @@ class FormData extends Model
      */
     protected function calculatePoints(): int
     {
-        return $this->form->fields->map(function ($field) {
-            // Calculate the point earned from the selected options
-            $optionsSum = collect($field->options ?? [])->map(function ($opt) use ($field) {
-                if (isset($this->data[$field->name], $opt['value']) && $opt['value'] === $this->data[$field->name]) {
-                    return (int) ($opt['points'] ?? 0);
+        return $this->form->fields->reduce(function (int $total, $field): int {
+            $fieldValue = $this->data[$field->name] ?? null;
+
+            // Skip if no value exists
+            if ($fieldValue === null) {
+                return $total;
+            }
+
+            $fieldPoints = (int) $field->points;
+            $optionsPoints = 0;
+
+            // Calculate options points if options exist
+            if (!empty($field->options)) {
+                if (is_array($fieldValue)) {
+                    $optionsPoints = array_reduce(
+                        $field->options,
+                        function (int $sum, $opt) use ($fieldValue): int {
+                            return $sum + (isset($opt['value'], $opt['points']) &&
+                                in_array($opt['value'], $fieldValue, true)
+                                ? (int) $opt['points']
+                                : 0);
+                        },
+                        0
+                    );
+                } else {
+                    foreach ($field->options as $opt) {
+                        if (
+                            isset($opt['value'], $opt['points']) &&
+                            $opt['value'] === $fieldValue
+                        ) {
+                            $optionsPoints = (int) $opt['points'];
+                            break;
+                        }
+                    }
                 }
-                return 0;
-            })->sum();
-
-            if ($optionsSum > 0) {
-                return $field->points + $optionsSum;
             }
 
-            if (isset($this->data[$field->name])) {
-                return $field->points;
-            }
-
-            return 0;
-        })->sum();
+            // Add points only if there's a contribution
+            return $total + ($optionsPoints > 0 ? $fieldPoints + $optionsPoints : $fieldPoints);
+        }, 0);
     }
 
     /**
