@@ -2,11 +2,9 @@
 
 namespace App\Services;
 
-use App\Helpers\Providers;
 use App\Models\NotificationTemplate;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Support\Collection;
 
 class MessageParser
 {
@@ -138,7 +136,7 @@ class MessageParser
         $this->length = str($this->body)->length();
 
         // Parse the message subject
-        $this->subject = trans(config("messages.{$this->configKey}.subject", ''), $this->params);
+        $this->subject = trans($this->params['subject'] ?? config("messages.{$this->configKey}.subject", ''), $this->params);
 
         if (! config("messages.{$this->configKey}")) {
             $this->notFound = true;
@@ -150,6 +148,8 @@ class MessageParser
     public function toMail(): MailMessage
     {
         $template = (new NotificationTemplate())->resolveRouteBinding($this->configKey);
+
+        $this->subject = $template->subject;
 
         $this->htmlMessage = $template && $template->active
             ? new \Illuminate\Support\HtmlString((string) trans($template->html, $this->params))
@@ -164,6 +164,7 @@ class MessageParser
             if (!$template->active) {
                 $init = new static($this->configKey, $this->params);
                 $init->params['lines'] = $template->lines;
+                $init->params['subject'] = $template->subject;
                 $parse = $init->parse();
 
                 $this->lines = $parse->lines;
@@ -203,9 +204,11 @@ class MessageParser
         return $smsMessage;
     }
 
-    public function generator(): self
+    public function build(): self
     {
         $template = (new NotificationTemplate())->resolveRouteBinding($this->configKey);
+
+        $this->subject = $template->subject;
 
         $this->htmlMessage = $template && $template->active
             ? new \Illuminate\Support\HtmlString((string) trans($template->html, $this->params))
