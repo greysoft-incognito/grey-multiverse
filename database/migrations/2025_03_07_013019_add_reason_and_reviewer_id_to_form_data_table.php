@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('form_data', function (Blueprint $table) {
             $table->text('status_reason')->nullable()->after('status');
-            $table->foreignId('reviewer_id')->after('user_id')->constrained('users')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('reviewer_id')->nullable()->after('user_id')->constrained('users')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 
