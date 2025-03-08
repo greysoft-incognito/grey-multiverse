@@ -2,8 +2,14 @@
 
 USER__GROUP='www-data'
 
-if [ -n "$2" ]; then
-    USER__GROUP=$2
+if [ -n "$1" ]; then
+    USER__GROUP=$1
+fi
+
+if [[ "$USER__GROUP" == "--help" ]]; then
+    echo "usage:    ./exporter.sh username:usergroup"
+    echo "E.g:      ./exporter.sh www-data:www-data"
+    exit 0
 fi
 
 echo "Exporting Data."
