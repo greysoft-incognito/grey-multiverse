@@ -171,6 +171,16 @@ class FormData extends Model
     }
 
     /**
+     * get the points percentage score for this submission
+     */
+    public function score(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => round((($this->rank ?: 1) / ($this->form->total_points ?: 1)) * 100, 1)
+        );
+    }
+
+    /**
      * Get the form that owns the FormData
      */
     public function form(): BelongsTo

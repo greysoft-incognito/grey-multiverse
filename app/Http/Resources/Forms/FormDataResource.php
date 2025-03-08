@@ -46,6 +46,7 @@ class FormDataResource extends JsonResource
             'scan_date' => $form->scan_date,
             'status' => $this->status ?? 'pending',
             'rank' => $this->rank,
+            'score' => $this->score,
             'draft' => $this->draft ?? ['draft_form_data' => false],
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
