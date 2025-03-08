@@ -131,6 +131,8 @@ class NotificationTemplate extends Model
             'lines' => $parsed->lines,
             'plain' => $parsed->plainBody,
             'subject' => $parsed->subject,
+            'footnote' => $parsed->meta['footnote'] ?? config('messages.footnote', ''),
+            'copyright' => $parsed->meta['copyright'] ?? config('messages.copyright', ''),
             'args' => collect([
                 'firstname',
                 'lastname',
@@ -149,6 +151,11 @@ class NotificationTemplate extends Model
         return $template;
     }
 
+    public function parsed(): Attribute
+    {
+        return new Attribute(fn() => Providers::messageParser($this->key));
+    }
+
     public function html(): Attribute
     {
         return new Attribute(
@@ -157,13 +164,34 @@ class NotificationTemplate extends Model
                     return $value;
                 }
 
-                $parsed = Providers::messageParser($this->key);
                 return (new MailMessage())
                     ->view(['email', 'email-plain'], [
-                        'lines' => $parsed->lines,
-                        'subject' => $parsed->subject,
+                    'lines' => $this->parsed->lines,
+                    'subject' => $this->parsed->subject,
                     ])->render();
             },
+            set: fn($val) => $val,
+        );
+    }
+
+    public function subject(): Attribute
+    {
+        return new Attribute(fn($val) => $val ?: $this->parsed->subject);
+    }
+
+    public function footnote(): Attribute
+    {
+        return new Attribute(
+            get: fn($val) => $val ?: config('messages.footnote', ''),
+            set: fn($val) => $val,
+        );
+    }
+
+    public function copyright(): Attribute
+    {
+        return new Attribute(
+            get: fn($val) => $val ?: config('messages.copyright', ''),
+            set: fn($val) => $val,
         );
     }
 }

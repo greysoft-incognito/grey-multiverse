@@ -58,6 +58,7 @@ class NotificationTemplateController extends Controller
             unset($template->id);
         }
 
+        $template->sms = $request->sms;
         $template->args = $request->args;
         $template->html = $request->boolean('active') ? $request->html : null;
         $template->lines = $request->lines;
