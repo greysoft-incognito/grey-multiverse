@@ -83,6 +83,8 @@ class FormController extends Controller
             'deadline' => 'nullable|string',
             'template' => 'nullable',
             'success_message' => 'nullable|string',
+            'approval_message' => 'nullable|string',
+            'rejection_message' => 'nullable|string',
             'failure_message' => 'nullable|string',
             'dont_notify' => 'nullable|boolean',
             'require_auth' => 'nullable|boolean',
@@ -102,6 +104,8 @@ class FormController extends Controller
         $form->deadline = $request->deadline;
         $form->template = $request->template;
         $form->success_message = $request->success_message;
+        $form->approval_message = $request->approval_message;
+        $form->rejection_message = $request->rejection_message;
         $form->failure_message = $request->failure_message;
         $form->dont_notify = $request->boolean('dont_notify');
         $form->require_auth = $request->boolean('require_auth');
@@ -153,6 +157,8 @@ class FormController extends Controller
             'deadline' => 'nullable|string',
             'template' => 'nullable',
             'success_message' => 'nullable|string',
+            'approval_message' => 'nullable|string',
+            'rejection_message' => 'nullable|string',
             'failure_message' => 'nullable|string',
             'dont_notify' => 'nullable|boolean',
             'require_auth' => 'nullable|boolean',
@@ -171,6 +177,8 @@ class FormController extends Controller
         $form->deadline = $request->deadline;
         $form->template = $request->template;
         $form->success_message = $request->success_message;
+        $form->approval_message = $request->approval_message;
+        $form->rejection_message = $request->rejection_message;
         $form->failure_message = $request->failure_message;
         $form->dont_notify = $request->boolean('dont_notify');
         $form->require_auth = $request->boolean('require_auth');
