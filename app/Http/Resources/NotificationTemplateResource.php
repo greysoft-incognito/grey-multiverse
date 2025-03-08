@@ -25,6 +25,8 @@ class NotificationTemplateResource extends JsonResource
             'active' => $this->active,
             'subject' => $this->subject,
             'allowed' => $this->allowed,
+            'footnote' => $this->footnote,
+            'copyright' => $this->copyright,
         ];
     }
 }

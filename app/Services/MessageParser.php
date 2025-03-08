@@ -58,6 +58,13 @@ class MessageParser
     public $notFound = false;
 
     /**
+     * Extra meta that will be passed to the views
+     *
+     * @var array{footnote:string,copyright:string}
+     */
+    public array $meta = [];
+
+    /**
      * Renderable HTML message string or view name
      *
      * @var \Illuminate\Support\HtmlString|string
@@ -107,19 +114,21 @@ class MessageParser
             : collect(config("messages.{$this->configKey}.lines", []));
 
         // Parse the message lines
-        $lines = $lines->map(function ($line) {
-            // If the line is an array (a button) parse it the content also
-            if (is_array($line)) {
-                return collect($line)->mapWithKeys(function ($val, $key) {
-                    return [$key => trans($val, $this->params)];
-                })->all();
-            }
+        $lines = $lines
+            ->map(function ($line) {
+                // If the line is an array (a button) parse it the content also
+                if (is_array($line)) {
+                    return collect($line)->mapWithKeys(function ($val, $key) {
+                        return [$key => trans($val, $this->params)];
+                    })->all();
+                }
 
             // The line should now be return safe
             return is_string($line)
                 ? trans($line, $this->params)
                 : $line;
-        })->merge([trans(config('messages.signature'), $this->params)]);
+            })
+            ->merge([trans(config('messages.signature'), $this->params)]);
 
         $this->lines = $lines->all();
 
@@ -134,6 +143,9 @@ class MessageParser
         $this->plainBody = str($this->body)->stripTags()->toString();
 
         $this->length = str($this->body)->length();
+
+        $this->meta['footnote'] = trans(config('messages.footnote'), ['year' => date('Y'), ...$this->params]);
+        $this->meta['copyright'] = trans(config('messages.copyright'), ['year' => date('Y'), ...$this->params]);
 
         // Parse the message subject
         $this->subject = trans($this->params['subject'] ?? config("messages.{$this->configKey}.subject", ''), $this->params);
@@ -159,6 +171,9 @@ class MessageParser
             ? new \Illuminate\Support\HtmlString((string) trans($template->plain, $this->params))
             : 'email-plain';
 
+        $this->meta['footnote'] = trans($template->footnote ?: config('messages.footnote'), ['year' => date('Y'), ...$this->params]);
+        $this->meta['copyright'] = trans($template->copyright ?: config('messages.copyright'), ['year' => date('Y'), ...$this->params]);
+
         if ($template->lines && count((array)$template->lines) > 0) {
 
             if (!$template->active) {
@@ -177,8 +192,9 @@ class MessageParser
         return (new MailMessage())
             ->subject($this->subject)
             ->view([$this->htmlMessage, $this->plainMessage], [
-                'subject' => $this->subject,
-                'lines' => $this->lines,
+            'meta' => $this->meta,
+            'lines' => $this->lines,
+            'subject' => $this->subject,
             ]);
     }
 
@@ -221,6 +237,9 @@ class MessageParser
         if ($template->lines && count((array)$template->lines) > 0) {
             $this->lines = $template->lines;
         }
+
+        $this->meta['footnote'] = trans($template->footnote ?: config('messages.footnote'), ['year' => date('Y'), ...$this->params]);
+        $this->meta['copyright'] = trans($template->copyright ?: config('messages.copyright'), ['year' => date('Y'), ...$this->params]);
 
         return $this;
     }

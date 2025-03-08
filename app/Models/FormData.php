@@ -280,8 +280,8 @@ class FormData extends Model
                 }
 
                 try {
-                    return $phone ? new NumberParseException($phone, $this->phone_country ?? 'NG') : null;
-                } catch (\Throwable) {
+                    return $phone ? new PhoneNumber($phone, [$this->phone_country ?: 'NG', 'INTERNATIONAL']) : null;
+                } catch (NumberParseException) {
                     return $phone;
                 }
             },

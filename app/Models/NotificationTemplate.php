@@ -41,6 +41,8 @@ class NotificationTemplate extends Model
         'active',
         'subject',
         'allowed',
+        'footnote',
+        'copyright',
     ];
 
     /**

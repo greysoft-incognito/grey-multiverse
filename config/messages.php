@@ -13,6 +13,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Footnote
+    |--------------------------------------------------------------------------
+    |
+    | This is required and will be attached to the end of every message
+    |
+    */
+    'footnote' => 'You are recieving this message because you are registered on :app_name',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Copyright
+    |--------------------------------------------------------------------------
+    |
+    | This is required and will be attached to the end of every message
+    |
+    */
+    'copyright' => '©:year :app_name, All Rights Reserved.',
+
+    /*
+    |--------------------------------------------------------------------------
     | Messages
     |--------------------------------------------------------------------------
     |

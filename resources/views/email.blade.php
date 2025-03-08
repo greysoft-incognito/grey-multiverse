@@ -247,9 +247,14 @@
                                                                                     style="font-size:0px;padding:10px 25px;word-break:break-word;">
                                                                                     <div
                                                                                         style="font-family:Lato,'Helvetica Neue ',Helvetica,Arial,sans-serif;font-size:18px;font-weight:400;line-height:24px;text-align:center;color:#434245;">
-                                                                                        You are recieving this message
-                                                                                        because you are registered on
-                                                                                        {{ dbconfig('app_name') }}.
+                                                                                        @isset($meta['footnote'])
+                                                                                            {{ $meta['footnote'] }}
+                                                                                        @else
+                                                                                            &copy;{{ now()->format('Y') }}
+                                                                                            You are recieving this message
+                                                                                            because you are registered on
+                                                                                            {{ dbconfig('app_name') }}.
+                                                                                        @endisset
                                                                                     </div>
                                                                                 </td>
                                                                             </tr>
@@ -258,9 +263,13 @@
                                                                                     style="font-size:0px;padding:10px 25px;word-break:break-word;">
                                                                                     <div
                                                                                         style="font-family:Lato,'Helvetica Neue ',Helvetica,Arial,sans-serif;font-size:15px;font-weight:400;line-height:20px;text-align:center;color:#bfbfbf;">
-                                                                                        &copy;{{ now()->format('Y') }}
-                                                                                        {{ dbconfig('app_name') }}.,
-                                                                                        All Rights Reserved.
+                                                                                        @isset($meta['copyright'])
+                                                                                            {{ $meta['copyright'] }}
+                                                                                        @else
+                                                                                            &copy;{{ now()->format('Y') }}
+                                                                                            {{ dbconfig('app_name') }}.,
+                                                                                            All Rights Reserved.
+                                                                                        @endisset
                                                                                     </div>
                                                                                 </td>
                                                                             </tr>

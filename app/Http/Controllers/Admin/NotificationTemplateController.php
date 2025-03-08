@@ -64,6 +64,8 @@ class NotificationTemplateController extends Controller
         $template->plain = $request->plain;
         $template->active = $request->boolean('active');
         $template->subject = $request->subject;
+        $template->footnote = $request->footnote;
+        $template->copyright = $request->copyright;
         $template->save();
 
         return (new NotificationTemplateResource($template))->additional([
