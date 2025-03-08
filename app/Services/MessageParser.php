@@ -119,7 +119,7 @@ class MessageParser
             return is_string($line)
                 ? trans($line, $this->params)
                 : $line;
-        })->merge([config('messages.signature')]);
+        })->merge([trans(config('messages.signature'), $this->params)]);
 
         $this->lines = $lines->all();
 
