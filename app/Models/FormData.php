@@ -106,6 +106,21 @@ class FormData extends Model
     }
 
     /**
+     * Retrieve the model for a bound value.
+     *
+     * @param  string|null  $field
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this
+            ->withDraft()
+            ->where('id', $value)
+            ->orWhere('key', $value)
+            ->firstOrFail();
+    }
+
+    /**
      * Calculate the total point earned by the user
      * based on their form entries.
      *
@@ -153,21 +168,6 @@ class FormData extends Model
             // Add points only if there's a contribution
             return $total + ($optionsPoints > 0 ? $fieldPoints + $optionsPoints : $fieldPoints);
         }, 0);
-    }
-
-    /**
-     * Retrieve the model for a bound value.
-     *
-     * @param  string|null  $field
-     * @return \Illuminate\Database\Eloquent\Model|null
-     */
-    public function resolveRouteBinding($value, $field = null)
-    {
-        return $this
-            ->withDraft()
-            ->where('id', $value)
-            ->orWhere('key', $value)
-            ->firstOrFail();
     }
 
     /**
