@@ -155,8 +155,8 @@ return [
         'subject' => 'Your submission for :form_name has been :status.',
         'lines' => [
             '<div style="white-space: pre-line;">:status_message</div>',
-            '<div style="display: flex; justify-content: center;"><img style="height: 155px;" src=":qr_code"/></div>',
-            'Your QR Code may be required to be scanned on your arrival.',
+            '<div style="display: :qr_display; justify-content: center;"><img style="height: 155px;" src=":qr_code"/></div>',
+            '<div style="display: :qr_display;">Your QR Code may be required to be scanned on your arrival.</div>',
             'If there are any further information, we will not hesitate to contact you.',
         ],
     ],

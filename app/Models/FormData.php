@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Arr;
+use Propaganistas\LaravelPhone\Exceptions\NumberParseException;
 use Propaganistas\LaravelPhone\PhoneNumber;
 
 /**
@@ -268,7 +269,11 @@ class FormData extends Model
                     $phone = $this->data[$field->name ?? ''] ?? null;
                 }
 
-                return $phone ? new PhoneNumber($phone, $this->phone_country ?? 'NG') : null;
+                try {
+                    return $phone ? new NumberParseException($phone, $this->phone_country ?? 'NG') : null;
+                } catch (\Throwable) {
+                    return $phone;
+                }
             },
         );
     }

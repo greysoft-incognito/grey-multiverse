@@ -11,6 +11,7 @@ use App\Http\Resources\Forms\FormDataResource;
 use App\Http\Resources\SortFieldResource;
 use App\Models\Form;
 use App\Models\FormData;
+use App\Notifications\FormReviewComplete;
 use Illuminate\Http\Request;
 
 class FormDataController extends Controller
@@ -197,7 +198,7 @@ class FormDataController extends Controller
             'status' => $status,
             'reason' => $reason
         ] = $this->validate($request, [
-            'status' => 'required|in:pending,approved,rejected',
+            'status' => 'required|in:pending,submitted,approved,rejected',
             'reason' => 'required|string|min:15'
         ]);
 
@@ -205,6 +206,10 @@ class FormDataController extends Controller
         $data->reviewer_id = $request->user('sanctum')?->id;
         $data->status_reason = $reason;
         $data->save();
+
+        if (in_array($data->status, ['approved', 'rejected'])) {
+            $data->notify(new FormReviewComplete());
+        }
 
         return (new FormDataResource($data))->additional([
             'message' => __('Submission status has successfully been changed to ":0"', [$status]),

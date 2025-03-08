@@ -56,7 +56,7 @@ class CompanyDataExports implements WithMultipleSheets, WithProperties
             'title' => 'Companies Submitted Data',
             'description' => 'Companies Submitted Data',
             'keywords' => 'submissions,export,spreadsheet,greysoft,greymultiverse,companies',
-            'category' => 'Submited Data',
+            'category' => 'Submitted Data',
             'company' => 'GreyMultiverse',
         ];
     }

@@ -149,7 +149,7 @@ class MessageParser
     {
         $template = (new NotificationTemplate())->resolveRouteBinding($this->configKey);
 
-        $this->subject = $template->subject;
+        $this->subject = trans($template->subject, $this->params);
 
         $this->htmlMessage = $template && $template->active
             ? new \Illuminate\Support\HtmlString((string) trans($template->html, $this->params))

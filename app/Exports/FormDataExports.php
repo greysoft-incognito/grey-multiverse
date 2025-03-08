@@ -71,10 +71,10 @@ class FormDataExports implements WithMultipleSheets, WithProperties
         return [
             'creator' => 'GreyMultiverese',
             'lastModifiedBy' => 'GreyMultiverse',
-            'title' => "{$title} Submited Data",
-            'description' => $data->form->title ?? 'Submited Data',
+            'title' => "{$title} Submitted Data",
+            'description' => $data->form->title ?? 'Submitted Data',
             'keywords' => "submissions,export,spreadsheet,greysoft,greymultiverse,$keywords",
-            'category' => 'Submited Data',
+            'category' => 'Submitted Data',
             'company' => $data->form->name ?? $data->form->title ?? 'GreyMultiverse',
         ];
     }
