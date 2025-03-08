@@ -194,27 +194,22 @@ class Form extends Model
     {
         return Attribute::make(
             get: function () {
-                return $this->fields->reduce(function (int $total, $field): int {
+                return $this->fields->sum(function ($field): int {
                     $fieldPoints = (int) $field->points;
                     $optionsPoints = 0;
-
-                    // Skip if no value exists
-                    if ($fieldPoints <= 0) {
-                        return $total;
-                    }
 
                     // Calculate options points if options exist
                     if (!empty($field->options)) {
                         foreach ($field->options as $opt) {
-                            if (isset($opt['points'])) {
+                            if (isset($opt['points']) && ((int) $opt['points']) > 0) {
                                 $optionsPoints += (int) $opt['points'];
                             }
                         }
                     }
 
                     // Add points only if there's a contribution
-                    return $total + ($optionsPoints > 0 ? $fieldPoints + $optionsPoints : $fieldPoints);
-                }, 0);
+                    return ($optionsPoints > 0 ? $fieldPoints + $optionsPoints : $fieldPoints);
+                });
             },
         );
     }
