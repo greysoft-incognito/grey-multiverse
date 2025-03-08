@@ -45,26 +45,32 @@ class FormDataSheets implements FromCollection, ShouldAutoSize, WithHeadings, Wi
      */
     public function map($submision): array
     {
-        $fields = $submision->form->fields
-            ->mapWithKeys(function ($field, $sn) use ($submision) {
-                $label = $field->label ?? $field->name;
-                $value = $submision->data[$field->name] ?? null;
+        $fields = $submision->form->fields->mapWithKeys(function ($field) use ($submision) {
+            $label = $field->label ?? $field->name;
+            $value = $submision->data[$field->name] ?? null;
 
-                if (str($label)->lower()->is('primary')) {
-                    $value = $value ? 'Yes' : '';
-                }
+            // Early return for null values to reduce nesting
+            if ($value === null) {
+                return [$label => ''];
+            }
 
-                if ($field->options) {
-                    $value = collect($field->options)
-                        ->where('value', $value)
-                        ->first()['label'] ?? $value;
-                }
+            // Use match for cleaner conditional logic
+            $value = match (true) {
+                str($label)->lower()->is('primary') => $value ? 'Yes' : '',
+                !$field->options => $value,
+                $field->expected_value_type === 'array' => collect((array)$value)
+                    ->map(fn($val) => $field->options[$val]['label'] ?? $val)
+                    ->join(', '),
+                default => $field->options[$value]['label'] ?? $value,
+            };
 
-                return [$label => is_array($value) ? implode(', ', $value) : $value];
-            });
+            return [$label => is_array($value) ? implode(', ', $value) : $value];
+        });
 
         $data = collect([
             'Fullname' => $submision->fullname,
+            'Rank' => $submision->rank,
+            'Score (%)' => $submision->score,
         ])->merge($fields)->merge([
             'Submission Date' => $submision->created_at->format('Y/m/d'),
         ]);
