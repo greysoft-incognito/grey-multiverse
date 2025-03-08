@@ -24,8 +24,7 @@ class FormDataSheets implements FromCollection, ShouldAutoSize, WithHeadings, Wi
     public function __construct(
         protected int $page,
         protected \Illuminate\Database\Eloquent\Collection $submisions
-    ) {
-    }
+    ) {}
 
     public function headings(): array
     {
@@ -46,7 +45,7 @@ class FormDataSheets implements FromCollection, ShouldAutoSize, WithHeadings, Wi
      */
     public function map($submision): array
     {
-        $data = $submision->form->fields
+        $fields = $submision->form->fields
             ->mapWithKeys(function ($field, $sn) use ($submision) {
                 $label = $field->label ?? $field->name;
                 $value = $submision->data[$field->name] ?? null;
@@ -62,10 +61,13 @@ class FormDataSheets implements FromCollection, ShouldAutoSize, WithHeadings, Wi
                 }
 
                 return [$label => is_array($value) ? implode(', ', $value) : $value];
-            })
-            ->merge([
-                'Submission Date' => $submision->created_at->format('Y/m/d'),
-            ]);
+            });
+
+        $data = collect([
+            'Fullname' => $submision->fullname,
+        ])->merge($fields)->merge([
+            'Submission Date' => $submision->created_at->format('Y/m/d'),
+        ]);
 
         // $data->prepend($submision->id, '#');
 
@@ -74,7 +76,7 @@ class FormDataSheets implements FromCollection, ShouldAutoSize, WithHeadings, Wi
 
     public function title(): string
     {
-        return 'Page '.$this->page;
+        return 'Page ' . $this->page;
     }
 
     public function styles(Worksheet $sheet)
