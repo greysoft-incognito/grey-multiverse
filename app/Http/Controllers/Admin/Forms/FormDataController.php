@@ -23,10 +23,6 @@ class FormDataController extends Controller
      */
     public function index(Request $request, Form $form)
     {
-        /** @var \App\Models\User $user */
-        $user = $request->user('sanctum');
-        \App\Helpers\Access::authorizeForm([\App\Enums\Permission::APPOINTMENT_MANAGE], $user, $form);
-
         $request->merge([
             'sortable' => $request->boolean('sortable'),
             'load_drafts' => $request->boolean('load_drafts'),
