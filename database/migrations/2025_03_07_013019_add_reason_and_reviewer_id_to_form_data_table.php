@@ -14,8 +14,13 @@ return new class extends Migration
     public function up()
     {
         Schema::table('form_data', function (Blueprint $table) {
-            $table->text('status_reason')->nullable()->after('status');
-            $table->foreignId('reviewer_id')->nullable()->after('user_id')->constrained('users')->cascadeOnDelete()->cascadeOnUpdate();
+            if (! Schema::hasColumn('form_data', 'status_reason')) {
+                $table->text('status_reason')->nullable()->after('status');
+            }
+
+            if (! Schema::hasColumn('form_data', 'reviewer_id')) {
+                $table->foreignId('reviewer_id')->nullable()->after('user_id')->constrained('users')->cascadeOnDelete()->cascadeOnUpdate();
+            }
         });
     }
 
@@ -27,8 +32,13 @@ return new class extends Migration
     public function down()
     {
         Schema::table('form_data', function (Blueprint $table) {
-            $table->dropColumn('status_reason');
-            $table->dropConstrainedForeignId('reviewer_id');
+            if (Schema::hasColumn('form_data', 'status_reason')) {
+                $table->dropColumn('status_reason');
+            }
+
+            if (Schema::hasColumn('form_data', 'reviewer_id')) {
+                $table->dropConstrainedForeignId('reviewer_id');
+            }
         });
     }
 };
