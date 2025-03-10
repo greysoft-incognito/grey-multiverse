@@ -33,7 +33,7 @@ enum Permission: string
     case FORMFIELD_UPDATE = 'formfield.update';
     case FORMFIELD_DELETE = 'formfield.delete';
 
-    case FORMDATA_STATS = 'formdata.stats';
+    case FORMDATA_STATS = 'form.dashboard';
     case FORMDATA_LIST = 'formdata.list';
     case FORMDATA_SHOW = 'formdata.show';
     case FORMDATA_UPDATE = 'formdata.update';

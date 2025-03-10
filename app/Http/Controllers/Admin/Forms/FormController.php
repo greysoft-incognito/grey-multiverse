@@ -124,8 +124,12 @@ class FormController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show(Form $form)
+    public function show(Request $request, Form $form)
     {
+        /** @var \App\Models\User $user */
+        $user = $request->user('sanctum');
+        \App\Helpers\Access::authorizeForm([\App\Enums\Permission::FORM_SHOW], $user, $form);
+
         \Gate::authorize('usable', 'form.show');
 
         return (new FormResource($form))->additional([
@@ -209,7 +213,7 @@ class FormController extends Controller
                 }
 
                 return false;
-            })->filter(fn ($i) => $i !== false)->count();
+            })->filter(fn($i) => $i !== false)->count();
 
             return Providers::response()->info([
                 'data' => [],

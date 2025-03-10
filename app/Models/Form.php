@@ -186,6 +186,22 @@ class Form extends Model
     }
 
     /**
+     * Get all of the permissions for the Form
+     */
+    public function permissions(): HasMany
+    {
+        return $this->hasMany(FormPermission::class);
+    }
+
+    /**
+     * Get all of the roles for the Form
+     */
+    public function roles(): HasMany
+    {
+        return $this->hasMany(FormRole::class);
+    }
+
+    /**
      * Get the total points.
      *
      * @return string

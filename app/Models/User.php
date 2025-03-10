@@ -8,6 +8,8 @@ use App\Models\BizMatch\Appointment;
 use App\Models\BizMatch\Company;
 use App\Notifications\OtpReceived;
 use App\Notifications\SendCode;
+use App\Traits\HasExtendedPermissions;
+use App\Traits\HasExtendedRoles;
 use App\Traits\ModelCanExtend;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -35,6 +37,8 @@ class User extends Authenticatable
     use HasApiTokens;
     use HasFactory;
     use HasPermissions;
+    use HasExtendedPermissions;
+    use HasExtendedRoles;
     use HasRoles;
     use ModelCanExtend;
     use Notifiable;

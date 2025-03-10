@@ -73,6 +73,8 @@ return [
         'form.create',
         'form.update',
         'form.delete',
+        'form.dashboard',
+        'form.dashboard.control',
         'form.reviewers.manage',
 
         'formfield.list',
@@ -81,7 +83,6 @@ return [
         'formfield.update',
         'formfield.delete',
 
-        'formdata.stats',
         'formdata.list',
         'formdata.show',
         'formdata.update',
@@ -125,6 +126,86 @@ return [
     ],
     /*
     |--------------------------------------------------------------------------
+    | Form Specific Role List
+    |--------------------------------------------------------------------------
+    |
+    | These are form specific roles that will be made available to the user.
+    | Feel free to add or remove as per your requirements.
+    */
+    'form_roles' => [
+        'form.viewer',
+        'form.manager',
+        'form.reviewer',
+    ],
+    /*
+    |--------------------------------------------------------------------------
+    | Form Permissions
+    |--------------------------------------------------------------------------
+    |
+    | Form Specific Permissions.
+    */
+    'form_permissions' => [
+        'form.list',
+        'form.show',
+        'form.create',
+        'form.update',
+        'form.delete',
+        'form.dashboard',
+        'form.dashboard.control',
+        'form.reviewers.manage',
+
+        'formfield.list',
+        'formfield.show',
+        'formfield.create',
+        'formfield.update',
+        'formfield.delete',
+
+        'formdata.list',
+        'formdata.show',
+        'formdata.update',
+        'formdata.delete',
+    ],
+    /*
+    |--------------------------------------------------------------------------
+    | Form Specific Exclusion List
+    |--------------------------------------------------------------------------
+    |
+    | If there are permisions you do not want to attach to a particlular form role
+    | you can add them here using the role name as key.
+    */
+    'form_exclusions' => [
+        'form.manager' => [],
+        'form.viewer' => [
+            'form.update',
+            'form.delete',
+            'form.dashboard.control',
+            'form.reviewers.manage',
+            // ======================
+            'formfield.list',
+            'formfield.show',
+            'formfield.create',
+            'formfield.update',
+            'formfield.delete',
+            //=======================
+            'formdata.update',
+            'formdata.delete',
+        ],
+        'form.reviewer' => [
+            'form.update',
+            'form.delete',
+            'form.reviewers.manage',
+            // ======================
+            'formfield.list',
+            'formfield.show',
+            'formfield.create',
+            'formfield.update',
+            'formfield.delete',
+            //=======================
+            'formdata.update',
+        ],
+    ],
+    /*
+    |--------------------------------------------------------------------------
     | Exclusion List
     |--------------------------------------------------------------------------
     |
@@ -162,6 +243,7 @@ return [
             'users.user',
             'users.update',
             'users.delete',
+            'form.dashboard.control',
 
             'formdata.delete',
             'form.reviewers.manage',
