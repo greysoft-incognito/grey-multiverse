@@ -126,10 +126,6 @@ class FormController extends Controller
      */
     public function show(Request $request, Form $form)
     {
-        /** @var \App\Models\User $user */
-        $user = $request->user('sanctum');
-        \App\Helpers\Access::authorizeForm([\App\Enums\Permission::FORM_SHOW], $user, $form);
-
         \Gate::authorize('usable', 'form.show');
 
         return (new FormResource($form))->additional([
