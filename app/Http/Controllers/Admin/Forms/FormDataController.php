@@ -48,10 +48,12 @@ class FormDataController extends Controller
 
         /** @var \App\Models\User $user */
         $user = $request->user('sanctum');
+        $name_field = $form->config['fields_map']['name'] ?? 'name';
 
         \Gate::authorize('usable', 'formdata.list');
 
         $query = $form->data();
+        $query->where("data->{$name_field}", '!=', null);
 
         $query
             ->when($rank, fn($q) => $q->ranked($rank), fn($q) => $q->orderBy('rank', 'DESC'))
