@@ -131,6 +131,8 @@ class SendCode extends Notification implements ShouldQueue
 
     public function toOtp(object $notifiable)
     {
+        $this->code ??= $notifiable->code;
+
         $type = OtpProvider::tryFromName(dbconfig('prefered_otp_channel', 'DEFAULT'));
 
         if ($type) {
