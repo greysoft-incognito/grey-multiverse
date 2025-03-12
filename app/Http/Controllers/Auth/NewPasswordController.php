@@ -23,18 +23,27 @@ class NewPasswordController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
+        @[
+            'code' => $request_code,
+            'validate' => $validate,
+            'password' => $password,
+        ] = $this->validate($request, [
             'code' => ['required'],
+            'check' => ['nullable', 'boolean'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $code = Url::base64urlDecode($request->code);
+        if ($validate) {
+            return $this->check($request);
+        }
+
+        $code = Url::base64urlDecode($request_code);
 
         if (str($code)->contains('|')) {
             $code = str($code)->explode('|')->first();
             $error = 'The link you followed has expired, please request a new reset link.';
         } else {
-            $code = $request->code;
+            $code = $request_code;
             $error = 'The code you provided has expired or does not exist.';
         }
 
@@ -55,7 +64,7 @@ class NewPasswordController extends Controller
         $user = User::firstWhere('email', $code->email);
 
         // Here we will attempt to reset the user's password.
-        $user->update(['password' => $request->password]);
+        $user->update(['password' => $password]);
 
         // delete current code
         $code->delete();
