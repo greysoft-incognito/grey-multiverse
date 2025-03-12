@@ -29,8 +29,8 @@ class NewPasswordController extends Controller
             'password' => $password,
         ] = $this->validate($request, [
             'code' => ['required'],
-            'check' => ['nullable', 'boolean'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'validate' => ['nullable', 'boolean'],
+            'password' => ['nullable', 'required_unless:validate,true', 'confirmed', Rules\Password::defaults()],
         ]);
 
         if ($validate) {
