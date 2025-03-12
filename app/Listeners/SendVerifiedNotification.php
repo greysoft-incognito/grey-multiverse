@@ -20,6 +20,8 @@ class SendVerifiedNotification
      */
     public function handle(Verified $event): void
     {
-        $event->user->notify(new AccountVerified($event->type));
+        if (dbconfig('send_verified_message', true)) {
+            $event->user->notify(new AccountVerified($event->type));
+        }
     }
 }

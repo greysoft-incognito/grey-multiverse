@@ -138,14 +138,12 @@ class VerifyEmailPhoneController extends Controller
             ], HttpStatus::UNPROCESSABLE_ENTITY);
         }
 
-        if (dbconfig('send_verified_message', true) && ($type == 'email' || $type == 'phone')) {
-            if ($user->markEmailAsVerified()) {
-                event(new Verified($user, $type));
-            }
+        if ($type == 'email' && $user->markEmailAsVerified()) {
+            event(new Verified($user, $type));
+        }
 
-            if ($request->user()->markPhoneAsVerified()) {
-                event(new Verified($user, $type));
-            }
+        if ($type == 'phone' && $request->user()->markPhoneAsVerified()) {
+            event(new Verified($user, $type));
         }
 
         return PV::response()->success(new UserResource($user), HttpStatus::OK, [
