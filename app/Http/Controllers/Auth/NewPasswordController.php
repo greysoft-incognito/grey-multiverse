@@ -56,7 +56,7 @@ class NewPasswordController extends Controller
 
             return PV::response()->error([
                 'message' => 'An error occured.',
-                'errors' => ['code' => __($error)],
+                'errors' => ['code' => [__($error)]],
             ], HttpStatus::ACCEPTED);
         }
 
@@ -113,7 +113,7 @@ class NewPasswordController extends Controller
 
             return PV::response()->error([
                 'message' => 'An error occured.',
-                'errors' => ['code' => __($error)],
+                'errors' => ['code' => [__($error)]],
             ], HttpStatus::UNPROCESSABLE_ENTITY);
         }
 

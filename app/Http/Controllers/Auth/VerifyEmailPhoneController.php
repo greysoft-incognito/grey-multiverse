@@ -134,7 +134,7 @@ class VerifyEmailPhoneController extends Controller
 
         if ($requestCode !== $code || $last_attempt->diffInMinutes(now()) >= PV::config('token_lifespan', 30)) {
             return PV::response()->error([
-                'errors' => ['code' => __($error)],
+                'errors' => ['code' => [__($error)]],
             ], HttpStatus::UNPROCESSABLE_ENTITY);
         }
 

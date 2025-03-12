@@ -141,7 +141,7 @@ class FormDataController extends Controller
         $user = $request->user('sanctum');
 
         /** @var \Illuminate\Database\Eloquent\Builder $query */
-        $query = $form->data()->where('user_id', $user->id)->withDraft();
+        $query = $form->data()->where('user_id', $user?->id)->withDraft();
 
         $data = $id === 'current'
             ? $query->latest()->firstOrNew()
