@@ -4,10 +4,10 @@ namespace App\Http\Requests;
 
 use App\Models\Form;
 use App\Models\FormData;
-use App\Models\FormField;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 class SaveFormdataRequest extends FormRequest
@@ -44,7 +44,7 @@ class SaveFormdataRequest extends FormRequest
     public function load()
     {
         $this->form ??= $this->route()->parameter('form');
-        $this->user_id ??= $this->input('user_id', $this->input('user', $this->user('sanctum')?->id));
+        $this->user_id ??= $this->input('user_id', $this->input('user', auth('sanctum')->id()));
 
         $this->fields ??= $this->form->fields->map(function ($field) {
             if ($field->alias === 'learning_paths' && (bool) $this->form->learningPaths) {
@@ -79,7 +79,12 @@ class SaveFormdataRequest extends FormRequest
     {
         $this->load();
 
-        return $this->fields->mapWithKeys(function ($field) {
+        $form_data = null;
+        if (($this->user_id || auth('sanctum')->id()) && !$this->hasMultipleEntries()) {
+            $form_data = $this->form->data()->whereUserId($this->user_id ?? auth('sanctum')->id())->withDraft()->first();
+        }
+
+        return $this->fields->mapWithKeys(function ($field) use ($form_data) {
 
             $rules[] = 'bail';
 
@@ -122,10 +127,11 @@ class SaveFormdataRequest extends FormRequest
 
             if ($field->type === 'email') {
                 $rules[] = 'email';
+                // $rules[] = Rule::unique('form_data', "data->{$field->name}")->when($form_data, fn($x) => $x->ignore($form_data));
             }
 
             if ($field->type === 'tel') {
-                $rules[] = 'unique:users,phone';
+                $rules[] = Rule::unique('form_data', "data->{$field->name}")->when($form_data, fn($x) => $x->ignore($form_data));
                 $rules[] = 'phone:INTERNATIONAL,NG';
             }
 
@@ -304,10 +310,8 @@ class SaveFormdataRequest extends FormRequest
     {
         $this->load();
 
-        if (($this->user_id || $this->user('sanctum')) && $this->hasMultipleEntries()) {
-            FormData::whereFormId($this->form->id)
-                ->whereUserId($this->user_id ?? $this->user('sanctum')?->id)
-                ->delete();
+        if (($this->user_id || auth('sanctum')->id()) && $this->hasMultipleEntries()) {
+            $this->form->data()->where('user_id', $this->user_id ?? auth('sanctum')->id())->withDraft()->delete();
             // $data = FormData::whereFormId($this->form->id)->whereFormId($user_id)->first();
         }
 
