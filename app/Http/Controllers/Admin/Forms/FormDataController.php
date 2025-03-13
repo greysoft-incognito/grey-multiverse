@@ -62,7 +62,7 @@ class FormDataController extends Controller
             ->when($rank, fn($q) => $q->ranked($rank), fn($q) => $q->orderBy('rank', 'DESC'))
             ->when($status, fn($q) => $q->whereStatus($status))
             ->when($search, fn($q) => $q->doSearch($search, $form))
-            ->when($only_drafts, fn($q) => $q->draft())
+            ->when($only_drafts, fn($q) => $q->drafts())
             ->when($load_drafts, fn($q) => $q->withDraft())
             ->when($sort_field && $sort_value, fn($q) => $q->sorted($sort_field, $sort_value))
             ->when($user->hasExactRoles(['reviewer']), fn($q) => $q->forReviewer($user));

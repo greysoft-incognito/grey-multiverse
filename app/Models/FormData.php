@@ -380,7 +380,7 @@ class FormData extends Model
      * @param  string<'top'|'least'>  $type
      * @return void
      */
-    public function scopeDraft(Builder $query, string $type)
+    public function scopeDrafts(Builder $query, string $type)
     {
         $query->where('status', 'pending');
         $query->orWhereJsonContains('draft->draft_form_data', true);

@@ -123,7 +123,7 @@ class FormExtraController extends Controller
                 ];
             })->prepend([
                 'label' => 'total_drafts',
-                'value' => $form->data()->draft()->count(),
+                'value' => $form->data()->drafts()->count(),
                 'cols' => 3,
             ])->prepend([
                 'label' => 'total_submissions',
@@ -133,7 +133,7 @@ class FormExtraController extends Controller
         } else {
             $data = collect([[
                 'label' => 'total_drafts',
-                'value' => $form->data()->draft()->count(),
+                'value' => $form->data()->drafts()->count(),
                 'cols' => 3,
             ], [
                 'label' => 'total_submissions',
