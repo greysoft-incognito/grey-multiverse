@@ -204,7 +204,7 @@ class FormDataController extends Controller
             'status' => $status,
             'reason' => $reason
         ] = $this->validate($request, [
-            'status' => 'required|in:pending,submitted,approved,rejected',
+            'status' => 'required|in:pending,submitted,approved,rejected,reviewing',
             'reason' => 'required|string|min:15'
         ]);
 

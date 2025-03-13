@@ -20,7 +20,7 @@ return new class extends Migration
 
         Schema::table('form_data', function (Blueprint $table) {
             if (! Schema::hasColumn('form_data', 'status')) {
-                $table->enum('status', ['pending', 'submitted', 'approved', 'rejected'])->default('pending')->after('data');
+                $table->enum('status', ['pending', 'submitted', 'reviewing', 'approved', 'rejected'])->default('pending')->after('data');
             }
         });
 
