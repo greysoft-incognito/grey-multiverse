@@ -25,6 +25,7 @@ class FormDataController extends Controller
     {
         $request->merge([
             'sortable' => $request->boolean('sortable'),
+            'only_drafts' => $request->boolean('only_drafts'),
             'load_drafts' => $request->boolean('load_drafts'),
         ]);
 
@@ -35,6 +36,7 @@ class FormDataController extends Controller
             'sortable' => $sortable,
             'sort_field' => $sort_field,
             'sort_value' => $sort_value,
+            'only_drafts' => $only_drafts,
             'load_drafts' => $load_drafts,
         ] = $this->validate($request, [
             'rank' => ['nullable', 'in:top,least'],
@@ -43,6 +45,7 @@ class FormDataController extends Controller
             'sortable' => ['nullable', 'boolean'],
             'sort_field' => ['nullable', 'string', 'exists:form_fields,name'],
             'sort_value' => ['nullable', 'string'],
+            'only_drafts' => ['nullable', 'boolean'],
             'load_drafts' => ['nullable', 'boolean'],
         ]);
 
@@ -59,6 +62,7 @@ class FormDataController extends Controller
             ->when($rank, fn($q) => $q->ranked($rank), fn($q) => $q->orderBy('rank', 'DESC'))
             ->when($status, fn($q) => $q->whereStatus($status))
             ->when($search, fn($q) => $q->doSearch($search, $form))
+            ->when($only_drafts, fn($q) => $q->draft())
             ->when($load_drafts, fn($q) => $q->withDraft())
             ->when($sort_field && $sort_value, fn($q) => $q->sorted($sort_field, $sort_value))
             ->when($user->hasExactRoles(['reviewer']), fn($q) => $q->forReviewer($user));
