@@ -30,7 +30,7 @@ class RegisteredUserController extends Controller
             'name' => ['required_without:firstname', 'string', 'max:255'],
             'email' => ['required_without:phone', 'string', 'email', 'max:255', 'unique:users,email'],
             'phone' => ['required_without:email', 'string', 'max:255', 'unique:users,phone', 'phone:INTERNATIONAL,NG'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', Rules\Password::min(8)->letters()->mixedCase()->numbers()->symbols()],
             'firstname' => ['nullable', 'string', 'max:255'],
             'lastname' => ['nullable', 'string', 'max:255'],
             'gender' => ['nullable', 'string', 'max:20'],

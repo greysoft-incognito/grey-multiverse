@@ -374,6 +374,18 @@ class FormData extends Model
         return $query->reorder()->orderBy('rank', $type === 'top' ? 'desc' : 'asc');
     }
 
+    /**
+     * Scope to return only draft
+     *
+     * @param  string<'top'|'least'>  $type
+     * @return void
+     */
+    public function scopeDraft(Builder $query, string $type)
+    {
+        $query->where('status', 'pending');
+        $query->orWhereJsonContains('draft->draft_form_data', true);
+    }
+
     public function scopeForReviewer(Builder $query, User|string $user): void
     {
         if ($user instanceof $user) {
