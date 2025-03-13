@@ -122,22 +122,22 @@ class FormExtraController extends Controller
                     'cols' => 3,
                 ];
             })->prepend([
-                'label' => 'total_drafts',
-                'value' => $form->data()->drafts()->count(),
-                'cols' => 3,
-            ])->prepend([
                 'label' => 'total_submissions',
                 'value' => $form->data()->count(),
+                'cols' => 3,
+            ])->prepend([
+                'label' => 'in_draft',
+                'value' => $form->data()->drafts()->count(),
                 'cols' => 3,
             ]);
         } else {
             $data = collect([[
-                'label' => 'total_drafts',
-                'value' => $form->data()->drafts()->count(),
-                'cols' => 3,
-            ], [
                 'label' => 'total_submissions',
                 'value' => $form->data()->count(),
+                'cols' => 3,
+            ], [
+                'label' => 'in_draft',
+                'value' => $form->data()->drafts()->count(),
                 'cols' => 3,
             ]]);
         }
