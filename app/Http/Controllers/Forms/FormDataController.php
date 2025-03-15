@@ -27,6 +27,7 @@ class FormDataController extends Controller
     {
         $forms = $form
             ->data()
+            ->with(['form'])
             ->where('user_id', auth('sanctum')->id())
             ->withDraft()
             ->paginate($request->get('limit', 30));
@@ -75,6 +76,9 @@ class FormDataController extends Controller
         } else {
             $query = $form->data()->withDraft();
         }
+
+        $query->with(['form', 'form.fields']);
+
         /** @var \Illuminate\Database\Eloquent\Builder $query */
 
         if ($request->hasMultipleEntries() || (! $request->user_id && ! $request->user('sanctum'))) {
@@ -143,6 +147,7 @@ class FormDataController extends Controller
         /** @var \Illuminate\Database\Eloquent\Builder $query */
         $query = $form->data()->where('user_id', $user?->id)->withDraft();
 
+        $query->with(['form', 'form.fields']);
         $data = $id === 'current'
             ? $query->latest()->firstOrNew()
             : $query->find($id);

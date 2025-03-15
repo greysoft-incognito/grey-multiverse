@@ -12,6 +12,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Arr;
 use Propaganistas\LaravelPhone\Exceptions\NumberParseException;
 use Propaganistas\LaravelPhone\PhoneNumber;
+use ToneflixCode\DbConfig\Models\Fileable;
 
 /**
  * Class FormData
@@ -67,7 +68,7 @@ class FormData extends Model
     protected function casts(): array
     {
         return [
-            'data' => 'array',
+            'data' => \App\Casts\AsFormDataCollection::class,
             'draft' => \Illuminate\Database\Eloquent\Casts\AsArrayObject::class,
             'rank' => 'integer',
             'scan_date' => 'datetime',
@@ -339,6 +340,11 @@ class FormData extends Model
         } else {
             return $this->phone;
         }
+    }
+
+    public function files()
+    {
+        return $this->morphMany(Fileable::class, 'fileable');
     }
 
     /**

@@ -1,0 +1,154 @@
+<?php
+
+namespace App\Casts;
+
+use Illuminate\Contracts\Database\Eloquent\Castable;
+use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
+use InvalidArgumentException;
+use ToneflixCode\LaravelFileable\Facades\Media;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use \Illuminate\Database\Eloquent\Casts\Json;
+use ToneflixCode\DbConfig\Models\Fileable;
+
+class AsFormDataCollection implements Castable
+{
+    /**
+     * Get the caster class to use when casting from / to this cast target.
+     *
+     * @param  array  $arguments
+     * @return \Illuminate\Contracts\Database\Eloquent\CastsAttributes<\Illuminate\Support\Collection<array-key, mixed>, iterable>
+     */
+    public static function castUsing(array $arguments)
+    {
+        return new class($arguments) implements CastsAttributes
+        {
+            public function __construct(protected array $arguments) {}
+
+            public function get($model, $key, $value, $attributes)
+            {
+                if (! isset($attributes[$key])) {
+                    return;
+                }
+
+                $data = Json::decode($attributes[$key]);
+
+                $collectionClass = $this->arguments[0] ?? Collection::class;
+
+                if (! is_a($collectionClass, Collection::class, true)) {
+                    throw new InvalidArgumentException('The provided class must extend [' . Collection::class . '].');
+                }
+
+                $output = is_array($data) ? new $collectionClass($data) : null;
+
+                if ($output) {
+                    $fileFields = $model->form->fields->where('type', 'file');
+                    if ($fileFields->isNotEmpty()) {
+                        foreach ($fileFields as $field) {
+                            if (isset($output[$field->name])) {
+                                $file_ids = Json::decode($output[$field->name]);
+                                if (!empty($file_ids)) {
+                                    $file = Fileable::whereIn('id', $file_ids)->get();
+                                    $output[$field->name] = $file->pluck('file_url')->toArray();
+                                } else {
+                                    $output[$field->name] = [];
+                                }
+                            } else {
+                                $output[$field->name] = [];
+                            }
+                        }
+
+                        if (count($output[$field->name]) === 1) {
+                            $output[$field->name] = $output[$field->name][0];
+                        }
+
+                        if (empty($output[$field->name])) {
+                            $output[$field->name] = "";
+                        }
+                    }
+                }
+
+                return $output;
+            }
+
+            public function set($model, $key, $value, $attributes)
+            {
+                return [$key => Json::encode($this->processData($value, $model))];
+            }
+
+            public function processData(array|\Illuminate\Support\Collection $data, Model $model): array
+            {
+                if (is_array($data)) {
+                    $data = collect($data);
+                }
+
+                $data = $data->map(function ($data, $key) use ($model) {
+                    if ($data instanceof UploadedFile) {
+                        return $this->doUpload($data, $key, $model);
+                    }
+                    return $data;
+                });
+
+                return $data->toArray();
+            }
+
+            /**
+             * Upload a file as configuration value
+             *
+             * @param  UploadedFile|UploadedFile[]  $files
+             * @return string
+             */
+            public function doUpload(UploadedFile|array $files, string $key, Model $model)
+            {
+                if (!method_exists($model, 'files')) {
+                    return '';
+                }
+
+                $value = DB::transaction(function () use ($files, $key, $model) {
+                    $value = [];
+                    try {
+                        $model->files()->delete();
+                        if (is_array($files)) {
+                            $value = collect($files)->map(function (UploadedFile $item, int $i) use ($key, $model) {
+                                $file = $model->files()->make();
+                                $file->meta = ['type' => 'form-data', 'key' => $key];
+                                $file->file = Media::save('form-data', $item, $model->files[$i]->file ?? null);
+                                $file->saveQuietly();
+
+                                return $file->id;
+                            })->toArray();
+                        } else {
+                            $file = $model->files()->make();
+                            $file->meta = ['type' => 'form-data', 'key' => $key];
+                            $file->file = Media::save('form-data', $files, $model->files[0]->file ?? null);
+                            $file->saveQuietly();
+                            $value = [$file->id];
+
+                            return $value;
+                        }
+                    } catch (\Throwable $th) {
+                        throw ValidationException::withMessages([
+                            $key => $th->getMessage(),
+                        ]);
+                    }
+                });
+
+                return json_encode($value);
+            }
+        };
+    }
+
+    /**
+     * Specify the collection for the cast.
+     *
+     * @param  class-string  $class
+     * @return string
+     */
+    public static function using($class)
+    {
+        return static::class . ':' . $class;
+    }
+}

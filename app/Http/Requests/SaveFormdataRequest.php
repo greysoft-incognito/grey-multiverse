@@ -94,6 +94,12 @@ class SaveFormdataRequest extends FormRequest
                 $rules[] = 'array';
             } elseif ($field->expected_value_type === 'boolean') {
                 $rules[] = 'boolean';
+            } else if ($field->type === 'file') {
+                $rules[] = 'file';
+                $rules[] = 'mimes:' . str($field->accept)
+                    ->remove([' ', '.'])
+                    ->replace(['image/*', 'video/*'], ['jpg,png,gif,bmp,jpeg', 'mp4,3gp,avr,mov'])
+                    ->toString();
             } else {
                 $rules[] = 'string';
             }
@@ -115,7 +121,7 @@ class SaveFormdataRequest extends FormRequest
                 $rules[] = 'url';
             }
 
-            if ($field->type !== 'date') {
+            if (!in_array($field->type, ['date', 'file'])) {
                 if ($field->min) {
                     $rules[] = "min:$field->min";
                 }
@@ -345,6 +351,7 @@ class SaveFormdataRequest extends FormRequest
 
     /**
      * Handle a passed validation attempt.
+     * Data here will be passed as the final output
      */
     protected function passedValidation(): void
     {
@@ -352,7 +359,7 @@ class SaveFormdataRequest extends FormRequest
         $data = $this->validated('data');
 
         if ($this->hasMultipleEntries()) {
-            $data = collect($data)->map(fn($v, $i) => [
+            $output = collect($data)->map(fn($v, $i) => [
                 'user_id' => $this->user_id,
                 'status' => 'submitted',
                 'draft' => ['draft_form_data' => false],
@@ -360,7 +367,7 @@ class SaveFormdataRequest extends FormRequest
                 'key' => $data[$i][$key] ?? '',
             ]);
         } else {
-            $data = collect([[
+            $output = collect([[
                 'user_id' => $this->user_id,
                 'status' => 'submitted',
                 'draft' => ['draft_form_data' => false],
@@ -369,6 +376,6 @@ class SaveFormdataRequest extends FormRequest
             ]]);
         }
 
-        $this->replace(['data' => $data]);
+        $this->replace(['data' => $output]);
     }
 }

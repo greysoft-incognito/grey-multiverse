@@ -67,6 +67,7 @@ class FormDataController extends Controller
             ->when($sort_field && $sort_value, fn($q) => $q->sorted($sort_field, $sort_value))
             ->when($user->hasExactRoles(['reviewer']), fn($q) => $q->forReviewer($user));
 
+        $query->with(['form']);
         $data = $query->paginate($request->get('limit', 30))->withQueryString();
 
         return (new FormDataCollection($data))->additional([

@@ -17,6 +17,10 @@ return [
             'path' => 'media/default/',
             'default' => 'default.png',
         ],
+        'form-data' => [
+            'path' => 'media/form-data/',
+            'default' => 'default.png',
+        ],
         'dbconfig' => [
             'path' => 'media/default/',
             'default' => 'default.png',
