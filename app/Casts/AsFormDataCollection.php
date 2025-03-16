@@ -47,27 +47,25 @@ class AsFormDataCollection implements Castable
                 if ($output) {
                     $fileFields = $model->form->fields->where('type', 'file');
                     if ($fileFields->isNotEmpty()) {
+                        $file_list = [];
                         foreach ($fileFields as $field) {
                             if (isset($output[$field->name])) {
-                                $file_ids = Json::decode($output[$field->name]);
+                                $file_ids = is_array($output[$field->name])
+                                    ? $output[$field->name]
+                                    : Json::decode($output[$field->name]);
+
                                 if (!empty($file_ids)) {
                                     $file = Fileable::whereIn('id', $file_ids)->get();
-                                    $output[$field->name] = $file->pluck('file_url')->toArray();
-                                } else {
-                                    $output[$field->name] = [];
+                                    $file_list = $file->pluck('file_url')->toArray();
                                 }
-                            } else {
-                                $output[$field->name] = [];
                             }
                         }
 
-                        if (count($output[$field->name]) === 1) {
-                            $output[$field->name] = $output[$field->name][0];
+                        if (count($file_list) === 1) {
+                            $file_list = $file_list[0];
                         }
 
-                        if (empty($output[$field->name])) {
-                            $output[$field->name] = "";
-                        }
+                        $output[$field->name] = $file_list;
                     }
                 }
 
