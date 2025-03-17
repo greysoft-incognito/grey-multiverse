@@ -8,7 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Forms\FormResource;
 use App\Models\Form;
 use App\Models\FormField;
+use App\Models\User;
 use App\Traits\TimeTools;
+use Flowframe\Trend\Trend;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -31,7 +33,14 @@ class FormExtraController extends Controller
 
         $valid = $request->validate([
             'chartables' => 'nullable|array',
-            'chartables.*.field_name' => ['required', 'string', $validateField()],
+            'chartables.*.field_name' => ['required', 'string', function (string $attr, mixed $val, \Closure $fail) use ($form) {
+                if ($val === 'generic-trend') return;
+                if (DB::table('form_fields')->whereName($val)->where('form_id', $form->id)->exists()) return;
+
+                $fail("The {$attr} is invalid.");
+            }],
+            'chartables.*.chart_period' => 'nullable|in:today,yesterday,week,month,year',
+            'chartables.*.chart_title' => 'nullable|string|min:3',
             'chartables.*.chart_type' => 'required|in:line,bar,pie',
             'chartables.*.cols' => 'required|numeric|in:12,8,6,4,3',
 
@@ -50,6 +59,7 @@ class FormExtraController extends Controller
             'sort_fields.*' => ['required', 'exists:form_fields,id'],
 
             'base_url' => ['nullable', 'url'],
+            'extended_access' => ['nullable', 'boolean'],
             'auto_assign_reviewers' => ['nullable', 'boolean'],
         ]);
 
@@ -85,7 +95,7 @@ class FormExtraController extends Controller
                     'bail',
                     'nullable',
                     "regex:/^({$partern}+)(,{$partern}+)*$/",
-                    function (string $attribute, mixed $value, \Closure $fail) use ($fields) {
+                    function (string $attr, mixed $value, \Closure $fail) use ($fields) {
                         str($value)->explode(',')->each(function ($group) use ($fields, $fail) {
                             $stat = str($group)->explode(':');
                             [$_, $field_name] = str($stat->first())->explode('|');
@@ -142,6 +152,14 @@ class FormExtraController extends Controller
             ]]);
         }
 
+        if (isset($form->config['extended_access']) && $form->config['extended_access'] == true) {
+            $data->prepend([
+                'label' => 'registered_users',
+                'value' => User::isAdmin(false)->count(),
+                'cols' => 3,
+            ]);
+        }
+
         /**
          * Generate the stat cards data
          */
@@ -153,6 +171,7 @@ class FormExtraController extends Controller
                 return [
                     'label' => $statcard['key'],
                     'value' => $query->count(),
+                    'icon' => $statcard['icon'] ?? 'info',
                     'cols' => 3,
                 ];
             }));
@@ -183,15 +202,32 @@ class FormExtraController extends Controller
             $chart_data = collect($form->config['chartables'])->map(function ($chartable) use ($json_query, $form) {
                 $json_query = str($json_query)->replace(':field_name', $chartable['field_name'])->toString();
 
-                $data = $form->data()->selectRaw("$json_query as `{$chartable['field_name']}`, COUNT(*) as count")
-                    ->groupBy($chartable['field_name'])
-                    ->get();
+                $dataKey = $chartable['field_name'];
+                $countKey = 'count';
+
+                if ($chartable['field_name'] === 'generic-trend') {
+                    $dataKey = 'date';
+                    $countKey = 'aggregate';
+                    $data = $this->buildTrend(
+                        query: $form->data()->getQuery(),
+                        timeframe: $chartable['chart_period'] ?? 'today'
+                    );
+                } else {
+                    $data = $form->data()->selectRaw("$json_query as `{$chartable['field_name']}`, COUNT(id) as count")
+                        ->groupBy($chartable['field_name'])
+                        ->get();
+                }
 
                 return $this->formatForChartJs(
                     $data,
-                    $chartable['field_name'],
-                    'count',
-                    ['type' => $chartable['chart_type'], 'cols' => $chartable['cols']]
+                    $dataKey,
+                    $countKey,
+                    [
+                        'type' => $chartable['chart_type'] ?? 'pie',
+                        'cols' => $chartable['cols'] ?? 3,
+                        'title' => $chartable['chart_title'] ?? null,
+                        'period' => $chartable['chart_period'] ?? null,
+                    ]
                 );
             });
         }

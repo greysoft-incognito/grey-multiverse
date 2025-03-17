@@ -27,7 +27,7 @@ use ToneflixCode\LaravelFileable\Traits\Fileable;
  * @property bool $dont_notify
  * @property \Carbon\Carbon $deadline
  * @property bool $require_auth
- * @property array{auto_assign_reviewers:bool,base_url:string,sort_fields:array<int,string>,chartables:array,statcards:array,fields_map:array{name:string,email:string,phone:string}} $config
+ * @property array{extended_access:bool,auto_assign_reviewers:bool,base_url:string,sort_fields:array<int,string>,chartables:array<int,array{chart_period:string,cols:int,chart_title:string,field_name:string,chart_type:string}>,statcards:array,fields_map:array{name:string,email:string,phone:string}} $config
  * @property array<string,array{url:string,icon:string,label:string,name:string}> $socials
  */
 class Form extends Model
@@ -56,6 +56,7 @@ class Form extends Model
             "fields_map": { "name":"name","email":"email","phone":"phone" },
             "base_url": "",
             "sort_fields": [],
+            "extended_access" false,
             "auto_assign_reviewers": false
         }',
         'require_auth' => false,

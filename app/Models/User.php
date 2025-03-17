@@ -380,4 +380,18 @@ class User extends Authenticatable
             $query->orWhere('email', $search);
         }
     }
+
+    /**
+     * Scope to return admin users.
+     */
+    public function scopeIsAdmin(Builder $query, bool $admin = true): void
+    {
+        if ($admin) {
+            $query->whereHas('roles');
+            $query->orWhereHas('permissions');
+        } else {
+            $query->whereDoesntHave('roles');
+            $query->whereDoesntHave('permissions');
+        }
+    }
 }

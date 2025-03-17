@@ -16,6 +16,7 @@
     "require": {
         "php": "^8.2",
         "cartalyst/stripe-laravel": "^16.0",
+        "flowframe/laravel-trend": "^0.4.0",
         "hrace009/config-writer": "^1.6",
         "laravel-notification-channels/twilio": "^3.4",
         "laravel/framework": "^11.0",

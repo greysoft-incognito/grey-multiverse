@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use Flowframe\Trend\Trend;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -23,6 +24,25 @@ trait TimeTools
     }
 
     /**
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function buildTrend(Builder $query, ?string $timeframe)
+    {
+        $period = $this->getStartDate($timeframe ?? 'today', true);
+
+        $data = Trend::query($query)
+            ->between(
+                start: $period[0],
+                end: $period[1],
+            )
+            ->{static::getTrendMethod($timeframe ?? 'today')}()
+            ->count();
+
+        return $data;
+    }
+
+    /**
      * Get the the time based on provided period
      *
      * @param  string<'today'|'yesterday'|'week'|'month'|'year'>  $timeframe
@@ -30,7 +50,7 @@ trait TimeTools
      * @param  ?Carbon  $base
      * @return ($useRange is true ? Carbon[] : Carbon)
      */
-    private function getStartDate(?string $timeframe, $useRange = false, Carbon $base = null): Carbon|array
+    private function getStartDate(?string $timeframe, $useRange = false, ?Carbon $base = null): Carbon|array
     {
         $base ??= now();
 
@@ -96,25 +116,31 @@ trait TimeTools
     /**
      * Transform data for Chart.js
      *
+     * @param  Collection  $results
+     * @param  string  $dataKey
      * @param  string  $countKey
-     * @param  array{type:string,cols:int}  $config
+     * @param  array{type:string,cols:int,title:string,period:string}  $config
      */
     public function formatForChartJs(Collection $results, string $dataKey, $countKey = 'count', array $config = []): array
     {
         return [
             ...$config,
-            'labels' => $results->pluck($dataKey)->map(fn ($val) => match (true) {
+            'labels' => $results->pluck($dataKey)->map(fn($val) => match (true) {
                 $val === null => 'Unknown',
                 $val === '0' => ucwords("Not $dataKey"),
                 $val === '1' => ucwords($dataKey),
+                $dataKey === 'date' => $val,
                 json_validate($val) => collect(json_decode($val))->join(', '),
                 default => str($val)->replace(['-', '_'], ' ')->apa()->toString(),
             })->toArray(),
             'datasets' => [
                 [
-                    'label' => str($dataKey)->replace(['-', '_'], ' ')->apa()->toString(),
+                    'label' => $config['title'] ?? match ($dataKey) {
+                        'date' => 'Trend',
+                        default => str($dataKey)->replace(['-', '_'], ' ')->apa()->toString()
+                    },
                     'data' => $results->pluck($countKey)->toArray(),
-                    'backgroundColor' => $results->map(fn () => $this->generateRandomHexColor())->toArray(),
+                    'backgroundColor' => $results->map(fn() => $this->generateRandomHexColor())->toArray(),
                 ],
             ],
         ];
@@ -125,7 +151,7 @@ trait TimeTools
         $aggr = 'sum',
         $field = 'amount',
         $format = false,
-        Carbon $base = null
+        ?Carbon $base = null
     ) {
         $base ??= now();
         $format = $this->formatMetric || $format;
