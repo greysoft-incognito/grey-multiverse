@@ -107,7 +107,7 @@ trait TimeTools
             'today' => 'hA',
             'yesterday' => 'hA',
             'week' => 'ddd',
-            'month' => 'MMM Do',
+            'month' => 'Do',
             'year' => 'MMM',
             default => 'DD',
         };
@@ -129,7 +129,7 @@ trait TimeTools
                 $val === null => 'Unknown',
                 $val === '0' => ucwords("Not $dataKey"),
                 $val === '1' => ucwords($dataKey),
-                $dataKey === 'date' => $val,
+                $dataKey === 'date' => Carbon::parse($val)->isoFormat($this->getFormat($config['period'] ?? 'today')),
                 json_validate($val) => collect(json_decode($val))->join(', '),
                 default => str($val)->replace(['-', '_'], ' ')->apa()->toString(),
             })->toArray(),
