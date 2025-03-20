@@ -83,7 +83,7 @@ class Access
 
         Gate::define('form-permission', function (
             ?User $admin,
-            array $permissions = [],
+            ?array $permissions = [],
             Form $form
         ) {
             /** @var \App\Enums\Permission[] $permissions */
