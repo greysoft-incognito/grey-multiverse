@@ -84,16 +84,18 @@ class Access
         Gate::define('form-permission', function (
             ?User $admin,
             ?array $permissions = [],
-            Form $form
+            ?Form $form
         ) {
             /** @var \App\Enums\Permission[] $permissions */
             // if (! dbconfig('enable_admin_permission_middleware') || (app()->runningInConsole() && ! app()->isProduction())) {
             //     return Response::allow();
             // }
-            // dd($form, $admin);
 
-            return $admin && $admin
-                ->forContext($form)
+            if (! $admin || !$permissions || !$form) {
+                return Response::allow();
+            }
+
+            return $admin->forContext($form)
                 ->checkAnyPermissionInContext(collect($permissions)->map(fn($e) => $e->value)->toArray())
                 ? Response::allow()
                 : Response::deny('Access denied. Insufficient Permissions.', HttpStatus::FORBIDDEN->value);
