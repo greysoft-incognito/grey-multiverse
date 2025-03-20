@@ -84,7 +84,7 @@ class Access
         Gate::define('form-permission', function (
             ?User $admin,
             ?array $permissions = [],
-            ?Form $form
+            ?Form $form = null
         ) {
             /** @var \App\Enums\Permission[] $permissions */
             // if (! dbconfig('enable_admin_permission_middleware') || (app()->runningInConsole() && ! app()->isProduction())) {
