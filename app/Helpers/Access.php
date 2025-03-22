@@ -125,7 +125,7 @@ class Access
 
         Gate::before(function (User $admin) {
             if (
-                request()->is('forms.*') &&
+                str(request()->url())->contains('forms/') &&
                 (request()->isMethod('GET') || request()->isMethod('OPTIONS')) &&
                 $admin->checkPermissionTo('form.readonly')
             ) {
