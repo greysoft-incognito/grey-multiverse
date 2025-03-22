@@ -123,8 +123,15 @@ class Access
             });
         }
 
-        // Gate::after(function (User $admin) {
-        //     return $admin->hasRole(config('permission-defs.super-admin-role'));
-        // });
+        Gate::after(function (User $admin) {
+            if (
+                request()->is('forms.*') &&
+                (request()->isMethod('GET') || request()->isMethod('OPTIONS')) &&
+                $admin->checkPermissionTo('form.readonly')
+            ) {
+                return true;
+            }
+            return $admin->hasRole(config('permission-defs.super-admin-role'));
+        });
     }
 }
