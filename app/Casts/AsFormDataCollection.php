@@ -136,7 +136,7 @@ class AsFormDataCollection implements Castable
                     }
                 });
 
-                return json_encode($value);
+                return $value;
             }
         };
     }
