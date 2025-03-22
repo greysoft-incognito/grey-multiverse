@@ -56,7 +56,7 @@ class Access
         $permissions = Permission::cases();
         $canReadOnly = static function (User $admin) {
             if (
-                str(request()->url())->contains('forms/') &&
+                str(request()->url())->contains('/forms') &&
                 (request()->isMethod('GET') || request()->isMethod('OPTIONS')) &&
                 $admin->checkPermissionTo('form.readonly')
             ) {
