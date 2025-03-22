@@ -57,17 +57,15 @@ class AsFormDataCollection implements Castable
                                 if (!empty($file_ids)) {
                                     $file = Fileable::whereIn('id', $file_ids)->get();
                                     $file_list = $file->pluck('file_url')->toArray();
-                                    break;
+
+                                    if (count($file_list) === 1) {
+                                        $file_list = $file_list[0];
+                                    }
+
+                                    $output[$field->name] = $file_list;
                                 }
-                                break;
                             }
                         }
-
-                        if (count($file_list) === 1) {
-                            $file_list = $file_list[0];
-                        }
-
-                        $output[$field->name] = $file_list;
                     }
                 }
 
