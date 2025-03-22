@@ -123,6 +123,8 @@ return [
         'reschedule.update',
         'reschedule.delete',
         'reschedule.manage',
+
+        'safe-readonly',
     ],
     /*
     |--------------------------------------------------------------------------
@@ -214,10 +216,14 @@ return [
     */
     'exclusions' => [
         'admin' => [
+            'safe-readonly',
+
             'manage-admins',
             'manage-configuration',
         ],
         'manager' => [
+            'safe-readonly',
+
             'users.create',
             'users.update',
             'users.delete',
@@ -238,6 +244,8 @@ return [
             'manage-configuration',
         ],
         'reviewer' => [
+            'safe-readonly',
+
             'users.list',
             'users.create',
             'users.user',
