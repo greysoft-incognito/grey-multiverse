@@ -57,7 +57,9 @@ class AsFormDataCollection implements Castable
                                 if (!empty($file_ids)) {
                                     $file = Fileable::whereIn('id', $file_ids)->get();
                                     $file_list = $file->pluck('file_url')->toArray();
+                                    break;
                                 }
+                                break;
                             }
                         }
 
