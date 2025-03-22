@@ -83,6 +83,7 @@ return [
         'formfield.update',
         'formfield.delete',
 
+        'form.readonly',
         'formdata.list',
         'formdata.show',
         'formdata.update',
@@ -123,8 +124,6 @@ return [
         'reschedule.update',
         'reschedule.delete',
         'reschedule.manage',
-
-        'safe-readonly',
     ],
     /*
     |--------------------------------------------------------------------------
@@ -216,14 +215,12 @@ return [
     */
     'exclusions' => [
         'admin' => [
-            'safe-readonly',
+            'form.readonly',
 
             'manage-admins',
             'manage-configuration',
         ],
         'manager' => [
-            'safe-readonly',
-
             'users.create',
             'users.update',
             'users.delete',
@@ -233,6 +230,8 @@ return [
             'content.delete',
 
             'front_content',
+
+            'form.readonly',
 
             'formdata.delete',
             'company.delete',
@@ -244,8 +243,6 @@ return [
             'manage-configuration',
         ],
         'reviewer' => [
-            'safe-readonly',
-
             'users.list',
             'users.create',
             'users.user',
@@ -259,6 +256,7 @@ return [
             'form.create',
             'form.update',
             'form.delete',
+            'form.readonly',
 
             'formfield.create',
             'formfield.update',
