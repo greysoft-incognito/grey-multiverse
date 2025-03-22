@@ -114,6 +114,7 @@ class AsFormDataCollection implements Castable
                                 $file = $model->files()->make();
                                 $file->meta = ['type' => 'form-data', 'key' => $key];
                                 $file->file = Media::save('form-data', $item, $model->files[$i]->file ?? null);
+                                $file->fileable_collection = 'form-data';
                                 $file->saveQuietly();
 
                                 return $file->id;
@@ -122,6 +123,7 @@ class AsFormDataCollection implements Castable
                             $file = $model->files()->make();
                             $file->meta = ['type' => 'form-data', 'key' => $key];
                             $file->file = Media::save('form-data', $files, $model->files[0]->file ?? null);
+                            $file->fileable_collection = 'form-data';
                             $file->saveQuietly();
                             $value = [$file->id];
 
