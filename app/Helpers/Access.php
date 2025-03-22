@@ -123,7 +123,7 @@ class Access
             });
         }
 
-        Gate::after(function (User $admin) {
+        Gate::before(function (User $admin) {
             if (
                 request()->is('forms.*') &&
                 (request()->isMethod('GET') || request()->isMethod('OPTIONS')) &&
@@ -131,7 +131,10 @@ class Access
             ) {
                 return true;
             }
-            return $admin->hasRole(config('permission-defs.super-admin-role'));
+
+            if ($admin->hasRole(config('permission-defs.super-admin-role'))) {
+                return true;
+            }
         });
     }
 }
