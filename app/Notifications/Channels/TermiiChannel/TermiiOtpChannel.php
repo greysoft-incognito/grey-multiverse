@@ -15,12 +15,13 @@ class TermiiOtpChannel
     public function __construct(
         protected TermiiNotification $termii,
         protected Dispatcher $events
-    ) {}
+    ) {
+    }
 
     /**
      * Get the address to send a notification to.
      *
-     * @param  \App\Models\User $notifiable
+     * @param  \App\Models\User  $notifiable
      * @param  Notification|null  $notification
      * @return mixed
      *

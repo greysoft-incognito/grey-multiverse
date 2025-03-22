@@ -24,7 +24,6 @@ trait TimeTools
     }
 
     /**
-     *
      * @return \Illuminate\Support\Collection
      */
     public function buildTrend(Builder $query, ?string $timeframe)
@@ -50,7 +49,7 @@ trait TimeTools
      * @param  ?Carbon  $base
      * @return ($useRange is true ? Carbon[] : Carbon)
      */
-    private function getStartDate(?string $timeframe, $useRange = false, ?Carbon $base = null): Carbon|array
+    private function getStartDate(?string $timeframe, $useRange = false, Carbon $base = null): Carbon|array
     {
         $base ??= now();
 
@@ -116,8 +115,6 @@ trait TimeTools
     /**
      * Transform data for Chart.js
      *
-     * @param  Collection  $results
-     * @param  string  $dataKey
      * @param  string  $countKey
      * @param  array{type:string,cols:int,title:string,period:string}  $config
      */
@@ -125,7 +122,7 @@ trait TimeTools
     {
         return [
             ...$config,
-            'labels' => $results->pluck($dataKey)->map(fn($val) => match (true) {
+            'labels' => $results->pluck($dataKey)->map(fn ($val) => match (true) {
                 $val === null => 'Unknown',
                 $val === '0' => ucwords("Not $dataKey"),
                 $val === '1' => ucwords($dataKey),
@@ -140,7 +137,7 @@ trait TimeTools
                         default => str($dataKey)->replace(['-', '_'], ' ')->apa()->toString()
                     },
                     'data' => $results->pluck($countKey)->toArray(),
-                    'backgroundColor' => $results->map(fn() => $this->generateRandomHexColor())->toArray(),
+                    'backgroundColor' => $results->map(fn () => $this->generateRandomHexColor())->toArray(),
                 ],
             ],
         ];
@@ -151,7 +148,7 @@ trait TimeTools
         $aggr = 'sum',
         $field = 'amount',
         $format = false,
-        ?Carbon $base = null
+        Carbon $base = null
     ) {
         $base ??= now();
         $format = $this->formatMetric || $format;

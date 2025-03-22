@@ -120,7 +120,7 @@ class AccountVerified extends Notification
         return $this->toSms($n);
     }
 
-    public function toTermii($n): \App\Notifications\Channels\TermiiChannel\TermiiMessage
+    public function toTermii($n): Channels\TermiiChannel\TermiiMessage
     {
         return $this->toSms($n);
     }

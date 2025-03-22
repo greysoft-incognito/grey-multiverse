@@ -47,18 +47,16 @@ class SendCode extends Notification implements ShouldQueue
             : dbconfig('prefered_notification_channels', ['mail', 'sms'])
             );
 
-        return collect($channels)->map(fn($ch) => $ch == 'sms' ? SmsProvider::getChannel() : $ch)->toArray();
+        return collect($channels)->map(fn ($ch) => $ch == 'sms' ? SmsProvider::getChannel() : $ch)->toArray();
     }
 
     /**
      * Get the mail representation of the notification.
-     *
-     * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail($notifiable): MailMessage
     {
         $this->code ??= $notifiable->code;
-        $this->token ??= $notifiable->token ?? Url::base64urlEncode($this->code . '|' . md5(time()));
+        $this->token ??= $notifiable->token ?? Url::base64urlEncode($this->code.'|'.md5(time()));
         $notifiable = $notifiable->user ?? $notifiable;
 
         /** @var \Carbon\Carbon */
@@ -89,7 +87,7 @@ class SendCode extends Notification implements ShouldQueue
     public function toSms($notifiable)
     {
         $this->code ??= $notifiable->code;
-        $this->token ??= $notifiable->token ?? Url::base64urlEncode($this->code . '|' . md5(time()));
+        $this->token ??= $notifiable->token ?? Url::base64urlEncode($this->code.'|'.md5(time()));
         $notifiable = $notifiable->user ?? $notifiable;
 
         /** @var \Carbon\Carbon */
@@ -124,7 +122,7 @@ class SendCode extends Notification implements ShouldQueue
         return $this->toSms($n);
     }
 
-    public function toTermii($n): \App\Notifications\Channels\TermiiChannel\TermiiMessage
+    public function toTermii($n): Channels\TermiiChannel\TermiiMessage
     {
         return $this->toSms($n);
     }

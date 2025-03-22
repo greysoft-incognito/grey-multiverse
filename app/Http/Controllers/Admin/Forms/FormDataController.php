@@ -59,13 +59,13 @@ class FormDataController extends Controller
         $query->where("data->{$name_field}", '!=', null);
 
         $query
-            ->when($rank, fn($q) => $q->ranked($rank), fn($q) => $q->orderBy('rank', 'DESC'))
-            ->when($status, fn($q) => $q->whereStatus($status))
-            ->when($search, fn($q) => $q->doSearch($search, $form))
-            ->when($only_drafts, fn($q) => $q->drafts())
-            ->when($load_drafts, fn($q) => $q->withDraft())
-            ->when($sort_field && $sort_value, fn($q) => $q->sorted($sort_field, $sort_value))
-            ->when($user->hasExactRoles(['reviewer']), fn($q) => $q->forReviewer($user));
+            ->when($rank, fn ($q) => $q->ranked($rank), fn ($q) => $q->orderBy('rank', 'DESC'))
+            ->when($status, fn ($q) => $q->whereStatus($status))
+            ->when($search, fn ($q) => $q->doSearch($search, $form))
+            ->when($only_drafts, fn ($q) => $q->drafts())
+            ->when($load_drafts, fn ($q) => $q->withDraft())
+            ->when($sort_field && $sort_value, fn ($q) => $q->sorted($sort_field, $sort_value))
+            ->when($user->hasExactRoles(['reviewer']), fn ($q) => $q->forReviewer($user));
 
         $query->with(['form']);
         $data = $query->paginate($request->get('limit', 30))->withQueryString();
@@ -206,7 +206,7 @@ class FormDataController extends Controller
             'reason' => $reason
         ] = $this->validate($request, [
             'status' => 'required|in:pending,submitted,approved,rejected,reviewing',
-            'reason' => 'required|string|min:15'
+            'reason' => 'required|string|min:15',
         ]);
 
         $data->status = $status;

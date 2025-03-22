@@ -47,7 +47,7 @@ enum SmsProvider: string
     {
         $type = dbconfig('prefered_sms_channel', 'TWILLIO');
 
-        foreach (static::cases() as $case) {
+        foreach (self::cases() as $case) {
             if ($case->name === $type) {
                 return $case->value;
             }

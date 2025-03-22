@@ -24,7 +24,8 @@ class FormDataSheets implements FromCollection, ShouldAutoSize, WithHeadings, Wi
     public function __construct(
         protected int $page,
         protected \Illuminate\Database\Eloquent\Collection $submisions
-    ) {}
+    ) {
+    }
 
     public function headings(): array
     {
@@ -57,9 +58,9 @@ class FormDataSheets implements FromCollection, ShouldAutoSize, WithHeadings, Wi
             // Use match for cleaner conditional logic
             $value = match (true) {
                 str($label)->lower()->is('primary') => $value ? 'Yes' : '',
-                !$field->options => $value,
-                $field->expected_value_type === 'array' => collect((array)$value)
-                    ->map(fn($val) => $field->options[$val]['label'] ?? $val)
+                ! $field->options => $value,
+                $field->expected_value_type === 'array' => collect((array) $value)
+                    ->map(fn ($val) => $field->options[$val]['label'] ?? $val)
                     ->join(', '),
                 default => $field->options[$value]['label'] ?? $value,
             };
@@ -82,7 +83,7 @@ class FormDataSheets implements FromCollection, ShouldAutoSize, WithHeadings, Wi
 
     public function title(): string
     {
-        return 'Page ' . $this->page;
+        return 'Page '.$this->page;
     }
 
     public function styles(Worksheet $sheet)

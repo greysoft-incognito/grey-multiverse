@@ -16,15 +16,15 @@ use App\Notifications\Channels\TermiiChannel\TermiiVoiceToken;
 enum OtpProvider: string
 {
     case DEFAULT = DefaultChannel::class;
-    case TERMII_TOKEN = TermiiOtpChannel::class . '.token';
-    case TERMII_VOICE = TermiiOtpChannel::class . '.voice';
-    case TERMII_EMAIL_TOKEN = TermiiOtpChannel::class . '.email_token';
-    case TERMII_VOICE_TOKEN = TermiiOtpChannel::class . '.voice_token';
+    case TERMII_TOKEN = TermiiOtpChannel::class.'.token';
+    case TERMII_VOICE = TermiiOtpChannel::class.'.voice';
+    case TERMII_EMAIL_TOKEN = TermiiOtpChannel::class.'.email_token';
+    case TERMII_VOICE_TOKEN = TermiiOtpChannel::class.'.voice_token';
 
     /**
      * Get the sms provider
      */
-    public function getMessage(?string $message = null): DefaultOtp|TermiiToken|TermiiVoiceMessage|TermiiEmailToken|TermiiVoiceToken
+    public function getMessage(string $message = null): DefaultOtp|TermiiToken|TermiiVoiceMessage|TermiiEmailToken|TermiiVoiceToken
     {
         /** @var string<'TWILLIO'|'KUDISMS'|'TERMII'> $type */
         $type = $this->name;
@@ -52,7 +52,7 @@ enum OtpProvider: string
     {
         $type = dbconfig('prefered_otp_channel', 'DEFAULT');
 
-        foreach (static::cases() as $case) {
+        foreach (self::cases() as $case) {
             if ($case->name === $type) {
                 return str($case->value)->before('.')->toString();
             }
@@ -64,7 +64,7 @@ enum OtpProvider: string
 
     public static function tryFromName(string $name): ?static
     {
-        foreach (static::cases() as $case) {
+        foreach (self::cases() as $case) {
             if ($case->name === $name) {
                 return $case;
             }

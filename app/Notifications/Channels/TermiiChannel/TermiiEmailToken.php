@@ -15,7 +15,8 @@ class TermiiEmailToken extends TermiiMessage
         public string $message = '',
         public string $emailAddress = '',
         public string $emailConfigurationId = '',
-    ) {}
+    ) {
+    }
 
     /**
      * Set the message.

@@ -19,7 +19,7 @@ class Access
      * @param  mixed  ...$params
      * @return void
      */
-    public static function authorize(Permission|array $permission, ?User $admin = null, ...$params)
+    public static function authorize(Permission|array $permission, User $admin = null, ...$params)
     {
         $admin ??= auth('sanctum')->user();
 
@@ -38,13 +38,13 @@ class Access
      * @param  mixed  ...$params
      * @return void
      */
-    public static function authorizeForm(Permission|array $permission, ?User $admin = null, ...$params)
+    public static function authorizeForm(Permission|array $permission, User $admin = null, ...$params)
     {
         $admin ??= auth('sanctum')->user();
 
         Gate::forUser($admin)->authorize('form-permission', [
             is_array($permission) ? $permission : [$permission],
-            ...$params
+            ...$params,
         ]);
     }
 
@@ -54,14 +54,26 @@ class Access
     public static function adminGateCrasher(): void
     {
         $permissions = Permission::cases();
+        $canReadOnly = static function (User $admin) {
+            if (
+                str(request()->url())->contains('forms/') &&
+                (request()->isMethod('GET') || request()->isMethod('OPTIONS')) &&
+                $admin->checkPermissionTo('form.readonly')
+            ) {
+                return true;
+            }
+        };
 
         foreach ($permissions as $permission) {
-            Gate::define($permission->value, function (?User $admin, Model $model = null) use ($permission) {
+            Gate::define($permission->value, function (
+                ?User $admin,
+                Model $model = null
+            ) use ($permission, $canReadOnly) {
                 if (! dbconfig('enable_admin_permission_middleware', true) || (app()->runningInConsole() && ! app()->isProduction())) {
                     return Response::allow();
                 }
 
-                return $admin && $admin->hasAnyPermission($permission->value)
+                return $admin && ($admin->hasAnyPermission($permission->value) || $canReadOnly($admin))
                     ? Response::allow()
                     : Response::deny('Access denied. Insufficient permissions.', HttpStatus::FORBIDDEN->value);
             });
@@ -70,13 +82,15 @@ class Access
         Gate::define('any-permission', function (
             ?User $admin,
             array $permissions = []
-        ) {
+        ) use ($canReadOnly) {
             /** @var \App\Enums\Permission[] $permissions */
             if (! dbconfig('enable_admin_permission_middleware') || (app()->runningInConsole() && ! app()->isProduction())) {
                 return Response::allow();
             }
 
-            return $admin && $admin->hasAnyPermission(collect($permissions)->map(fn($e) => $e->value)->toArray())
+            return $admin && (
+                $admin->hasAnyPermission(collect($permissions)->map(fn ($e) => $e->value)->toArray()) ||
+                $canReadOnly($admin))
                 ? Response::allow()
                 : Response::deny('Access denied. Insufficient permissions.', HttpStatus::FORBIDDEN->value);
         });
@@ -84,55 +98,47 @@ class Access
         Gate::define('form-permission', function (
             ?User $admin,
             ?array $permissions = [],
-            ?Form $form = null
+            Form $form = null
         ) {
             /** @var \App\Enums\Permission[] $permissions */
             // if (! dbconfig('enable_admin_permission_middleware') || (app()->runningInConsole() && ! app()->isProduction())) {
             //     return Response::allow();
             // }
 
-            if (! $admin || !$permissions || !$form) {
+            if (! $admin || ! $permissions || ! $form) {
                 return Response::allow();
             }
 
             return $admin->forContext($form)
-                ->checkAnyPermissionInContext(collect($permissions)->map(fn($e) => $e->value)->toArray())
+                ->checkAnyPermissionInContext(collect($permissions)->map(fn ($e) => $e->value)->toArray())
                 ? Response::allow()
                 : Response::deny('Access denied. Insufficient Permissions.', HttpStatus::FORBIDDEN->value);
         });
 
         if (! str(request()->url())->contains('api/v1')) {
-            Gate::define('usable', function (User $admin, $permission) {
+            Gate::define('usable', function (User $admin, $permission) use ($canReadOnly) {
                 $permissions = is_array($permission) ? $permission : [$permission];
 
                 $pname = str(collect($permissions)->join(', '))->replace('.', ' ')->headline()->lower();
 
-                return $admin->hasAllPermissions($permission)
+                return $admin->hasAllPermissions($permission) || $canReadOnly($admin)
                     ? Response::allow()
                     : Response::deny(__('You do not have the ":0" permission.', [$pname]));
             });
 
-            Gate::define('can-do', function (User $admin, $permission, $item = null) {
+            Gate::define('can-do', function (User $admin, $permission, $item = null) use ($canReadOnly) {
                 $permissions = is_array($permission) ? $permission : [$permission];
 
                 $pname = str(collect($permissions)->join(', '))->replace('.', ' ')->headline()->lower();
 
-                return $admin->hasAllPermissions($permission)
+                return $admin->hasAllPermissions($permission) || $canReadOnly($admin)
                     ? Response::allow()
                     : Response::deny(__('You do not have the ":0" permission.', [$pname]));
             });
         }
 
-        Gate::before(function (User $admin) {
-            if (
-                str(request()->url())->contains('forms/') &&
-                (request()->isMethod('GET') || request()->isMethod('OPTIONS')) &&
-                $admin->checkPermissionTo('form.readonly')
-            ) {
-                return true;
-            }
-
-            if ($admin->hasRole(config('permission-defs.super-admin-role'))) {
+        Gate::before(function (User $admin) use ($canReadOnly) {
+            if ($admin->hasRole(config('permission-defs.super-admin-role')) || $canReadOnly($admin)) {
                 return true;
             }
         });

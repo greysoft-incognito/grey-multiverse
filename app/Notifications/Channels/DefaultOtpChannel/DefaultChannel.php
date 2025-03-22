@@ -15,12 +15,13 @@ class DefaultChannel
      */
     public function __construct(
         protected Dispatcher $events
-    ) {}
+    ) {
+    }
 
     /**
      * Get the address to send a notification to.
      *
-     * @param  \App\Models\User $notifiable
+     * @param  \App\Models\User  $notifiable
      * @param  Notification|null  $notification
      * @return mixed
      *
@@ -67,7 +68,7 @@ class DefaultChannel
             /** @var DefaultOtp $message */
             $message = $notification->toOtp($notifiable);
 
-            if (!$message || is_string($message)) {
+            if (! $message || is_string($message)) {
                 $message = new DefaultOtp($message ?? '');
             }
 
@@ -92,7 +93,7 @@ class DefaultChannel
                             "This OTP expires in {$dateAdd->longAbsoluteDiffForHumans()}",
                         ],
                     ],
-                    fn($message) => $message->to($to)->subject('One Time Password')
+                    fn ($message) => $message->to($to)->subject('One Time Password')
                 );
             } else {
                 $this->build($to, $notifiable);
@@ -120,6 +121,7 @@ class DefaultChannel
         $classes = [
             'TWILLIO' => function () use ($to, $msg) {
                 $client = new \Twilio\Rest\Client(env('TWILIO_ACCOUNT_SID'), env('TWILIO_AUTH_TOKEN'));
+
                 return $client->messages->create(
                     $to,
                     ['from' => env('TWILIO_FROM'), 'body' => $msg]
@@ -127,20 +129,22 @@ class DefaultChannel
             },
             'KUDISMS' => function () use ($to, $msg) {
                 $instance = new \ToneflixCode\KudiSmsPhp\SmsSender(env('KUDISMS_SENDER_ID'), env('KUDISMS_API_KEY'));
+
                 return $instance->send(
                     recipient: $to,
                     message: $msg
                 );
             },
-            'TERMII' => function ()  use ($to, $msg) {
+            'TERMII' => function () use ($to, $msg) {
                 $termii = \Okolaa\TermiiPHP\Termii::initialize(config('termii-notification.api_key'));
                 $message = new \Okolaa\TermiiPHP\Data\Message(
                     to: $to,
                     from: config('termii-notification.sender_id'),
                     sms: $msg,
-                    type: "sms",
+                    type: 'sms',
                     channel: \Okolaa\TermiiPHP\Enums\MessageChannel::Generic,
                 );
+
                 return $termii->messagingApi()->send($message);
             },
         ];

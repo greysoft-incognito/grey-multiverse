@@ -2,8 +2,8 @@
 
 namespace App\Notifications\Channels\DefaultOtpChannel;
 
+use App\Notifications\Channels\DefaultOtpChannel\Enums\Type;
 use Illuminate\Support\Traits\Macroable;
-use \App\Notifications\Channels\DefaultOtpChannel\Enums\Type;
 
 class DefaultOtp
 {
@@ -18,16 +18,17 @@ class DefaultOtp
         public int $pinLength = 6,
         public int $pinAttempts = 3,
         public int $pinTimeToLiveMinute = 5,
-    ) {}
+    ) {
+    }
 
     /**
      * Set the message.
      *
      * @return $this
      */
-    public function message(?string $message = null): self
+    public function message(string $message = null): self
     {
-        $message ??= "Your one time password is";
+        $message ??= 'Your one time password is';
 
         $this->message = $message;
 

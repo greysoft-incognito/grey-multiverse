@@ -2,8 +2,8 @@
 
 namespace App\Notifications\Channels\DefaultOtpChannel\Exceptions;
 
-use Exception;
 use App\Notifications\Channels\DefaultOtpChannel\DefaultOtp;
+use Exception;
 
 class CouldNotSendOtp extends Exception
 {
@@ -19,7 +19,7 @@ class CouldNotSendOtp extends Exception
     public static function invalidMessage()
     {
         return new static(
-            'The toOtp() method only accepts an instances of ' . DefaultOtp::class
+            'The toOtp() method only accepts an instances of '.DefaultOtp::class
         );
     }
 

@@ -17,6 +17,7 @@ trait HasExtendedRolesAndPermissionsContext
     {
         $this->currentAccessContext = $context;
         setPermissionsTeamId($this->getTeamIdentifier($context));
+
         return $this;
     }
 
@@ -24,12 +25,14 @@ trait HasExtendedRolesAndPermissionsContext
     {
         $this->currentAccessContext = null;
         setPermissionsTeamId(null);
+
         return $this;
     }
 
     protected function getTeamIdentifier($context): string
     {
         $type = strtolower(class_basename($context));
+
         return "{$type}:{$context->id}";
     }
 }

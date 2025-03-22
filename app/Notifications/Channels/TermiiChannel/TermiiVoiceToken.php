@@ -15,7 +15,8 @@ class TermiiVoiceToken extends TermiiMessage
         public int $pinLength = 6,
         public int $pinAttempts = 3,
         public int $pinTimeToLiveMinute = 5,
-    ) {}
+    ) {
+    }
 
     /**
      * Set the message.

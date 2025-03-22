@@ -66,15 +66,11 @@ class MessageParser
 
     /**
      * Renderable HTML message string or view name
-     *
-     * @var \Illuminate\Support\HtmlString|string
      */
     public \Illuminate\Support\HtmlString|string $htmlMessage = 'email';
 
     /**
      * Renderable plain message string or view name
-     *
-     * @var \Illuminate\Support\HtmlString|string
      */
     public \Illuminate\Support\HtmlString|string $plainMessage = 'email-plain';
 
@@ -100,16 +96,16 @@ class MessageParser
     public function parse(): self
     {
         $params = collect($this->params)
-            ->map(fn($val) => $val instanceof Model ? $val->toArray() : $val)
+            ->map(fn ($val) => $val instanceof Model ? $val->toArray() : $val)
             ->collapse()
-            ->filter(fn($item) => is_scalar($item))
+            ->filter(fn ($item) => is_scalar($item))
             ->all();
 
-        if (count($params) && !isset($this->params['lines'])) {
+        if (count($params) && ! isset($this->params['lines'])) {
             $this->params = $params;
         }
 
-        $lines =  isset($this->params['lines']) && count($this->params['lines']) > 0
+        $lines = isset($this->params['lines']) && count($this->params['lines']) > 0
             ? $this->params['lines']
             : collect(config("messages.{$this->configKey}.lines", []));
 
@@ -123,10 +119,10 @@ class MessageParser
                     })->all();
                 }
 
-            // The line should now be return safe
-            return is_string($line)
-                ? trans($line, $this->params)
-                : $line;
+                // The line should now be return safe
+                return is_string($line)
+                    ? trans($line, $this->params)
+                    : $line;
             })
             ->merge([trans(config('messages.signature'), $this->params)]);
 
@@ -134,7 +130,7 @@ class MessageParser
 
         $this->body = $lines->map(function ($line) {
             if (is_array($line)) {
-                return collect($line)->values()->first(fn($val) => filter_var($val, FILTER_VALIDATE_URL), '');
+                return collect($line)->values()->first(fn ($val) => filter_var($val, FILTER_VALIDATE_URL), '');
             }
 
             return $line;
@@ -174,9 +170,9 @@ class MessageParser
         $this->meta['footnote'] = trans($template->footnote ?: config('messages.footnote'), ['year' => date('Y'), ...$this->params]);
         $this->meta['copyright'] = trans($template->copyright ?: config('messages.copyright'), ['year' => date('Y'), ...$this->params]);
 
-        if ($template->lines && count((array)$template->lines) > 0) {
+        if ($template->lines && count((array) $template->lines) > 0) {
 
-            if (!$template->active) {
+            if (! $template->active) {
                 $init = new static($this->configKey, $this->params);
                 $init->params['lines'] = $template->lines;
                 $init->params['subject'] = $template->subject;
@@ -192,9 +188,9 @@ class MessageParser
         return (new MailMessage())
             ->subject($this->subject)
             ->view([$this->htmlMessage, $this->plainMessage], [
-            'meta' => $this->meta,
-            'lines' => $this->lines,
-            'subject' => $this->subject,
+                'meta' => $this->meta,
+                'lines' => $this->lines,
+                'subject' => $this->subject,
             ]);
     }
 
@@ -234,7 +230,7 @@ class MessageParser
             ? new \Illuminate\Support\HtmlString((string) trans($template->plain, $this->params))
             : 'email-plain';
 
-        if ($template->lines && count((array)$template->lines) > 0) {
+        if ($template->lines && count((array) $template->lines) > 0) {
             $this->lines = $template->lines;
         }
 

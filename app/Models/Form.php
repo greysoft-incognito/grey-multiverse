@@ -114,7 +114,7 @@ class Form extends Model
     protected function bannerUrl(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->images['banner'],
+            get: fn () => $this->images['banner'],
         );
     }
 
@@ -136,7 +136,7 @@ class Form extends Model
     protected function dataEmails(): Attribute
     {
         return Attribute::make(
-            get: fn($a) => str($a ?? '')->explode(',')->map(fn($e) => str($e)->trim()),
+            get: fn ($a) => str($a ?? '')->explode(',')->map(fn ($e) => str($e)->trim()),
         );
     }
 
@@ -182,7 +182,7 @@ class Form extends Model
     protected function logoUrl(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->images['logo'],
+            get: fn () => $this->images['logo'],
         );
     }
 
@@ -216,7 +216,7 @@ class Form extends Model
                     $optionsPoints = 0;
 
                     // Calculate options points if options exist
-                    if (!empty($field->options)) {
+                    if (! empty($field->options)) {
                         foreach ($field->options as $opt) {
                             if (isset($opt['points']) && ((int) $opt['points']) > 0) {
                                 $optionsPoints += (int) $opt['points'];
@@ -225,7 +225,7 @@ class Form extends Model
                     }
 
                     // Add points only if there's a contribution
-                    return ($optionsPoints > 0 ? $fieldPoints + $optionsPoints : $fieldPoints);
+                    return $optionsPoints > 0 ? $fieldPoints + $optionsPoints : $fieldPoints;
                 });
             },
         );
@@ -233,17 +233,17 @@ class Form extends Model
 
     public function socials(): Attribute
     {
-        $parser = static fn($value, $name) => [
+        $parser = static fn ($value, $name) => [
             'url' => str($value)->before('?')->toString(),
             'icon' => "fas fa-$name",
             'name' => $name,
-            'label' => '@' . str(str($value)->explode('/')->last())->before('?'),
+            'label' => '@'.str(str($value)->explode('/')->last())->before('?'),
         ];
 
         return Attribute::make(
-            get: fn($value) => collect($value)->map(function ($value, $name) use ($parser) {
+            get: fn ($value) => collect($value)->map(function ($value, $name) use ($parser) {
                 if (json_validate($value)) {
-                    return collect(json_decode($value))->map(fn($v, $n) => $parser($v, $n))->values();
+                    return collect(json_decode($value))->map(fn ($v, $n) => $parser($v, $n))->values();
                 }
 
                 return $parser($value, $name);
@@ -275,6 +275,6 @@ class Form extends Model
             $user = $user->id;
         }
 
-        $query->whereHas('reviewers', fn($q) => $q->where('users.id', $user));
+        $query->whereHas('reviewers', fn ($q) => $q->where('users.id', $user));
     }
 }

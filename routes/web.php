@@ -58,7 +58,7 @@ Route::get('download/formdata/{timestamp}/{form}/{batch?}', function ($timestamp
 
     if ($model instanceof Form) {
         $form = $model->findOrFail($id);
-        $groupName = 'forms-' . $form->id;
+        $groupName = 'forms-'.$form->id;
     } else {
         $groupName = str(get_class($model))->afterLast('\\')->lower()->plural()->append('-dataset')->toString();
     }
@@ -66,12 +66,12 @@ Route::get('download/formdata/{timestamp}/{form}/{batch?}', function ($timestamp
     // Sometimes, we migh get the wrong data batch, let's try the next 10 batches till we get it right
     $i = $batch + 10;
     do {
-        $path = 'exports/' . $groupName . '/data-batch-' . $batch . '.xlsx';
+        $path = 'exports/'.$groupName.'/data-batch-'.$batch.'.xlsx';
         if ($storage->exists($path)) {
             $mime = $storage->mimeType($path);
 
             // create response and add encoded image data
-            return Response::download($storage->path($path), $groupName . '-' . $setTime->format('Y-m-d H_i_s') . '.xlsx', [
+            return Response::download($storage->path($path), $groupName.'-'.$setTime->format('Y-m-d H_i_s').'.xlsx', [
                 'Content-Type' => $mime,
                 'Cross-Origin-Resource-Policy' => 'cross-origin',
                 'Access-Control-Allow-Origin' => '*',
@@ -79,6 +79,7 @@ Route::get('download/formdata/{timestamp}/{form}/{batch?}', function ($timestamp
             break;
         } else {
             $batch++;
+
             continue;
         }
     } while ($batch <= $i);

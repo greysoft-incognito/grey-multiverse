@@ -68,9 +68,9 @@ class SyncFormRoles extends Command
             ["\n", "\t", '  '],
             ["\n ", '', ''],
             'You have not specified any roles or permissions.
-            Do you want to remove all roles from the user(s) ' .
+            Do you want to remove all roles from the user(s) '.
                 (! $supes
-                    ? '(This excludes the "' . config('permission-defs.super-admin-role', 'super-admin') . ' role)?'
+                    ? '(This excludes the "'.config('permission-defs.super-admin-role', 'super-admin').' role)?'
                     : ''
                 )
         );
@@ -98,14 +98,14 @@ class SyncFormRoles extends Command
         }
 
         $users->each(function ($user) use ($roles, $permissions) {
-            $roles->each(fn($role) => $user->removeRole($role));
-            $permissions->each(fn($permission) => $user->revokePermissionTo($permission));
+            $roles->each(fn ($role) => $user->removeRole($role));
+            $permissions->each(fn ($permission) => $user->revokePermissionTo($permission));
         });
 
         $this->info('Roles');
         $this->table(
             ['ID', 'Name', 'Gaurds', 'Roles'],
-            $users->map(fn($user) => [
+            $users->map(fn ($user) => [
                 $user->id,
                 $user->firstname,
                 $user->roles->pluck('guard_name')->implode(', '),
@@ -117,7 +117,7 @@ class SyncFormRoles extends Command
         $this->info('Permissions');
         $this->table(
             ['ID', 'Name', 'Gaurds', 'Permissions'],
-            $users->map(fn($user) => [
+            $users->map(fn ($user) => [
                 $user->id,
                 $user->firstname,
                 $user->roles->pluck('guard_name')->implode(', '),
@@ -143,9 +143,9 @@ class SyncFormRoles extends Command
             ["\n", "\t", '  '],
             ["\n ", '', ''],
             'You have not specified any roles or permissions.
-            Do you want to assign all roles to the user(s) ' .
+            Do you want to assign all roles to the user(s) '.
                 (! $supes
-                    ? '(This excludes the "' . config('permission-defs.super-admin-role', 'super-admin') . ' role)?'
+                    ? '(This excludes the "'.config('permission-defs.super-admin-role', 'super-admin').' role)?'
                     : ''
                 )
         );
@@ -178,7 +178,7 @@ class SyncFormRoles extends Command
         $this->info('Roles');
         $this->table(
             ['ID', 'Name', 'Gaurds', 'Roles'],
-            $users->map(fn($user) => [
+            $users->map(fn ($user) => [
                 $user->id,
                 $user->firstname,
                 $user->roles->pluck('guard_name')->implode(', '),
@@ -190,7 +190,7 @@ class SyncFormRoles extends Command
         $this->info('Permissions');
         $this->table(
             ['ID', 'Name', 'Gaurds', 'Permissions'],
-            $users->map(fn($user) => [
+            $users->map(fn ($user) => [
                 $user->id,
                 $user->firstname,
                 $user->roles->pluck('guard_name')->implode(', '),
@@ -223,11 +223,11 @@ class SyncFormRoles extends Command
         $formRolesArray = collect(config('permission-defs.form_roles', []))->sort();
         $formPermissionsArray = collect(config('permission-defs.form_permissions', []))->sort();
 
-        $rolesArray->each(fn($role) => Role::findOrCreate($role));
-        $permissionsArray->each(fn($role) => Permission::findOrCreate($role));
+        $rolesArray->each(fn ($role) => Role::findOrCreate($role));
+        $permissionsArray->each(fn ($role) => Permission::findOrCreate($role));
 
-        $formRolesArray->each(fn($role) => Role::findOrCreate($role));
-        $formPermissionsArray->each(fn($role) => Permission::findOrCreate($role));
+        $formRolesArray->each(fn ($role) => Role::findOrCreate($role));
+        $formPermissionsArray->each(fn ($role) => Permission::findOrCreate($role));
 
         $roles = Role::whereNot('name', 'like', 'form.%')->withCount('permissions')->get();
         $formRoles = Role::where('name', 'like', 'form.%')->withCount('permissions')->get();
@@ -236,19 +236,19 @@ class SyncFormRoles extends Command
         // Sync Main Roles
         $roles->each(function ($role) use ($permissionsArray) {
             $exclude = config("permission-defs.exclusions.{$role->name}", []);
-            $role->syncPermissions($permissionsArray->filter(fn($perm) => ! in_array($perm, $exclude)));
+            $role->syncPermissions($permissionsArray->filter(fn ($perm) => ! in_array($perm, $exclude)));
         });
 
         // Sync Form Roles
         $formRoles->each(function ($role) use ($formPermissionsArray) {
             $exclude = config("permission-defs.form_exclusions.{$role->name}", []);
-            $role->syncPermissions($formPermissionsArray->filter(fn($perm) => ! in_array($perm, $exclude)));
+            $role->syncPermissions($formPermissionsArray->filter(fn ($perm) => ! in_array($perm, $exclude)));
         });
 
         $this->info('Roles');
         $this->table(
             ['ID', 'Name', 'Gaurd', 'Permissions'],
-            $roles->map(fn($role) => $role->only('id', 'name', 'guard_name', 'permissions_count'))
+            $roles->map(fn ($role) => $role->only('id', 'name', 'guard_name', 'permissions_count'))
         );
 
         $this->newLine();
@@ -256,7 +256,7 @@ class SyncFormRoles extends Command
         $this->info('Form Roles');
         $this->table(
             ['ID', 'Name', 'Gaurd', 'Permissions'],
-            $formRoles->map(fn($role) => $role->only('id', 'name', 'guard_name', 'permissions_count'))
+            $formRoles->map(fn ($role) => $role->only('id', 'name', 'guard_name', 'permissions_count'))
         );
         $this->info('Roles Synced');
 
@@ -264,7 +264,7 @@ class SyncFormRoles extends Command
         $this->info('Permissions');
         $this->table(
             ['ID', 'Name', 'Gaurd'],
-            $permissions->map(fn($perm) => $perm->only('id', 'name', 'guard_name'))
+            $permissions->map(fn ($perm) => $perm->only('id', 'name', 'guard_name'))
         );
         $this->info('Permissions Synced');
     }

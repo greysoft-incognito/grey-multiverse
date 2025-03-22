@@ -7,9 +7,7 @@ use App\Helpers\Providers;
 use App\Models\FormData;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use NotificationChannels\Twilio\TwilioChannel;
 
 class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
 {
@@ -58,7 +56,7 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
     {
         $submission = collect($notifiable->data)
             ->merge(['fullname' => $notifiable->fullname])
-            ->filter(fn($v) => is_scalar($v))
+            ->filter(fn ($v) => is_scalar($v))
             ->toArray();
 
         return Providers::messageParser(
@@ -82,7 +80,7 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
     {
         $submission = collect($notifiable->data)
             ->merge(['fullname' => $notifiable->fullname])
-            ->filter(fn($v) => is_scalar($v))
+            ->filter(fn ($v) => is_scalar($v))
             ->toArray();
 
         $message = Providers::messageParser(
@@ -109,7 +107,7 @@ class FormSubmitedSuccessfully extends Notification //implements ShouldQueue
         return $this->toSms($n);
     }
 
-    public function toTermii($n): \App\Notifications\Channels\TermiiChannel\TermiiMessage
+    public function toTermii($n): Channels\TermiiChannel\TermiiMessage
     {
         return $this->toSms($n);
     }

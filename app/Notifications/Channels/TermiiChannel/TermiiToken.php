@@ -17,7 +17,8 @@ class TermiiToken extends TermiiMessage
         public int $pinLength = 6,
         public int $pinAttempts = 3,
         public int $pinTimeToLiveMinute = 5,
-    ) {}
+    ) {
+    }
 
     /**
      * Set the message.
@@ -26,7 +27,7 @@ class TermiiToken extends TermiiMessage
      */
     public function message(string $message): self
     {
-        $this->message = $message ?? "Your verification code is";
+        $this->message = $message ?? 'Your verification code is';
 
         return $this;
     }

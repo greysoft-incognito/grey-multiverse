@@ -23,6 +23,7 @@ trait HasExtendedPermissions
 
         if ($cntx) {
             $teamId = $this->getTeamIdentifier($cntx);
+
             return $relation->withPivotValue('team_id', $teamId);
         }
 
@@ -39,8 +40,7 @@ trait HasExtendedPermissions
     /**
      * Check if the model has any of the given permissions in the current context.
      *
-     * @param string|array|\Spatie\Permission\Contracts\Permission|\Illuminate\Support\Collection $permissions
-     * @return bool
+     * @param  string|array|\Spatie\Permission\Contracts\Permission|\Illuminate\Support\Collection  $permissions
      */
     public function checkAnyPermissionInContext(...$permissions): bool
     {
@@ -62,7 +62,7 @@ trait HasExtendedPermissions
 
         // Check via roles in the context
         $results = $this->roles()
-            ->whereHas('permissions', fn($q) => $q->whereIn('name', $permissions->pluck('name')))
+            ->whereHas('permissions', fn ($q) => $q->whereIn('name', $permissions->pluck('name')))
             ->wherePivot('team_id', $cntxId)
             ->exists();
 

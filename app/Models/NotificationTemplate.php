@@ -97,8 +97,8 @@ class NotificationTemplate extends Model
     public static function loadDefaults(): Collection
     {
         return new Collection(collect(config('messages'))->map(
-            fn($_, $key) => self::buildDefault($key)
-        )->filter(fn($_, $key) => $key !== 'signature')->values());
+            fn ($_, $key) => self::buildDefault($key)
+        )->filter(fn ($_, $key) => $key !== 'signature')->values());
     }
 
     /**
@@ -153,7 +153,7 @@ class NotificationTemplate extends Model
 
     public function parsed(): Attribute
     {
-        return new Attribute(fn() => Providers::messageParser($this->key));
+        return new Attribute(fn () => Providers::messageParser($this->key));
     }
 
     public function html(): Attribute
@@ -166,32 +166,32 @@ class NotificationTemplate extends Model
 
                 return (new MailMessage())
                     ->view(['email', 'email-plain'], [
-                    'lines' => $this->parsed->lines,
-                    'subject' => $this->parsed->subject,
+                        'lines' => $this->parsed->lines,
+                        'subject' => $this->parsed->subject,
                     ])->render();
             },
-            set: fn($val) => $val,
+            set: fn ($val) => $val,
         );
     }
 
     public function subject(): Attribute
     {
-        return new Attribute(fn($val) => $val ?: $this->parsed->subject);
+        return new Attribute(fn ($val) => $val ?: $this->parsed->subject);
     }
 
     public function footnote(): Attribute
     {
         return new Attribute(
-            get: fn($val) => $val ?: config('messages.footnote', ''),
-            set: fn($val) => $val,
+            get: fn ($val) => $val ?: config('messages.footnote', ''),
+            set: fn ($val) => $val,
         );
     }
 
     public function copyright(): Attribute
     {
         return new Attribute(
-            get: fn($val) => $val ?: config('messages.copyright', ''),
-            set: fn($val) => $val,
+            get: fn ($val) => $val ?: config('messages.copyright', ''),
+            set: fn ($val) => $val,
         );
     }
 }

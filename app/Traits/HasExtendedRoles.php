@@ -23,6 +23,7 @@ trait HasExtendedRoles
 
         if ($cntx) {
             $teamId = $this->getTeamIdentifier($cntx);
+
             return $relation->withPivotValue('team_id', $teamId);
         }
 
@@ -33,8 +34,8 @@ trait HasExtendedRoles
     {
         $cntx = $this->getCurrentContext();
 
-        $permissions = collect($ids)->flatten()->mapWithKeys(fn($id) => [
-            $id => $this->getTeamIdentifier($cntx)
+        $permissions = collect($ids)->flatten()->mapWithKeys(fn ($id) => [
+            $id => $this->getTeamIdentifier($cntx),
         ]);
 
         return $this->contextRoles()->sync($permissions);

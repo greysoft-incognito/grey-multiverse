@@ -14,7 +14,8 @@ class TermiiSmsMessage extends TermiiMessage
     public function __construct(
         public string $message = '',
         public string $senderId = '',
-    ) {}
+    ) {
+    }
 
     /**
      * Set the message.

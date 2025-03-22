@@ -80,7 +80,6 @@ class FormDataController extends Controller
         $query->with(['form', 'form.fields']);
 
         /** @var \Illuminate\Database\Eloquent\Builder $query */
-
         if ($request->hasMultipleEntries() || (! $request->user_id && ! $request->user('sanctum'))) {
             $formdata = $query->createMany($data);
         } else {
@@ -98,7 +97,7 @@ class FormDataController extends Controller
 
         $userData = $formdata->first();
 
-        if (!$user && $form->fieldGroups()->where('authenticator', true)->exists() && $userData->email) {
+        if (! $user && $form->fieldGroups()->where('authenticator', true)->exists() && $userData->email) {
             $authCont = new RegisteredUserController();
             $password = Random::string(8);
             [
@@ -165,7 +164,9 @@ class FormDataController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(SaveFormdataRequest $request, Form $form, $id) {}
+    public function update(SaveFormdataRequest $request, Form $form, $id)
+    {
+    }
 
     /**
      * Update the specified resource in storage.

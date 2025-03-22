@@ -4,29 +4,30 @@ namespace App\Casts;
 
 use Illuminate\Contracts\Database\Eloquent\Castable;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
+use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
-use InvalidArgumentException;
-use ToneflixCode\LaravelFileable\Facades\Media;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use \Illuminate\Database\Eloquent\Casts\Json;
+use InvalidArgumentException;
 use ToneflixCode\DbConfig\Models\Fileable;
+use ToneflixCode\LaravelFileable\Facades\Media;
 
 class AsFormDataCollection implements Castable
 {
     /**
      * Get the caster class to use when casting from / to this cast target.
      *
-     * @param  array  $arguments
      * @return \Illuminate\Contracts\Database\Eloquent\CastsAttributes<\Illuminate\Support\Collection<array-key, mixed>, iterable>
      */
     public static function castUsing(array $arguments)
     {
         return new class($arguments) implements CastsAttributes
         {
-            public function __construct(protected array $arguments) {}
+            public function __construct(protected array $arguments)
+            {
+            }
 
             public function get($model, $key, $value, $attributes)
             {
@@ -39,7 +40,7 @@ class AsFormDataCollection implements Castable
                 $collectionClass = $this->arguments[0] ?? Collection::class;
 
                 if (! is_a($collectionClass, Collection::class, true)) {
-                    throw new InvalidArgumentException('The provided class must extend [' . Collection::class . '].');
+                    throw new InvalidArgumentException('The provided class must extend ['.Collection::class.'].');
                 }
 
                 $output = is_array($data) ? new $collectionClass($data) : null;
@@ -54,10 +55,10 @@ class AsFormDataCollection implements Castable
                                     ? $output[$field->name]
                                     : Json::decode($output[$field->name]);
 
-                                if (!empty($file_ids)) {
+                                if (! empty($file_ids)) {
                                     /** @var \Illuminate\Database\Eloquent\Collection<Fileable> $file */
                                     $file = Fileable::whereIn('id', $file_ids)->get();
-                                    $file_list = $file->map(fn($f) => $f->file_url . '?fn=' . $f->file)->toArray();
+                                    $file_list = $file->map(fn ($f) => $f->file_url.'?fn='.$f->file)->toArray();
 
                                     if (count($file_list) === 1) {
                                         $file_list = $file_list[0];
@@ -88,6 +89,7 @@ class AsFormDataCollection implements Castable
                     if ($data instanceof UploadedFile) {
                         return $this->doUpload($data, $key, $model);
                     }
+
                     return $data;
                 });
 
@@ -102,7 +104,7 @@ class AsFormDataCollection implements Castable
              */
             public function doUpload(UploadedFile|array $files, string $key, Model $model)
             {
-                if (!method_exists($model, 'files')) {
+                if (! method_exists($model, 'files')) {
                     return '';
                 }
 
@@ -150,6 +152,6 @@ class AsFormDataCollection implements Castable
      */
     public static function using($class)
     {
-        return static::class . ':' . $class;
+        return static::class.':'.$class;
     }
 }

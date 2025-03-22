@@ -54,7 +54,7 @@ class RegisteredUserController extends Controller
     public function createUser(Request $request)
     {
         $firstname = str($request->get('name'))->explode(' ')->first(null, $request->firstname);
-        $lastname = str($request->get('name'))->explode(' ')->last(fn($n) => $n !== $firstname, $request->lastname);
+        $lastname = str($request->get('name'))->explode(' ')->last(fn ($n) => $n !== $firstname, $request->lastname);
 
         $user = User::create([
             'role' => 'user',
@@ -85,7 +85,7 @@ class RegisteredUserController extends Controller
         $dev = new DeviceDetector($request->userAgent());
 
         $device = $dev->getBrandName()
-            ? ($dev->getBrandName() . $dev->getDeviceName())
+            ? ($dev->getBrandName().$dev->getDeviceName())
             : $request->userAgent();
 
         $user->save();
@@ -140,7 +140,7 @@ class RegisteredUserController extends Controller
         $rule = $request->rule ?? 'unique';
         $type = $request->type ?? 'email';
 
-        $validator = static fn($validator) => abort_if($validator->fails(), PV::response()->error([
+        $validator = static fn ($validator) => abort_if($validator->fails(), PV::response()->error([
             'data' => [],
             'errors' => $validator->messages(),
             'message' => $validator->messages()->all()[0] ?? 'error',

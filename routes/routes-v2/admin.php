@@ -16,7 +16,7 @@ use App\Http\Controllers\Admin\RescheduleController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
-$permissionMiddlewares = 'permission:' . implode('|', config('permission-defs.permissions', []));
+$permissionMiddlewares = 'permission:'.implode('|', config('permission-defs.permissions', []));
 
 Route::middleware(['auth:sanctum', $permissionMiddlewares])->prefix('admin')->name('admin.')->group(function () {
     Route::apiResource('users', UserController::class);

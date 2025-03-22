@@ -209,7 +209,7 @@ class FormController extends Controller
                 }
 
                 return false;
-            })->filter(fn($i) => $i !== false)->count();
+            })->filter(fn ($i) => $i !== false)->count();
 
             return Providers::response()->info([
                 'data' => [],

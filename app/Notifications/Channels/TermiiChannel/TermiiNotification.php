@@ -4,7 +4,6 @@ namespace App\Notifications\Channels\TermiiChannel;
 
 use App\Notifications\Channels\TermiiChannel\Exceptions\CouldNotSendNotification;
 use App\Notifications\Channels\TermiiChannel\Exceptions\InvalidConfigException;
-use App\Services\Termii\Termii as AppTermii;
 use Okolaa\TermiiPHP\Data\Message;
 use Okolaa\TermiiPHP\Data\Token\VoiceToken;
 use Okolaa\TermiiPHP\Termii;
@@ -20,10 +19,10 @@ class TermiiNotification
     public string $apiKey;
 
     public function __construct(
-        ?string $senderId = null,
-        ?string $apiKey = null,
-        ?string $callerId = null,
-        ?string $emailId = null,
+        string $senderId = null,
+        string $apiKey = null,
+        string $callerId = null,
+        string $emailId = null,
     ) {
         $this->senderId = $senderId ?: config('termii-notification.sender_id');
         $this->callerId = $callerId ?: config('termii-notification.caller_id');
@@ -42,8 +41,8 @@ class TermiiNotification
     public function sms(
         string $to,
         string $message,
-        ?string $senderId = null,
-        ?string $apiKey = null,
+        string $senderId = null,
+        string $apiKey = null,
     ): \Saloon\Http\Response {
         if (empty($this->senderId)) {
             throw CouldNotSendNotification::missingFrom();
@@ -57,7 +56,7 @@ class TermiiNotification
             to: $to,
             from: $senderId ?: $this->senderId,
             sms: $message,
-            type: "sms",
+            type: 'sms',
             channel: \Okolaa\TermiiPHP\Enums\MessageChannel::Generic,
             mediaUrl: null,
             mediaCaption: null
@@ -71,9 +70,9 @@ class TermiiNotification
         int $pinTimeToLiveMinute = 5,
         int $pinAttempts = 3,
         int $pinLength = 6,
-        ?string $message = null,
-        ?string $senderId = null,
-        ?string $apiKey = null,
+        string $message = null,
+        string $senderId = null,
+        string $apiKey = null,
     ) {
         if (empty($this->senderId)) {
             throw CouldNotSendNotification::missingFrom();
@@ -83,17 +82,17 @@ class TermiiNotification
             apiKey: $apiKey ?: $this->apiKey
         );
 
-        $message ??= "Your verification code is";
+        $message ??= 'Your verification code is';
 
         $tokenSend = new \Okolaa\TermiiPHP\Data\Token\SendToken(
             to: $to,
             from: $senderId ?: $this->senderId,
-            messageText: $message . " <%pin%>",
+            messageText: $message.' <%pin%>',
             pinType: \Okolaa\TermiiPHP\Enums\PinType::Numeric,
             pinAttempts: $pinAttempts,
             pinTimeToLiveMinute: $pinTimeToLiveMinute,
             pinLength: $pinLength,
-            pinPlaceHolder: "<%pin%>",
+            pinPlaceHolder: '<%pin%>',
             channel: \Okolaa\TermiiPHP\Enums\TokenChannel::GENERIC,
             messageType: 'plain',
         );
@@ -104,7 +103,7 @@ class TermiiNotification
     public function voice(
         string $to,
         int $code = 6,
-        ?string $apiKey = null,
+        string $apiKey = null,
     ) {
         $termii = Termii::initialize(
             apiKey: $apiKey ?: $this->apiKey
@@ -120,7 +119,7 @@ class TermiiNotification
         string $to,
         string $code,
         string $emailConfigurationId,
-        ?string $apiKey = null,
+        string $apiKey = null,
     ) {
         $termii = Termii::initialize(
             apiKey: $apiKey ?: $this->apiKey
@@ -138,7 +137,7 @@ class TermiiNotification
         int $pinTimeToLiveMinute = 5,
         int $pinAttempts = 3,
         int $pinLength = 6,
-        ?string $apiKey = null,
+        string $apiKey = null,
     ) {
         $termii = Termii::initialize(
             apiKey: $apiKey ?: $this->apiKey

@@ -2,11 +2,6 @@
 
 namespace App\Services\Termii;
 
-use Okolaa\TermiiPHP\Resources\Campaign\CampaignResource;
-use Okolaa\TermiiPHP\Resources\InsightResource;
-use Okolaa\TermiiPHP\Resources\MessagingResource;
-use Okolaa\TermiiPHP\Resources\SenderIdResource;
-
 class TermiiConnector
 {
     protected int $connectTimeout = 30;

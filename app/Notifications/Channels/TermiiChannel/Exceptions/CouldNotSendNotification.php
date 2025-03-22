@@ -2,8 +2,8 @@
 
 namespace App\Notifications\Channels\TermiiChannel\Exceptions;
 
-use Exception;
 use App\Notifications\Channels\TermiiChannel\TermiiMessage;
+use Exception;
 
 class CouldNotSendNotification extends Exception
 {
@@ -19,7 +19,7 @@ class CouldNotSendNotification extends Exception
     public static function invalidMessage()
     {
         return new static(
-            'The toTermii() method only accepts an instances of ' . TermiiMessage::class
+            'The toTermii() method only accepts an instances of '.TermiiMessage::class
         );
     }
 

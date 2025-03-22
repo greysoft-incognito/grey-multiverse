@@ -21,12 +21,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Propaganistas\LaravelPhone\Casts\E164PhoneNumberCast;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Permission\Traits\HasRoles;
 use ToneflixCode\LaravelFileable\Traits\Fileable;
 use Valorin\Random\Random;
-use Propaganistas\LaravelPhone\Casts\E164PhoneNumberCast;
 
 /**
  * @property \App\Models\BizMatch\Company $company
@@ -35,10 +35,10 @@ class User extends Authenticatable
 {
     use Fileable;
     use HasApiTokens;
-    use HasFactory;
-    use HasPermissions;
     use HasExtendedPermissions;
     use HasExtendedRoles;
+    use HasFactory;
+    use HasPermissions;
     use HasRoles;
     use ModelCanExtend;
     use Notifiable;
@@ -115,7 +115,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'data' => \Illuminate\Database\Eloquent\Casts\AsCollection::class,
             'access_data' => \Illuminate\Database\Eloquent\Casts\AsCollection::class,
-            'phone' => E164PhoneNumberCast::class . ':' . ($this->phone_country ?? 'NG'),
+            'phone' => E164PhoneNumberCast::class.':'.($this->phone_country ?? 'NG'),
             'last_attempt' => 'datetime',
             'email_verified_at' => 'datetime',
             'phone_verified_at' => 'datetime',
@@ -165,7 +165,7 @@ class User extends Authenticatable
     protected function avatar(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->files['image'],
+            get: fn () => $this->files['image'],
         );
     }
 
@@ -175,7 +175,7 @@ class User extends Authenticatable
     protected function fullname(): Attribute
     {
         return Attribute::make(
-            get: fn() => collect([$this->firstname, $this->lastname])->filter()->join(' '),
+            get: fn () => collect([$this->firstname, $this->lastname])->filter()->join(' '),
         );
     }
 
@@ -200,7 +200,7 @@ class User extends Authenticatable
     protected function privileges(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->getRoleNames(),
+            get: fn () => $this->getRoleNames(),
             set: function (array|\Illuminate\Support\Collection $value) {
                 if (count($value) && app()->runningInConsole()) {
                     $roles = Role::whereIn('name', $value)->orWhereIn('id', $value)->pluck('name');
@@ -290,8 +290,8 @@ class User extends Authenticatable
     protected function userData(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->data,
-            set: fn($value) => ['data' => is_array($value)
+            get: fn () => $this->data,
+            set: fn ($value) => ['data' => is_array($value)
                 ? json_encode($value, JSON_FORCE_OBJECT)
                 : $value],
         );
@@ -375,7 +375,7 @@ class User extends Authenticatable
             $query->orWhere('lastname', 'like', "%{$search}%");
             $query->orWhereRaw(
                 "LOWER(CONCAT_WS(' ', firstname, lastname)) like ?",
-                ['%' . mb_strtolower($search) . '%']
+                ['%'.mb_strtolower($search).'%']
             );
             $query->orWhere('email', $search);
         }

@@ -178,7 +178,7 @@ class FormField extends Model
      */
     public function isGrouped(): Attribute
     {
-        return Attribute::make(fn() => $this->groups()->exists() || $this->form->fieldGroups()->doesntExist());
+        return Attribute::make(fn () => $this->groups()->exists() || $this->form->fieldGroups()->doesntExist());
     }
 
     public function subValues(): Attribute
@@ -186,12 +186,12 @@ class FormField extends Model
         $name = $this->name ?? 'value';
 
         return Attribute::make(
-            fn() => FormData::query()
+            fn () => FormData::query()
                 ->select("data->{$name} as {$name}")
                 ->whereFormId($this->form_id)
                 ->groupBy($name)
                 ->pluck($name)
-                ->map(fn($e) => valid_json($e ?? '') ? json_decode($e) : $e)
+                ->map(fn ($e) => valid_json($e ?? '') ? json_decode($e) : $e)
                 ->flatten()
                 ->unique()
         );
