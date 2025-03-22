@@ -110,7 +110,7 @@ class AsFormDataCollection implements Castable
                 $value = DB::transaction(function () use ($files, $key, $model) {
                     $value = [];
                     try {
-                        $model->files()->delete();
+                        $model->files()->whereJsonContains('meta->key', $key)->delete();
                         if (is_array($files)) {
                             $value = collect($files)->map(function (UploadedFile $item, int $i) use ($key, $model) {
                                 $file = $model->files()->make();
