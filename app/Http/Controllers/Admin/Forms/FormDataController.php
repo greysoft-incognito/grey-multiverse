@@ -59,7 +59,7 @@ class FormDataController extends Controller
         $query->where("data->{$name_field}", '!=', null);
 
         $query
-            ->when($rank, fn ($q) => $q->ranked($rank), fn ($q) => $q->orderBy('rank', 'DESC'))
+            ->when($rank, fn($q) => $q->ranked($rank), fn($q) => $q->latest())
             ->when($status, fn ($q) => $q->whereStatus($status))
             ->when($search, fn ($q) => $q->doSearch($search, $form))
             ->when($only_drafts, fn ($q) => $q->drafts())
