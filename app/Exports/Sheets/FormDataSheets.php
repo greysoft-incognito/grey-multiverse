@@ -62,7 +62,7 @@ class FormDataSheets implements FromCollection, ShouldAutoSize, WithHeadings, Wi
                 $field->expected_value_type === 'array' => collect((array) $value)
                     ->map(fn ($val) => $field->options[$val]['label'] ?? $val)
                     ->join(', '),
-                default => $field->options[$value]['label'] ?? $value,
+                default => is_string($value) ? ($field->options[$value]['label'] ?? $value) : $value,
             };
 
             return [$label => is_array($value) ? implode(', ', $value) : $value];
