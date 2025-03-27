@@ -49,7 +49,7 @@ class SimpleDataExporter
     ): void {
         $this->data_emails
             ->unique()
-            ->filter(fn ($e) => $e->isNotEmpty())
+            ->filter(fn($e) => $e->isNotEmpty() && !$e->is('[]'))
             ->each(function ($email) use ($dataset, $batch, $title) {
                 RateLimiter::attempt(
                     'send-report:'.$email.$batch,
