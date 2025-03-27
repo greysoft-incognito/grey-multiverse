@@ -44,6 +44,7 @@ class ReportGenerated extends Mailable
                 'link' => route('download.formdata', [$timestamp, $params, $this->batch]),
                 'ttl' => '10 hours',
                 'app_name' => dbconfig('app_name'),
+                'mailto' => dbconfig('app_email'),
             ]
         );
     }

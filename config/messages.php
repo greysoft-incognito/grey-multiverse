@@ -160,7 +160,7 @@ return [
                 'title' => 'Download Report',
             ],
             'For security and privacy concerns this link expires in :ttl and is only usable once',
-            'If you have any concerns please mail <a href="mailto:hi@greysoft.ng">hi@greysoft.ng</a> for support.',
+            'If you have any concerns please mail <a href="mailto::mailto">:mailto</a> for support.',
         ],
     ],
     'form_submited' => [

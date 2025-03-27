@@ -29,14 +29,18 @@ class SimpleDataExporter
      * @param boolean $scanned
      * @param boolean $draft
      * @param array<int,string> $dataset
+     * @param array<int, string> $emails
      */
     public function __construct(
         protected int $perPage = 50,
         protected bool $scanned = false,
         protected bool $draft = false,
         protected array $dataset = [],
+        protected array $emails = [],
     ) {
-        $this->data_emails = dbconfig('notifiable_emails', collect([]))->map(fn ($e) => str($e));
+        $this->data_emails = collect(
+            !empty($emails) ? $emails : dbconfig('notifiable_emails', collect([]))
+        )->map(fn($e) => str($e));
     }
 
     /**
@@ -52,9 +56,9 @@ class SimpleDataExporter
             ->filter(fn($e) => $e->isNotEmpty() && !$e->is('[]'))
             ->each(function ($email) use ($dataset, $batch, $title) {
                 RateLimiter::attempt(
-                    'send-report:'.$email.$batch,
+                'send-report:' . $email . $batch,
                     5,
-                    fn () => Mail::to($email->toString())->send(new ReportGenerated($dataset, $batch, $title))
+                fn() => Mail::to($email->toString())->send(new ReportGenerated($dataset, $batch, $title))
                 );
             });
     }
@@ -93,7 +97,7 @@ class SimpleDataExporter
     {
         $query = Form::query()->whereHas('data')->where('data_emails', '!=', null);
 
-        $query->when($this->scanned === true, fn ($q) => $q->whereHas('data.scans'));
+        $query->when($this->scanned === true, fn($q) => $q->whereHas('data.scans'));
         $query->when($this->draft === true, fn($q) => $q->whereHas('data', fn($q2) => $q2->drafts()));
 
         foreach ($query->cursor() as $batch => $form) {
@@ -103,7 +107,10 @@ class SimpleDataExporter
 
             (new FormDataExports($form, $this->scanned, $this->perPage))->store($path);
 
-            $this->data_emails = $form->data_emails;
+            $this->data_emails = !empty($this->emails)
+                ? collect($this->emails)->map(fn($e) => str($e))
+                : $form->data_emails;
+
             $this->dispatchMails($form, $form->title ?? $form->name, 0);
         }
     }

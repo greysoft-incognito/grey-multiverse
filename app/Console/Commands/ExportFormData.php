@@ -19,6 +19,8 @@ class ExportFormData extends Command
                             {--M|modern : Use the modern export interface}
                             {--Q|queue : Queue the process for later}
                             {--d|draft : Export only items in draft (Will eonforce exporting only forms)}
+                            {--P|per_page=50 : Number of results to add to each sheet}
+                            {--e|emails=* : Email addresses that should get exported data notification}
                            ';
 
     /**
@@ -37,9 +39,10 @@ class ExportFormData extends Command
     {
         if ($this->option('modern')) {
             new SimpleDataExporter(
-                perPage: 50,
+                perPage: (int) $this->option('per_page'),
                 scanned: false,
                 draft: $this->option('draft'),
+                emails: $this->option('emails'),
                 dataset: $this->argument('dataset')
             );
         } else {
