@@ -23,9 +23,18 @@ class SimpleDataExporter
      */
     protected \Illuminate\Support\Collection $data_emails;
 
+    /**
+     *
+     * @param integer $perPage
+     * @param boolean $scanned
+     * @param boolean $draft
+     * @param array<int,string> $dataset
+     */
     public function __construct(
         protected int $perPage = 50,
         protected bool $scanned = false,
+        protected bool $draft = false,
+        protected array $dataset = [],
     ) {
         $this->data_emails = dbconfig('notifiable_emails', collect([]))->map(fn ($e) => str($e));
     }
@@ -85,6 +94,7 @@ class SimpleDataExporter
         $query = Form::query()->whereHas('data')->where('data_emails', '!=', null);
 
         $query->when($this->scanned === true, fn ($q) => $q->whereHas('data.scans'));
+        $query->when($this->draft === true, fn($q) => $q->whereHas('data', fn($q2) => $q2->drafts()));
 
         foreach ($query->cursor() as $batch => $form) {
             $name = str('forms')->append('-')->append($form->id)->slug();
@@ -100,7 +110,26 @@ class SimpleDataExporter
 
     public function __destruct()
     {
-        if ($this->scanned) {
+        if (!empty($this->dataset)) {
+            $validDataset = [];
+            foreach ($this->dataset as $dataset) {
+                $method = str("export-$dataset")->camel()->toString();
+
+                if (!method_exists($this, $method)) {
+                    throw new \Exception("$dataset is not a valid dataset", 1);
+                }
+
+                $validDataset[] = $method;
+            }
+
+            foreach ($validDataset as $method) {
+                $this->{$method}();
+            }
+
+            return;
+        }
+
+        if ($this->scanned || $this->draft) {
             $this->exportForms();
 
             return;

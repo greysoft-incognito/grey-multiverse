@@ -15,8 +15,10 @@ class ExportFormData extends Command
      * @var string
      */
     protected $signature = 'app:export
-                            {--M|modern}
-                            {--Q|queue}
+                            {dataset?* : List of exportable dataset (Allowed: forms, users, appointment, companies)}
+                            {--M|modern : Use the modern export interface}
+                            {--Q|queue : Queue the process for later}
+                            {--d|draft : Export only items in draft (Will eonforce exporting only forms)}
                            ';
 
     /**
@@ -34,7 +36,12 @@ class ExportFormData extends Command
     public function handle()
     {
         if ($this->option('modern')) {
-            new SimpleDataExporter(50);
+            new SimpleDataExporter(
+                perPage: 50,
+                scanned: false,
+                draft: $this->option('draft'),
+                dataset: $this->argument('dataset')
+            );
         } else {
             if ($this->option('queue')) {
                 ExportData::dispatch();
