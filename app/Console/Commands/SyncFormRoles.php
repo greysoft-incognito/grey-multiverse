@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Schema;
 use Spatie\Permission\Models\Permission;
@@ -19,7 +18,6 @@ class SyncFormRoles extends Command
         form:sync-roles
             {form? : The ID(s) of the form(s) to create the roles and permissions to}
             {users?* : The ID(s) of the user(s) to assign the roles and permissions to}
-            {--S|show : Show all users with assigned roles}
             {--x|remove : Remove the roles and permissions from the user(s)}
             {--r|roles=* : The roles to assign to the user(s)}
             {--p|permissions=* : The permissions to assign to the user(s)}
@@ -271,47 +269,5 @@ class SyncFormRoles extends Command
             $permissions->map(fn($perm) => $perm->only('id', 'name', 'guard_name'))
         );
         $this->info('Permissions Synced');
-    }
-
-    public function show(): void
-    {
-        $admins = User::query()
-            ->whereDoesntHave('roles', fn($q) => $q->whereName('super-admin'))
-            ->where(fn($q) => $q->whereHas('roles')->orWhereHas('permissions'))
-            ->with('roles')
-            ->get();
-
-        $this->info('Admin List');
-        $this->table(
-            ['ID', 'Name', 'Email', 'Roles'],
-            $admins
-                ->map(fn($user) => $user->only('id', 'fullname', 'email', 'roles'))
-                ->map(function ($user) {
-                    $user['roles'] = $user['roles']->pluck('name')->join(', ');
-                    return $user;
-                })
-        );
-
-        if ($this->option('supes')) {
-
-            $this->newLine();
-
-            $sadmins = User::query()
-                ->whereHas('roles', fn($q) => $q->whereName('super-admin'))
-                ->where(fn($q) => $q->whereHas('roles')->orWhereHas('permissions'))
-                ->with('roles')
-                ->get();
-
-            $this->info('Super Admin List');
-            $this->table(
-                ['ID', 'Name', 'Email', 'Roles'],
-                $sadmins
-                    ->map(fn($user) => $user->only('id', 'fullname', 'email', 'roles'))
-                    ->map(function ($user) {
-                        $user['roles'] = $user['roles']->pluck('name')->join(', ');
-                        return $user;
-                    })
-            );
-        }
     }
 }
