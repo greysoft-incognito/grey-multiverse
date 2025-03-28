@@ -271,7 +271,7 @@ class SyncRoles extends Command
 
                     $user['permissions'] = str($user['permissions'] instanceof Collection
                             ? $user['permissions']->pluck('name')->join(', ')
-                        : $user['permissions'])->words(4);
+                    : $user['permissions'])->words(3);
 
                     return $user;
                 })
@@ -299,7 +299,7 @@ class SyncRoles extends Command
 
                         $user['permissions'] = str($user['permissions'] instanceof Collection
                                 ? $user['permissions']->pluck('name')->join(', ')
-                            : $user['permissions'])->words(4);
+                        : $user['permissions'])->words(3);
 
                         return $user;
                     })
