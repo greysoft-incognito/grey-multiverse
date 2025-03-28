@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Schema;
 use Spatie\Permission\Models\Permission;
@@ -18,6 +19,7 @@ class SyncFormRoles extends Command
         form:sync-roles
             {form? : The ID(s) of the form(s) to create the roles and permissions to}
             {users?* : The ID(s) of the user(s) to assign the roles and permissions to}
+            {--S|show : Show all users with assigned roles}
             {--x|remove : Remove the roles and permissions from the user(s)}
             {--r|roles=* : The roles to assign to the user(s)}
             {--p|permissions=* : The permissions to assign to the user(s)}
@@ -39,7 +41,9 @@ class SyncFormRoles extends Command
      */
     public function handle()
     {
-        if ($this->option('remove')) {
+        if ($this->option('show')) {
+            $this->show();
+        } elseif ($this->option('remove')) {
             $this->remove();
         } elseif ($this->option('make') || empty($this->argument('users'))) {
             if ($this->option('reset')) {
@@ -68,9 +72,9 @@ class SyncFormRoles extends Command
             ["\n", "\t", '  '],
             ["\n ", '', ''],
             'You have not specified any roles or permissions.
-            Do you want to remove all roles from the user(s) '.
+            Do you want to remove all roles from the user(s) ' .
                 (! $supes
-                    ? '(This excludes the "'.config('permission-defs.super-admin-role', 'super-admin').' role)?'
+                ? '(This excludes the "' . config('permission-defs.super-admin-role', 'super-admin') . ' role)?'
                     : ''
                 )
         );
@@ -98,14 +102,14 @@ class SyncFormRoles extends Command
         }
 
         $users->each(function ($user) use ($roles, $permissions) {
-            $roles->each(fn ($role) => $user->removeRole($role));
-            $permissions->each(fn ($permission) => $user->revokePermissionTo($permission));
+            $roles->each(fn($role) => $user->removeRole($role));
+            $permissions->each(fn($permission) => $user->revokePermissionTo($permission));
         });
 
         $this->info('Roles');
         $this->table(
             ['ID', 'Name', 'Gaurds', 'Roles'],
-            $users->map(fn ($user) => [
+            $users->map(fn($user) => [
                 $user->id,
                 $user->firstname,
                 $user->roles->pluck('guard_name')->implode(', '),
@@ -117,7 +121,7 @@ class SyncFormRoles extends Command
         $this->info('Permissions');
         $this->table(
             ['ID', 'Name', 'Gaurds', 'Permissions'],
-            $users->map(fn ($user) => [
+            $users->map(fn($user) => [
                 $user->id,
                 $user->firstname,
                 $user->roles->pluck('guard_name')->implode(', '),
@@ -143,9 +147,9 @@ class SyncFormRoles extends Command
             ["\n", "\t", '  '],
             ["\n ", '', ''],
             'You have not specified any roles or permissions.
-            Do you want to assign all roles to the user(s) '.
+            Do you want to assign all roles to the user(s) ' .
                 (! $supes
-                    ? '(This excludes the "'.config('permission-defs.super-admin-role', 'super-admin').' role)?'
+                ? '(This excludes the "' . config('permission-defs.super-admin-role', 'super-admin') . ' role)?'
                     : ''
                 )
         );
@@ -178,7 +182,7 @@ class SyncFormRoles extends Command
         $this->info('Roles');
         $this->table(
             ['ID', 'Name', 'Gaurds', 'Roles'],
-            $users->map(fn ($user) => [
+            $users->map(fn($user) => [
                 $user->id,
                 $user->firstname,
                 $user->roles->pluck('guard_name')->implode(', '),
@@ -190,7 +194,7 @@ class SyncFormRoles extends Command
         $this->info('Permissions');
         $this->table(
             ['ID', 'Name', 'Gaurds', 'Permissions'],
-            $users->map(fn ($user) => [
+            $users->map(fn($user) => [
                 $user->id,
                 $user->firstname,
                 $user->roles->pluck('guard_name')->implode(', '),
@@ -223,11 +227,11 @@ class SyncFormRoles extends Command
         $formRolesArray = collect(config('permission-defs.form_roles', []))->sort();
         $formPermissionsArray = collect(config('permission-defs.form_permissions', []))->sort();
 
-        $rolesArray->each(fn ($role) => Role::findOrCreate($role));
-        $permissionsArray->each(fn ($role) => Permission::findOrCreate($role));
+        $rolesArray->each(fn($role) => Role::findOrCreate($role));
+        $permissionsArray->each(fn($role) => Permission::findOrCreate($role));
 
-        $formRolesArray->each(fn ($role) => Role::findOrCreate($role));
-        $formPermissionsArray->each(fn ($role) => Permission::findOrCreate($role));
+        $formRolesArray->each(fn($role) => Role::findOrCreate($role));
+        $formPermissionsArray->each(fn($role) => Permission::findOrCreate($role));
 
         $roles = Role::whereNot('name', 'like', 'form.%')->withCount('permissions')->get();
         $formRoles = Role::where('name', 'like', 'form.%')->withCount('permissions')->get();
@@ -236,19 +240,19 @@ class SyncFormRoles extends Command
         // Sync Main Roles
         $roles->each(function ($role) use ($permissionsArray) {
             $exclude = config("permission-defs.exclusions.{$role->name}", []);
-            $role->syncPermissions($permissionsArray->filter(fn ($perm) => ! in_array($perm, $exclude)));
+            $role->syncPermissions($permissionsArray->filter(fn($perm) => ! in_array($perm, $exclude)));
         });
 
         // Sync Form Roles
         $formRoles->each(function ($role) use ($formPermissionsArray) {
             $exclude = config("permission-defs.form_exclusions.{$role->name}", []);
-            $role->syncPermissions($formPermissionsArray->filter(fn ($perm) => ! in_array($perm, $exclude)));
+            $role->syncPermissions($formPermissionsArray->filter(fn($perm) => ! in_array($perm, $exclude)));
         });
 
         $this->info('Roles');
         $this->table(
             ['ID', 'Name', 'Gaurd', 'Permissions'],
-            $roles->map(fn ($role) => $role->only('id', 'name', 'guard_name', 'permissions_count'))
+            $roles->map(fn($role) => $role->only('id', 'name', 'guard_name', 'permissions_count'))
         );
 
         $this->newLine();
@@ -256,7 +260,7 @@ class SyncFormRoles extends Command
         $this->info('Form Roles');
         $this->table(
             ['ID', 'Name', 'Gaurd', 'Permissions'],
-            $formRoles->map(fn ($role) => $role->only('id', 'name', 'guard_name', 'permissions_count'))
+            $formRoles->map(fn($role) => $role->only('id', 'name', 'guard_name', 'permissions_count'))
         );
         $this->info('Roles Synced');
 
@@ -264,8 +268,50 @@ class SyncFormRoles extends Command
         $this->info('Permissions');
         $this->table(
             ['ID', 'Name', 'Gaurd'],
-            $permissions->map(fn ($perm) => $perm->only('id', 'name', 'guard_name'))
+            $permissions->map(fn($perm) => $perm->only('id', 'name', 'guard_name'))
         );
         $this->info('Permissions Synced');
+    }
+
+    public function show(): void
+    {
+        $admins = User::query()
+            ->whereDoesntHave('roles', fn($q) => $q->whereName('super-admin'))
+            ->where(fn($q) => $q->whereHas('roles')->orWhereHas('permissions'))
+            ->with('roles')
+            ->get();
+
+        $this->info('Admin List');
+        $this->table(
+            ['ID', 'Name', 'Email', 'Roles'],
+            $admins
+                ->map(fn($user) => $user->only('id', 'fullname', 'email', 'roles'))
+                ->map(function ($user) {
+                    $user['roles'] = $user['roles']->pluck('name')->join(', ');
+                    return $user;
+                })
+        );
+
+        if ($this->option('supes')) {
+
+            $this->newLine();
+
+            $sadmins = User::query()
+                ->whereHas('roles', fn($q) => $q->whereName('super-admin'))
+                ->where(fn($q) => $q->whereHas('roles')->orWhereHas('permissions'))
+                ->with('roles')
+                ->get();
+
+            $this->info('Super Admin List');
+            $this->table(
+                ['ID', 'Name', 'Email', 'Roles'],
+                $sadmins
+                    ->map(fn($user) => $user->only('id', 'fullname', 'email', 'roles'))
+                    ->map(function ($user) {
+                        $user['roles'] = $user['roles']->pluck('name')->join(', ');
+                        return $user;
+                    })
+            );
+        }
     }
 }
