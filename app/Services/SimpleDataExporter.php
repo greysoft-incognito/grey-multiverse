@@ -24,12 +24,8 @@ class SimpleDataExporter
     protected \Illuminate\Support\Collection $data_emails;
 
     /**
-     *
-     * @param integer $perPage
-     * @param boolean $scanned
-     * @param boolean $draft
-     * @param array<int,string> $dataset
-     * @param array<int, string> $emails
+     * @param  array<int,string>  $dataset
+     * @param  array<int, string>  $emails
      */
     public function __construct(
         protected int $perPage = 50,
@@ -39,8 +35,8 @@ class SimpleDataExporter
         protected array $emails = [],
     ) {
         $this->data_emails = collect(
-            !empty($emails) ? $emails : dbconfig('notifiable_emails', collect([]))
-        )->map(fn($e) => str($e));
+            ! empty($emails) ? $emails : dbconfig('notifiable_emails', collect([]))
+        )->map(fn ($e) => str($e));
     }
 
     /**
@@ -53,12 +49,12 @@ class SimpleDataExporter
     ): void {
         $this->data_emails
             ->unique()
-            ->filter(fn($e) => $e->isNotEmpty() && !$e->is('[]'))
+            ->filter(fn ($e) => $e->isNotEmpty() && ! $e->is('[]'))
             ->each(function ($email) use ($dataset, $batch, $title) {
                 RateLimiter::attempt(
-                'send-report:' . $email . $batch,
+                    'send-report:'.$email.$batch,
                     5,
-                fn() => Mail::to($email->toString())->send(new ReportGenerated($dataset, $batch, $title))
+                    fn () => Mail::to($email->toString())->send(new ReportGenerated($dataset, $batch, $title))
                 );
             });
     }
@@ -97,8 +93,8 @@ class SimpleDataExporter
     {
         $query = Form::query()->whereHas('data')->where('data_emails', '!=', null);
 
-        $query->when($this->scanned === true, fn($q) => $q->whereHas('data.scans'));
-        $query->when($this->draft === true, fn($q) => $q->whereHas('data', fn($q2) => $q2->drafts()));
+        $query->when($this->scanned === true, fn ($q) => $q->whereHas('data.scans'));
+        $query->when($this->draft === true, fn ($q) => $q->whereHas('data', fn ($q2) => $q2->drafts()));
 
         foreach ($query->cursor() as $batch => $form) {
             $name = str('forms')->append('-')->append($form->id)->slug();
@@ -107,8 +103,8 @@ class SimpleDataExporter
 
             (new FormDataExports($form, $this->scanned, $this->perPage))->store($path);
 
-            $this->data_emails = !empty($this->emails)
-                ? collect($this->emails)->map(fn($e) => str($e))
+            $this->data_emails = ! empty($this->emails)
+                ? collect($this->emails)->map(fn ($e) => str($e))
                 : $form->data_emails;
 
             $this->dispatchMails($form, $form->title ?? $form->name, 0);
@@ -117,12 +113,12 @@ class SimpleDataExporter
 
     public function __destruct()
     {
-        if (!empty($this->dataset)) {
+        if (! empty($this->dataset)) {
             $validDataset = [];
             foreach ($this->dataset as $dataset) {
                 $method = str("export-$dataset")->camel()->toString();
 
-                if (!method_exists($this, $method)) {
+                if (! method_exists($this, $method)) {
                     throw new \Exception("$dataset is not a valid dataset", 1);
                 }
 
