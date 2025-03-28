@@ -238,7 +238,9 @@ class SyncRoles extends Command
         $this->info('Roles');
         $this->table(
             ['ID', 'Name', 'Gaurd', 'Permissions'],
-            $roles->map(fn ($role) => $role->only('id', 'name', 'guard_name', 'permissions_count'))
+            $roles
+                ->map(fn($role) => $role->only('id', 'name', 'guard_name', 'permissions_count'))
+                ->when(!$this->option('supes'), fn($rr) => $rr->filter(fn($r) => $r['name'] != 'super-admin'))
         );
         $this->info('Roles Synced');
 
