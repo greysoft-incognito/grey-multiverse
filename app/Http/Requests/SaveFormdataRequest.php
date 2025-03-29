@@ -93,7 +93,7 @@ class SaveFormdataRequest extends FormRequest
             } elseif ($field->expected_value_type === 'array') {
                 $rules[] = 'array';
             } elseif ($field->expected_value_type === 'boolean') {
-                // $rules[] = 'boolean';
+                $rules[] = 'boolean';
             } elseif ($field->type === 'file') {
                 $rules[] = 'file';
                 $rules[] = 'mimes:'.str($field->accept)
@@ -144,7 +144,7 @@ class SaveFormdataRequest extends FormRequest
             // Validate the expected value
             if ($field->expected_value !== null) {
                 $rules[] = function (string $attribute, mixed $val, \Closure $fail) use ($field) {
-                    $valid = match ($field->expectedValueType) {
+                    $valid = match ($field->expected_value_type) {
                         'integer' => ((int) $val) === ((int) $field->expected_value),
                         'boolean' => ((bool) $val) === ((bool) $field->expected_value),
                         default => mb_strtolower($val) === mb_strtolower($field->expected_value),
@@ -326,27 +326,27 @@ class SaveFormdataRequest extends FormRequest
          * I don't really need to the conversion
          */
 
-        // $parser = static fn(FormField $field, $val) => match ($field->expectedValueType) {
-        //     'integer' => is_numeric($val) ? (int)$val : $val,
-        //     'boolean' => (bool)$val,
-        //     default => $val,
-        // };
+        $parser = static fn(FormField $field, $val) => match ($field->expected_value_type) {
+            'integer' => is_numeric($val) ? (int)$val : $val,
+            'boolean' => (bool)$val,
+            default => $val,
+        };
 
-        // // Convert all data to thier expected type using the about $parser callback
-        // $data = collect($this->input('data', []))->mapWithKeys(function ($value, $key) use ($parser) {
-        //     if ($this->hasMultipleEntries()) {
-        //         return [$key => collect($value)->mapWithKeys(function ($val, $k) use ($parser) {
+        // Convert all data to thier expected type using the about $parser callback
+        $data = collect($this->input('data', []))->mapWithKeys(function ($value, $key) use ($parser) {
+            if ($this->hasMultipleEntries()) {
+                return [$key => collect($value)->mapWithKeys(function ($val, $k) use ($parser) {
 
-        //             $fieldModel = $this->fields->firstWhere('name', $k);
-        //             return [$k => $fieldModel ? $parser($fieldModel, $val) : $val];
-        //         })];
-        //     }
+                    $fieldModel = $this->fields->firstWhere('name', $k);
+                    return [$k => $fieldModel ? $parser($fieldModel, $val) : $val];
+                })];
+            }
 
-        //     $fieldModel = $this->fields->firstWhere('name', $key);
-        //     return [$key => $fieldModel ? $parser($fieldModel, $value) : $value];
-        // });
+            $fieldModel = $this->fields->firstWhere('name', $key);
+            return [$key => $fieldModel ? $parser($fieldModel, $value) : $value];
+        });
 
-        // $this->merge(['data' => $data->toArray()]);
+        $this->merge(['data' => $data->toArray()]);
     }
 
     /**

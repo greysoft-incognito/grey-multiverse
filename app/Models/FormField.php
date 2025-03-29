@@ -118,7 +118,7 @@ class FormField extends Model
     public function expectedValue(): Attribute
     {
         return Attribute::make(function ($val) {
-            return $val ? match ($this->expectedValueType) {
+            return $val ? match ($this->expected_value_type) {
                 'array' => json_encode($val),
                 'integer' => (int) $val,
                 'boolean' => (bool) $val,
