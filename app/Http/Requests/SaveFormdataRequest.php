@@ -329,7 +329,7 @@ class SaveFormdataRequest extends FormRequest
 
         $parser = static fn(FormField $field, $val) => match ($field->expected_value_type) {
             'integer' => is_numeric($val) ? (int)$val : $val,
-            'boolean' => (bool)$val,
+            'boolean' => filter_var($val, FILTER_VALIDATE_BOOL),
             default => $val,
         };
 
