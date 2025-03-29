@@ -14,8 +14,22 @@ class LogController extends Controller
     {
         \App\Enums\Permission::LOGS_VIEW->authorize();
 
+        @[
+            'action' => $action,
+            'search' => $search,
+        ] = $this->validate($request, [
+            'action' => ['nullable', 'string', 'in:login,updated,created,deleted'],
+            'search' => ['nullable', 'string'],
+        ]);
+
         $query = Log::query()
             ->with(['loggable', 'user']);
+
+        $query->when($search, function ($qx) use ($search) {
+            $qx->whereHas('user', fn($q) => $q->doSearch($search));
+        });
+
+        $query->when($action, fn($q) => $q->whereAction($action));
 
         $logs = $query->paginate($request->input('limit', 30));
 
