@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Form;
 use App\Models\FormData;
+use App\Models\FormField;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Http\FormRequest;
@@ -234,7 +235,7 @@ class SaveFormdataRequest extends FormRequest
         ];
     }
 
-    protected function buildRules(array $data, int $index = null)
+    protected function buildRules(array $data, ?int $index = null)
     {
         $errors = collect([]);
         $ind = ! is_null($index) ? $index.'.' : '';
