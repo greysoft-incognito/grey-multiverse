@@ -93,7 +93,7 @@ class SaveFormdataRequest extends FormRequest
             } elseif ($field->expected_value_type === 'array') {
                 $rules[] = 'array';
             } elseif ($field->expected_value_type === 'boolean') {
-                $rules[] = 'boolean';
+                // $rules[] = 'boolean';
             } elseif ($field->type === 'file') {
                 $rules[] = 'file';
                 $rules[] = 'mimes:'.str($field->accept)
