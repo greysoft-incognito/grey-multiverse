@@ -15,6 +15,7 @@ class LogResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'type' => str($this->loggable_type)->afterLast('\\')->append(' ' . $this->loggable_id),
             'action' => $this->action,
             'ip' => $this->properties['ip'] ?? '',
@@ -28,7 +29,8 @@ class LogResource extends JsonResource
                 'id' => $this->loggable_id,
                 'type' => str($this->loggable_type)->afterLast('\\')->slug(),
                 'target' => $this->loggable->name ?? $this->loggable->title ?? $this->loggable->key ?? '',
-            ])
+            ]),
+            'created_at' => $this->created_at,
         ];
     }
 }
