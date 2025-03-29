@@ -18,7 +18,7 @@ class LogResource extends JsonResource
             'id' => $this->id,
             'type' => str($this->loggable_type)->afterLast('\\')->append(' ' . $this->loggable_id),
             'action' => $this->action,
-            'ip' => $this->properties['ip'] ?? '',
+            'properties' => $this->properties,
             'description' => $this->description,
             'user' => $this->when($this->user, fn() => [
                 'id' => $this->user->id,
