@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\HttpStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\LogCollection;
 use App\Http\Resources\LogResource;
 use App\Models\Log;
 use Illuminate\Http\Request;
@@ -42,7 +43,7 @@ class LogController extends Controller
 
         $logs = $query->paginate($request->input('limit', 30));
 
-        return LogResource::collection($logs)->additional([
+        return (new LogCollection($logs))->additional([
             'status' => 'success',
             'message' => HttpStatus::message(HttpStatus::OK),
             'statusCode' => HttpStatus::OK,
