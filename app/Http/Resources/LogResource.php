@@ -24,6 +24,7 @@ class LogResource extends JsonResource
                 'id' => $this->user->id,
                 'email' => $this->user->email,
                 'name' => $this->user->fullname,
+                'imageUrl' => $this->user->files['image'] ?? '',
             ]),
             'loggable' => $this->when($this->loggable, fn() => [
                 'id' => $this->loggable_id,
