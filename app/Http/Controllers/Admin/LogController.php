@@ -13,6 +13,8 @@ class LogController extends Controller
     public function index(Request $request)
     {
         \App\Enums\Permission::LOGS_VIEW->authorize();
+        $user = $request->user('sanctum');
+        $supe = config('permission-defs.super-admin-role', 'super-admin');
 
         @[
             'action' => $action,
@@ -27,6 +29,13 @@ class LogController extends Controller
 
         $query->when($search, function ($qx) use ($search) {
             $qx->whereHas('user', fn($q) => $q->doSearch($search));
+        });
+
+        $query->when(!$user->hasRole($supe), function ($qx) use ($supe) {
+            $qx->whereDoesntHave(
+                'user',
+                fn($q) => $q->whereHas('roles', fn($q) => $q->whereName($supe))
+            );
         });
 
         $query->when($action, fn($q) => $q->whereAction($action));

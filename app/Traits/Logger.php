@@ -46,6 +46,10 @@ trait Logger
      */
     public static function bootLogger($loggable_actions = ['created', 'updated', 'deleted'])
     {
+        if (!Auth::check() || !Auth::user('sanctum')->hasAnyPermission(config('permission-defs.permissions'))) {
+            return false;
+        }
+
         in_array('created', $loggable_actions) && static::created(function ($model) {
             /** @var \Illuminate\Database\Eloquent\Model|self $model */
 
