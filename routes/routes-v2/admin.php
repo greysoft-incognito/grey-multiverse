@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\Forms\FormFieldController;
 use App\Http\Controllers\Admin\Forms\FormFieldGroupController;
 use App\Http\Controllers\Admin\Forms\FormInfoController;
 use App\Http\Controllers\Admin\Forms\ReviewerController;
+use App\Http\Controllers\Admin\LogController;
 use App\Http\Controllers\Admin\NotificationTemplateController;
 use App\Http\Controllers\Admin\RescheduleController;
 use App\Http\Controllers\Admin\UserController;
@@ -19,6 +20,8 @@ use Illuminate\Support\Facades\Route;
 $permissionMiddlewares = 'permission:'.implode('|', config('permission-defs.permissions', []));
 
 Route::middleware(['auth:sanctum', $permissionMiddlewares])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('logs', [LogController::class, 'index'])->name('logs.index');
+
     Route::apiResource('users', UserController::class);
     Route::apiResource('configurations', ConfigurationController::class)->only(['index', 'show', 'store']);
 

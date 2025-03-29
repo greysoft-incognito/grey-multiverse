@@ -10,6 +10,7 @@ use ToneflixCode\LaravelFileable\Traits\Fileable;
 class FormInfo extends Model
 {
     use Fileable, HasFactory;
+    use \App\Traits\Logger;
 
     /**
      * The attributes that should be cast.
@@ -19,6 +20,11 @@ class FormInfo extends Model
     protected $casts = [
         'list' => 'array',
     ];
+
+    public static function booted(): void
+    {
+        static::bootLogger();
+    }
 
     public function registerFileable()
     {

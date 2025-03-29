@@ -75,6 +75,8 @@ enum Permission: string
     case RESCHEDULE_DELETE = 'reschedule.delete';
     case RESCHEDULE_MANAGE = 'reschedule.manage';
 
+    case LOGS_VIEW = 'logs.view';
+
     /**
      * Check and authorise the admin on the current permission
      *

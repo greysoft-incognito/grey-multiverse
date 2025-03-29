@@ -126,7 +126,8 @@ class FormDataController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  Form  $form
+     * @param  FormData  $data
      * @return \Illuminate\Http\Response
      */
     public function show(Form $form, FormData $data)

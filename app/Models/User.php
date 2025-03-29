@@ -42,6 +42,7 @@ class User extends Authenticatable
     use HasRoles;
     use ModelCanExtend;
     use Notifiable;
+    use \App\Traits\Logger;
 
     /**
      * The attributes that are mass assignable.

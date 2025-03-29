@@ -11,7 +11,7 @@ use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
 
 class FormField extends Model
 {
-    use HasFactory, HasJsonRelationships;
+    use HasFactory, HasJsonRelationships, \App\Traits\Logger;
 
     /**
      * The attributes that should be cast.
@@ -24,6 +24,11 @@ class FormField extends Model
         'restricted' => 'boolean',
         'required' => 'boolean',
     ];
+
+    public static function booted(): void
+    {
+        static::bootLogger();
+    }
 
     /**
      * Get the form that owns the FormField

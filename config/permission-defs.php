@@ -124,6 +124,8 @@ return [
         'reschedule.update',
         'reschedule.delete',
         'reschedule.manage',
+
+        'logs.view',
     ],
     /*
     |--------------------------------------------------------------------------
@@ -241,6 +243,8 @@ return [
             'manage-admins',
             'configuration',
             'manage-configuration',
+
+            'logs.view',
         ],
         'reviewer' => [
             'users.list',
@@ -294,6 +298,8 @@ return [
             'reschedule.delete',
             'reschedule.manage',
             'notifications-temps',
+
+            'logs.view',
         ],
     ],
     /*

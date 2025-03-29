@@ -21,7 +21,7 @@ use ToneflixCode\DbConfig\Models\Fileable;
  */
 class FormData extends Model
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, \App\Traits\Logger;
 
     /**
      * The attributes that are mass assignable.
@@ -87,6 +87,7 @@ class FormData extends Model
 
     public static function booted(): void
     {
+        static::bootLogger();
         static::addGlobalScope('not-draft', function (Builder $builder) {
             $builder->whereNot('status', 'pending');
             $builder->orWhereNull('draft');
@@ -175,7 +176,7 @@ class FormData extends Model
     public function score(): Attribute
     {
         return Attribute::make(
-            get: fn () => round((($this->rank ?: 1) / ($this->form->total_points ?: 1)) * 100, 1)
+            get: fn() => round((($this->rank ?: 1) / ($this->form->total_points ?: 1)) * 100, 1)
         );
     }
 
@@ -210,7 +211,7 @@ class FormData extends Model
                     $this->data[$fname_field->name ?? '--'] ?? '',
                     $this->data[$lname_field->name ?? '--'] ?? '',
                     ! $fname_field && ! $lname_field ? ($this->data[$fullname_field->name ?? $email_field->name ?? '--'] ?? '') : '',
-                ])->filter(fn ($name) => $name !== '')->implode(' ');
+                ])->filter(fn($name) => $name !== '')->implode(' ');
 
                 return $name;
             },
@@ -223,7 +224,7 @@ class FormData extends Model
     public function firstname(): Attribute
     {
         return Attribute::make(
-            get: fn () => str($this->name)->before(' ')->toString()
+            get: fn() => str($this->name)->before(' ')->toString()
         );
     }
 
@@ -233,7 +234,7 @@ class FormData extends Model
     public function lastname(): Attribute
     {
         return Attribute::make(
-            get: fn () => str($this->name)->explode(' ')->count() > 1 ? str($this->name)->after(' ')->toString() : ''
+            get: fn() => str($this->name)->explode(' ')->count() > 1 ? str($this->name)->after(' ')->toString() : ''
         );
     }
 
@@ -279,7 +280,7 @@ class FormData extends Model
                 }
 
                 try {
-                    return $phone ? new PhoneNumber($phone, [$this->phone_country ?: 'NG', 'INTERNATIONAL']) : null;
+                    // return $phone ? new PhoneNumber($phone, [$this->phone_country ?: 'NG', 'INTERNATIONAL']) : null;
                 } catch (NumberParseException) {
                     return $phone;
                 }
@@ -396,7 +397,7 @@ class FormData extends Model
             $user = $user->id;
         }
 
-        $query->whereHas('reviewers', fn ($q) => $q->where('users.id', $user));
+        $query->whereHas('reviewers', fn($q) => $q->where('users.id', $user));
     }
 
     public function scopeScanned(Builder $query, bool $scanned = true)

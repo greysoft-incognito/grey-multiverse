@@ -44,6 +44,14 @@ class AuthenticatedSessionController extends Controller
 
         $user->save();
 
+        if ($user->hasAnyRole(config('permission-defs.admin_roles')) || $user->hasAnyPermission()) {
+            $user->logActivity(
+                'login',
+                'User Logged In',
+                ['ip_address' => $request->ip()]
+            );
+        }
+
         return PV::response()->success(new UserResource($user), HttpStatus::OK, [
             'message' => 'Login was successfull',
             'token' => $token->plainTextToken,

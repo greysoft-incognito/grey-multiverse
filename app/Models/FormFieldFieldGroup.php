@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class FormFieldFieldGroup extends Pivot
 {
+    use \App\Traits\Logger;
+
     /**
      * The attributes that should be cast.
      *
@@ -14,4 +16,9 @@ class FormFieldFieldGroup extends Pivot
     protected $casts = [
         'requires_auth' => 'boolean',
     ];
+
+    public static function booted(): void
+    {
+        static::bootLogger();
+    }
 }

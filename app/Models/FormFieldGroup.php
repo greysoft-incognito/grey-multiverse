@@ -10,6 +10,13 @@ class FormFieldGroup extends Model
 {
     /** @use HasFactory<\Database\Factories\FormGroupFactory> */
     use HasFactory;
+    use \App\Traits\Logger;
+
+
+    public static function booted(): void
+    {
+        static::bootLogger();
+    }
 
     /**
      * The attributes that are mass assignable.
