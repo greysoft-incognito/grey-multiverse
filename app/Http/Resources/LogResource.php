@@ -30,7 +30,7 @@ class LogResource extends JsonResource
                 'type' => str($this->loggable_type)->afterLast('\\')->slug(),
                 'target' => $this->loggable->name ?? $this->loggable->title ?? $this->loggable->key ?? '',
             ]),
-            'created_at' => $this->created_at,
+            'createdAt' => $this->created_at,
         ];
     }
 }
