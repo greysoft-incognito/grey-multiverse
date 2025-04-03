@@ -36,12 +36,16 @@ class FormDataExports implements WithMultipleSheets, WithProperties
         protected bool $scanned = false,
         protected int $perPage = 50,
         protected bool $pending = false,
+        protected bool $draft = false,
     ) {
     }
 
     public function sheets(): array
     {
-        $formData = $this->form->data();
+        $formData = $this->draft
+            ? $this->form->drafts()
+            : $this->form->data();
+
         $formData->orderBy('rank', 'DESC');
 
         if ($this->scanned === true) {

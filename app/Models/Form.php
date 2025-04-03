@@ -129,6 +129,16 @@ class Form extends Model
     }
 
     /**
+     * Get all of the drafts FormData for the Form
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<FormData>
+     */
+    public function drafts(): HasMany
+    {
+        return $this->hasMany(FormData::class)->withoutGlobalScope('not-draft')->drafts();
+    }
+
+    /**
      * Get the emails that recieve data reports.
      *
      * @return string

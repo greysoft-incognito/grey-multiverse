@@ -387,6 +387,7 @@ class FormData extends Model
      */
     public function scopeDrafts(Builder $query)
     {
+        $query->withoutGlobalScope('not-draft');
         $query->where('status', 'pending');
         $query->orWhereJsonContains('draft->draft_form_data', true);
     }

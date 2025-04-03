@@ -36,7 +36,7 @@ class SimpleDataExporter
     ) {
         $this->data_emails = collect(
             ! empty($emails) ? $emails : dbconfig('notifiable_emails', collect([]))
-        )->map(fn ($e) => str($e));
+        )->map(fn($e) => str($e));
     }
 
     /**
@@ -49,12 +49,12 @@ class SimpleDataExporter
     ): void {
         $this->data_emails
             ->unique()
-            ->filter(fn ($e) => $e->isNotEmpty() && ! $e->is('[]'))
+            ->filter(fn($e) => $e->isNotEmpty() && ! $e->is('[]'))
             ->each(function ($email) use ($dataset, $batch, $title) {
                 RateLimiter::attempt(
-                    'send-report:'.$email.$batch,
+                'send-report:' . $email . $batch,
                     5,
-                    fn () => Mail::to($email->toString())->send(new ReportGenerated($dataset, $batch, $title))
+                fn() => Mail::to($email->toString())->send(new ReportGenerated($dataset, $batch, $title))
                 );
             });
     }
@@ -91,20 +91,26 @@ class SimpleDataExporter
 
     private function exportForms()
     {
-        $query = Form::query()->whereHas('data')->where('data_emails', '!=', null);
+        $query = Form::query()->whereHas(
+            $this->draft === true ? 'drafts' : 'data'
+        )->where('data_emails', '!=', null);
 
-        $query->when($this->scanned === true, fn ($q) => $q->whereHas('data.scans'));
-        $query->when($this->draft === true, fn ($q) => $q->whereHas('data', fn ($q2) => $q2->drafts()));
+        $query->when($this->scanned === true, fn($q) => $q->whereHas('data.scans'));
 
         foreach ($query->cursor() as $batch => $form) {
             $name = str('forms')->append('-')->append($form->id)->slug();
 
             $path = "exports/{$name}/data-batch-{$batch}.xlsx";
 
-            (new FormDataExports($form, $this->scanned, $this->perPage))->store($path);
+            (new FormDataExports(
+                form: $form,
+                scanned: $this->scanned,
+                perPage: $this->perPage,
+                draft: $this->draft,
+            ))->store($path);
 
             $this->data_emails = ! empty($this->emails)
-                ? collect($this->emails)->map(fn ($e) => str($e))
+                ? collect($this->emails)->map(fn($e) => str($e))
                 : $form->data_emails;
 
             $this->dispatchMails($form, $form->title ?? $form->name, 0);
