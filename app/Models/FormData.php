@@ -143,7 +143,8 @@ class FormData extends Model
     protected function calculatePoints(): int
     {
         return $this->form->fields->reduce(function (int $total, $field): int {
-            $fieldValue = $this->data[$field->name] ?? null;
+            $thisData = !empty($this->data) ? $this->data : $this->draft;
+            $fieldValue = $thisData[$field->name] ?? null;
 
             // Skip if no value exists
             if ($fieldValue === null) {
@@ -213,10 +214,7 @@ class FormData extends Model
                     return '';
                 }
 
-                $data = $this->data;
-                if ($this->status === 'pending') {
-                    $data = $this->draft;
-                }
+                $data = !empty($this->data) ? $this->data : $this->draft;
 
                 if (isset($this->form->config['fields_map']['name'])) {
                     return $data[$this->form->config['fields_map']['name'] ?? '--'] ?? '';
@@ -269,10 +267,7 @@ class FormData extends Model
                     return '';
                 }
 
-                $data = $this->data;
-                if ($this->status === 'pending') {
-                    $data = $this->draft;
-                }
+                $data = !empty($this->data) ? $this->data : $this->draft;
 
                 if (isset($this->form->config['fields_map']['email'])) {
                     return $data[$this->form->config['fields_map']['email'] ?? '--'] ?? '';
@@ -296,10 +291,7 @@ class FormData extends Model
                     return '';
                 }
 
-                $data = $this->data;
-                if ($this->status === 'pending') {
-                    $data = $this->draft;
-                }
+                $data = !empty($this->data) ? $this->data : $this->draft;
 
                 if (isset($this->form->config['fields_map']['phone'])) {
                     $phone = $data[$this->form->config['fields_map']['phone'] ?? '--'] ?? null;
