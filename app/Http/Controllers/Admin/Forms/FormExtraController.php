@@ -157,10 +157,10 @@ class FormExtraController extends Controller
 
         if (isset($form->config['extended_access']) && $form->config['extended_access'] == true) {
             $cb = static function (bool $ver = false) {
-                $method = $ver ? 'whereNot' : 'where';
+                $method = $ver ? 'whereNotNull' : 'whereNull';
                 $query = User::isAdmin(false);
-                $query->when(dbconfig('verify_email', false), fn($q) => $q->{$method}('email_verified_at', '='));
-                $query->when(dbconfig('verify_phone', false), fn($q) => $q->{$method}('phone_verified_at', '='));
+                $query->when(dbconfig('verify_email', false), fn($q) => $q->{$method}('email_verified_at'));
+                $query->when(dbconfig('verify_phone', false), fn($q) => $q->{$method}('phone_verified_at'));
 
                 return $query->count();
             };
