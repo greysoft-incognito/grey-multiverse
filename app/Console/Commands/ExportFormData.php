@@ -21,7 +21,7 @@ class ExportFormData extends Command
                             {--d|draft : Export only items in draft, if provided, only FormData will be exported.}
                             {--P|per_page=50 : Number of results to add to each sheet}
                             {--e|emails=* : Email addresses that should get exported data notification}
-                            {--e|forms=* : Form IDs to export, if provided, only FormData will be exported.}
+                            {--f|forms=* : Form IDs to export, if provided, only FormData will be exported.}
                            ';
 
     /**
