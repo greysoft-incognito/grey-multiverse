@@ -135,7 +135,7 @@ class Form extends Model
      */
     public function drafts(): HasMany
     {
-        return $this->hasMany(FormData::class)->withoutGlobalScope('not-draft')->drafts();
+        return $this->data()->withoutGlobalScope('submitted')->drafts();
     }
 
     /**

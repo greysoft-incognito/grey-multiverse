@@ -88,7 +88,7 @@ class FormData extends Model
     public static function booted(): void
     {
         static::bootLogger();
-        static::addGlobalScope('not-draft', function (Builder $builder) {
+        static::addGlobalScope('submitted', function (Builder $builder) {
             $builder->whereNot('status', 'pending');
             $builder->orWhereNull('draft');
             $builder->orWhereNull('draft->draft_form_data');
@@ -387,7 +387,7 @@ class FormData extends Model
      */
     public function scopeDrafts(Builder $query)
     {
-        $query->withoutGlobalScope('not-draft');
+        $query->withoutGlobalScope('submitted');
         $query->where('status', 'pending');
         $query->orWhereJsonContains('draft->draft_form_data', true);
     }
@@ -412,7 +412,7 @@ class FormData extends Model
 
     public function scopeWithDraft(Builder $query)
     {
-        $query->withoutGlobalScope('not-draft');
+        $query->withoutGlobalScope('submitted');
     }
 
     public function scopeSorted(Builder $query, string $sort_field, string $sort_value)
