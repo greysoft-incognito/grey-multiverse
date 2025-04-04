@@ -55,9 +55,8 @@ class FormDataController extends Controller
 
         \Gate::authorize('usable', 'formdata.list');
 
-        $query = $only_drafts
-            ? $form->drafts()->where("draft->{$name_field}", '!=', null)
-            : $form->data()->where("data->{$name_field}", '!=', null);
+        $query = $only_drafts ? $form->drafts() : $form->data();
+        $query->where("data->{$name_field}", '!=', null);
 
         $query
             ->when($rank, fn ($q) => $q->ranked($rank), fn ($q) => $q->latest())
