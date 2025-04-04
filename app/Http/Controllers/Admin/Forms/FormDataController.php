@@ -55,15 +55,16 @@ class FormDataController extends Controller
 
         \Gate::authorize('usable', 'formdata.list');
 
-        $query = $only_drafts ? $form->drafts() : $form->data();
+        $query = $only_drafts
+            ? $form->drafts()->where("draft->{$name_field}", '!=', null)
+            : $form->data()->where("data->{$name_field}", '!=', null);
 
         $query
             ->when($rank, fn ($q) => $q->ranked($rank), fn ($q) => $q->latest())
             ->when($status, fn ($q) => $q->whereStatus($status))
             ->when($search, fn($q) => $q->doSearch($search, $form))
             ->when($load_drafts && !$only_drafts, fn($q) => $q->withDraft())
-            ->when($sort_field && $sort_value, fn ($q) => $q->sorted($sort_field, $sort_value))
-            ->when(!$only_drafts, fn($q) => $q->where("data->{$name_field}", '!=', null))
+            ->when($sort_field && $sort_value, fn($q) => $q->sorted($sort_field, $sort_value))
             ->when($user->hasExactRoles(['reviewer']), fn ($q) => $q->forReviewer($user));
 
         $query->with(['form']);
