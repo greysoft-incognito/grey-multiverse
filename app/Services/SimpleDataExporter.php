@@ -24,8 +24,14 @@ class SimpleDataExporter
     protected \Illuminate\Support\Collection $data_emails;
 
     /**
-     * @param  array<int,string>  $dataset
-     * @param  array<int, string>  $emails
+     * Undocumented function
+     *
+     * @param integer $perPage
+     * @param boolean $scanned
+     * @param boolean $draft
+     * @param array<int,string> $dataset
+     * @param array<int,string> $emails
+     * @param array<int,string|int> $formIds
      */
     public function __construct(
         protected int $perPage = 50,
@@ -33,6 +39,7 @@ class SimpleDataExporter
         protected bool $draft = false,
         protected array $dataset = [],
         protected array $emails = [],
+        protected array $formIds = [],
     ) {
         $this->data_emails = collect(
             ! empty($emails) ? $emails : dbconfig('notifiable_emails', collect([]))
@@ -96,6 +103,7 @@ class SimpleDataExporter
         )->where('data_emails', '!=', null);
 
         $query->when($this->scanned === true, fn($q) => $q->whereHas('data.scans'));
+        $query->when(!empty($this->formIds), fn($q) => $q->whereIn('id', $this->formIds));
 
         foreach ($query->cursor() as $batch => $form) {
             $name = str('forms')->append('-')->append($form->id)->slug();
@@ -138,7 +146,7 @@ class SimpleDataExporter
             return;
         }
 
-        if ($this->scanned || $this->draft) {
+        if ($this->scanned || $this->draft || !empty($this->formIds)) {
             $this->exportForms();
 
             return;

@@ -18,9 +18,10 @@ class ExportFormData extends Command
                             {dataset?* : List of exportable dataset (Allowed: forms, users, appointment, companies)}
                             {--M|modern : Use the modern export interface}
                             {--Q|queue : Queue the process for later}
-                            {--d|draft : Export only items in draft (Will eonforce exporting only forms)}
+                            {--d|draft : Export only items in draft, if provided, only FormData will be exported.}
                             {--P|per_page=50 : Number of results to add to each sheet}
                             {--e|emails=* : Email addresses that should get exported data notification}
+                            {--e|forms=* : Form IDs to export, if provided, only FormData will be exported.}
                            ';
 
     /**
@@ -43,7 +44,8 @@ class ExportFormData extends Command
                 scanned: false,
                 draft: $this->option('draft'),
                 emails: $this->option('emails'),
-                dataset: $this->argument('dataset')
+                formIds: $this->option('forms') ?? [],
+                dataset: $this->argument('dataset'),
             );
         } else {
             if ($this->option('queue')) {
