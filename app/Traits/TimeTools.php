@@ -49,7 +49,7 @@ trait TimeTools
      * @param  ?Carbon  $base
      * @return ($useRange is true ? Carbon[] : Carbon)
      */
-    private function getStartDate(?string $timeframe, $useRange = false, Carbon $base = null): Carbon|array
+    private function getStartDate(?string $timeframe, $useRange = false, ?Carbon $base = null): Carbon|array
     {
         $base ??= now();
 
@@ -57,8 +57,11 @@ trait TimeTools
             'today' => [$base->clone()->startOfDay(), $base->clone()->endOfDay()],
             'yesterday' => [$base->clone()->subDay()->startOfDay(), $base->clone()->subDay()->endOfDay()],
             'week' => [$base->clone()->startOfWeek(), $base->clone()->endOfWeek()],
+            'last_week' => [$base->clone()->subWeek()->startOfWeek(), $base->clone()->subWeek()->endOfWeek()],
             'month' => [$base->clone()->startOfMonth(), $base->clone()->endOfMonth()],
+            'last_month' => [$base->clone()->subMonth()->startOfMonth(), $base->clone()->subMonth()->endOfMonth()],
             'year' => [$base->clone()->startOfYear(), $base->clone()->endOfYear()],
+            'last_month' => [$base->clone()->subYear()->startOfYear(), $base->clone()->subYear()->endOfYear()],
             default => [$base->clone()->startOfYear(), $base->clone()->endOfYear()],
         };
 
@@ -67,8 +70,11 @@ trait TimeTools
                 'today' => $range[0],
                 'yesterday' => $range[0],
                 'week' => $range[0],
+                'last_week' => $range[0],
                 'month' => $range[0],
+                'last_month' => $range[0],
                 'year' => $range[0],
+                'last_year' => $range[0],
                 default => $$range[0],
             };
         }
@@ -88,8 +94,11 @@ trait TimeTools
             'today' => 'perHour',
             'yesterday' => 'perHour',
             'week' => 'perDay',
+            'last_week' => 'perDay',
             'month' => 'perDay',
+            'last_month' => 'perDay',
             'year' => 'perMonth',
+            'last_year' => 'perMonth',
             default => 'perDay',
         };
     }
@@ -106,8 +115,11 @@ trait TimeTools
             'today' => 'hA',
             'yesterday' => 'hA',
             'week' => 'ddd',
+            'last_week' => 'ddd',
             'month' => 'Do',
+            'last_month' => 'Do',
             'year' => 'MMM',
+            'last_year' => 'MMM',
             default => 'DD',
         };
     }
@@ -148,7 +160,7 @@ trait TimeTools
         $aggr = 'sum',
         $field = 'amount',
         $format = false,
-        Carbon $base = null
+        ?Carbon $base = null
     ) {
         $base ??= now();
         $format = $this->formatMetric || $format;
