@@ -156,19 +156,24 @@ class FormExtraController extends Controller
         }
 
         if (isset($form->config['extended_access']) && $form->config['extended_access'] == true) {
-            $uQuery = User::isAdmin(false);
-            $uQuery->when(dbconfig('verify_email', false), fn($q) => $q->whereNot('email_verified_at', '='));
-            $uQuery->when(dbconfig('verify_phone', false), fn($q) => $q->whereNot('phone_verified_at', '='));
+            $cb = static function (bool $ver = false) {
+                $method = $ver ? 'whereNot' : 'where';
+                $query = User::isAdmin(false);
+                $query->when(dbconfig('verify_email', false), fn($q) => $q->{$method}('email_verified_at', '='));
+                $query->when(dbconfig('verify_phone', false), fn($q) => $q->{$method}('phone_verified_at', '='));
+
+                return $query->count();
+            };
 
             $data->prepend([
-                'label' => 'registered_users',
-                'value' => $uQuery->count(),
+                'label' => 'unverified_users',
+                'value' => $cb(),
                 'cols' => 3,
             ]);
 
             $data->prepend([
                 'label' => 'registered_users',
-                'value' => $uQuery->count(),
+                'value' => $cb(true),
                 'cols' => 3,
             ]);
         }
