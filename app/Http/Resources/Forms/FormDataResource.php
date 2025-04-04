@@ -16,9 +16,9 @@ class FormDataResource extends JsonResource
     public function toArray($request)
     {
         $form = $this->form;
-        $data = $this->status !== 'pending' ? $this->data : $this->draft;
+        $data = !empty($this->data) ? $this->data : $this->draft;
 
-        $user = $request->user('sanctum');
+        $user = $this->user;
         $fields_map = $form->config['fields_map'] ?? ['name' => 'name', 'email' => 'email', 'phone' => 'phone'];
 
         foreach (['name', 'email', 'phone', 'gender'] as $field) {
