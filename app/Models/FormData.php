@@ -90,6 +90,7 @@ class FormData extends Model
         static::bootLogger();
         static::addGlobalScope('submitted', function (Builder $builder) {
             $builder->whereNot('status', 'pending');
+            $builder->whereNot('data', '{}');
             $builder->orWhereNull('draft');
             $builder->orWhereNull('draft->draft_form_data');
             $builder->orWhereJsonContains('draft->draft_form_data', false);
@@ -389,6 +390,7 @@ class FormData extends Model
     {
         $query->withoutGlobalScope('submitted');
         $query->where('status', 'pending');
+        $query->orWhere('data', '{}');
         // $query->orWhereJsonContains('draft->draft_form_data', true);
     }
 
