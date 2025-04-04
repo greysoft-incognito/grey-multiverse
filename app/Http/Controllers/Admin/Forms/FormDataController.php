@@ -60,14 +60,18 @@ class FormDataController extends Controller
             : $form->data()->where("data->{$name_field}", '!=', null);
 
         $query
-            ->when($rank, fn ($q) => $q->ranked($rank), fn ($q) => $q->latest())
+            ->when($rank, fn($q) => $q->ranked($rank))
             ->when($status, fn ($q) => $q->whereStatus($status))
             ->when($search, fn($q) => $q->doSearch($search, $form))
             ->when($load_drafts && !$only_drafts, fn($q) => $q->withDraft())
             ->when($sort_field && $sort_value, fn($q) => $q->sorted($sort_field, $sort_value))
             ->when($user->hasExactRoles(['reviewer']), fn ($q) => $q->forReviewer($user));
 
-        $query->with(['form']);
+        if (!$rank) {
+            $query->latest();
+        }
+
+        $query->with(['form', 'user']);
         $data = $query->paginate($request->get('limit', 30))->withQueryString();
 
         return (new FormDataCollection($data))->additional([
