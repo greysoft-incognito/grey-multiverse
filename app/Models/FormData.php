@@ -389,7 +389,7 @@ class FormData extends Model
     {
         $query->withoutGlobalScope('submitted');
         $query->where('status', 'pending');
-        $query->orWhereJsonContains('draft->draft_form_data', true);
+        // $query->orWhereJsonContains('draft->draft_form_data', true);
     }
 
     public function scopeForReviewer(Builder $query, User|string $user): void
