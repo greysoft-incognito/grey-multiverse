@@ -33,7 +33,7 @@ class FormResource extends JsonResource
             'data_emails' => $this->data_emails->filter(fn ($e) => $e != ''),
             'dont_notify' => $this->dont_notify,
             'socials' => $this->socials,
-            'deadline' => $this->deadline,
+            'deadline' => $this->deadline?->format('Y/m/d H:i:s'),
             'require_auth' => $this->require_auth,
             'infos' => new FormInfoCollection($this->infos),
             'fields' => new FormFieldCollection($this->fields),
