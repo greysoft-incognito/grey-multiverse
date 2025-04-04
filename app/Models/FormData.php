@@ -101,10 +101,10 @@ class FormData extends Model
             $builder->where('user_id', '=');
             $builder->orWhereHas('user', function ($query) {
                 if (dbconfig('verify_email', false)) {
-                    $query->whereNot('email_verified_at', '=');
+                    $query->whereNotNull('email_verified_at');
                 }
                 if (dbconfig('verify_phone', false)) {
-                    $query->whereNot('phone_verified_at', '=');
+                    $query->whereNotNull('phone_verified_at');
                 }
             });
         });
