@@ -42,7 +42,7 @@ class FormExtraController extends Controller
 
                 $fail("The {$attr} is invalid.");
             }],
-            'chartables.*.chart_period' => 'nullable|in:today,yesterday,week,month,year',
+            'chartables.*.chart_period' => 'nullable|in:today,yesterday,week,month,year,last_week,last_month,last_year',
             'chartables.*.chart_title' => 'nullable|string|min:3',
             'chartables.*.chart_type' => 'required|in:line,bar,pie',
             'chartables.*.cols' => 'required|numeric|in:12,8,6,4,3',
