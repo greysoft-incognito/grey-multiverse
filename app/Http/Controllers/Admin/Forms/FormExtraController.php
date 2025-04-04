@@ -140,7 +140,7 @@ class FormExtraController extends Controller
                 'cols' => 3,
             ])->prepend([
                 'label' => 'in_draft',
-                'value' => $form->data()->drafts()->count(),
+                'value' => $form->drafts()->count(),
                 'cols' => 3,
             ]);
         } else {
@@ -150,7 +150,7 @@ class FormExtraController extends Controller
                 'cols' => 3,
             ], [
                 'label' => 'in_draft',
-                'value' => $form->data()->drafts()->count(),
+                'value' => $form->drafts()->count(),
                 'cols' => 3,
             ]]);
         }
