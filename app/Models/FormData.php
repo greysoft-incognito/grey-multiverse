@@ -88,12 +88,25 @@ class FormData extends Model
     public static function booted(): void
     {
         static::bootLogger();
+
         static::addGlobalScope('submitted', function (Builder $builder) {
             $builder->whereNot('status', 'pending');
             $builder->whereNot('data', '{}');
             $builder->orWhereNull('draft');
             $builder->orWhereNull('draft->draft_form_data');
             $builder->orWhereJsonContains('draft->draft_form_data', false);
+        });
+
+        static::addGlobalScope('valid-user', function (Builder $builder) {
+            $builder->where('user_id', '=');
+            $builder->orWhereHas('user', function ($query) {
+                if (dbconfig('verify_email', false)) {
+                    $query->whereNot('email_verified_at', '=');
+                }
+                if (dbconfig('verify_phone', false)) {
+                    $query->whereNot('phone_verified_at', '=');
+                }
+            });
         });
 
         static::created(function (self $model) {
