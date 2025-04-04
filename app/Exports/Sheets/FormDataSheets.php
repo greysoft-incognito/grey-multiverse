@@ -59,6 +59,7 @@ class FormDataSheets implements FromCollection, ShouldAutoSize, WithHeadings, Wi
             $value = match (true) {
                 str($label)->lower()->is('primary') => $value ? 'Yes' : '',
                 ! $field->options => $value,
+                str($field->name)->contains('phone') => "{$value} ",
                 $field->expected_value_type === 'array' => collect((array) $value)
                     ->map(fn ($val) => $field->options[$val]['label'] ?? $val)
                     ->join(', '),
