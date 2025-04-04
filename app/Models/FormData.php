@@ -213,18 +213,24 @@ class FormData extends Model
                     return '';
                 }
 
+                $data = $this->data;
+                if ($this->status === 'pending') {
+                    $data = $this->draft;
+                }
+
                 if (isset($this->form->config['fields_map']['name'])) {
-                    return $this->data[$this->form->config['fields_map']['name'] ?? '--'] ?? '';
+                    return $data[$this->form->config['fields_map']['name'] ?? '--'] ?? '';
                 }
 
                 $fname_field = $this->form->fields()->fname()->first();
                 $lname_field = $this->form->fields()->lname()->first();
                 $fullname_field = $this->form->fields()->fullname()->first();
                 $email_field = $this->form->fields()->email()->first();
+
                 $name = collect([
-                    $this->data[$fname_field->name ?? '--'] ?? '',
-                    $this->data[$lname_field->name ?? '--'] ?? '',
-                    ! $fname_field && ! $lname_field ? ($this->data[$fullname_field->name ?? $email_field->name ?? '--'] ?? '') : '',
+                    $data[$fname_field->name ?? '--'] ?? '',
+                    $data[$lname_field->name ?? '--'] ?? '',
+                    ! $fname_field && ! $lname_field ? ($data[$fullname_field->name ?? $email_field->name ?? '--'] ?? '') : '',
                 ])->filter(fn($name) => $name !== '')->implode(' ');
 
                 return $name;
@@ -263,13 +269,18 @@ class FormData extends Model
                     return '';
                 }
 
+                $data = $this->data;
+                if ($this->status === 'pending') {
+                    $data = $this->draft;
+                }
+
                 if (isset($this->form->config['fields_map']['email'])) {
-                    return $this->data[$this->form->config['fields_map']['email'] ?? '--'] ?? '';
+                    return $data[$this->form->config['fields_map']['email'] ?? '--'] ?? '';
                 }
 
                 $field = $this->form->fields()->email()->first();
 
-                return $this->data[$field->name ?? ''] ?? null;
+                return $data[$field->name ?? ''] ?? null;
             },
         );
     }
@@ -285,12 +296,17 @@ class FormData extends Model
                     return '';
                 }
 
+                $data = $this->data;
+                if ($this->status === 'pending') {
+                    $data = $this->draft;
+                }
+
                 if (isset($this->form->config['fields_map']['phone'])) {
-                    $phone = $this->data[$this->form->config['fields_map']['phone'] ?? '--'] ?? null;
+                    $phone = $data[$this->form->config['fields_map']['phone'] ?? '--'] ?? null;
                 } else {
                     $field = $this->form->fields()->phone()->first();
 
-                    $phone = $this->data[$field->name ?? ''] ?? null;
+                    $phone = $data[$field->name ?? ''] ?? null;
                 }
 
                 try {

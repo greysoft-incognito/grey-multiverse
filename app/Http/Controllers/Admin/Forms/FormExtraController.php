@@ -165,6 +165,12 @@ class FormExtraController extends Controller
                 'value' => $uQuery->count(),
                 'cols' => 3,
             ]);
+
+            $data->prepend([
+                'label' => 'registered_users',
+                'value' => $uQuery->count(),
+                'cols' => 3,
+            ]);
         }
 
         /**
