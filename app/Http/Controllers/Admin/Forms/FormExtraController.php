@@ -9,6 +9,7 @@ use App\Http\Resources\Forms\FormResource;
 use App\Models\Form;
 use App\Models\FormField;
 use App\Models\User;
+use App\Services\FormPointsCalculator;
 use App\Traits\TimeTools;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -28,7 +29,7 @@ class FormExtraController extends Controller
     {
         \App\Enums\Permission::FORM_UPDATE->authorize();
 
-        $validateField = static fn () => Rule::exists(FormField::class, 'name')->where('form_id', $form->id);
+        $validateField = static fn() => Rule::exists(FormField::class, 'name')->where('form_id', $form->id);
 
         $valid = $request->validate([
             'chartables' => 'nullable|array',
@@ -103,9 +104,9 @@ class FormExtraController extends Controller
                             $stat = str($group)->explode(':');
                             [$_, $field_name] = str($stat->first())->explode('|');
 
-                            if (! $fields->contains(fn ($field) => $field->name === $field_name)) {
+                            if (! $fields->contains(fn($field) => $field->name === $field_name)) {
                                 $fail(__("`{$field_name}` is an invalid field name, supported fields include: :0.", [
-                                    $fields->map(fn ($field) => $field->name)->join(', ', ' and '),
+                                    $fields->map(fn($field) => $field->name)->join(', ', ' and '),
                                 ]));
                             }
                         });
@@ -127,7 +128,7 @@ class FormExtraController extends Controller
                 $options = str($stat->last())->explode('.');
 
                 $query = $form->data();
-                $query->where(fn ($q) => $options->each(fn ($val) => $q->orWhereJsonContains("data->{$field}", $val)));
+                $query->where(fn($q) => $options->each(fn($val) => $q->orWhereJsonContains("data->{$field}", $val)));
 
                 return [
                     'label' => $key,
@@ -249,6 +250,11 @@ class FormExtraController extends Controller
                 );
             });
         }
+
+        $chart_data[] = array_merge(
+            ['cols' => 12, 'type' => 'bar', 'title' => 'Response Patterns'],
+            (new FormPointsCalculator())->questionsChartData($this->form)
+        );
 
         return Providers::response()->success([
             'data' => $data->values(),

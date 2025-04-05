@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\FormPointsCalculator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -190,6 +191,13 @@ class FormData extends Model
      */
     public function score(): Attribute
     {
+        // dump(
+        //     (new FormPointsCalculator())->calculatePoints($this),
+        //     (new FormPointsCalculator())->questionsChartData($this->form),
+        //     $this->calculatePoints(),
+        //     $this->calculatePoints(),
+        //     $this->form->total_points,
+        // );
         return Attribute::make(
             get: fn() => round((($this->rank ?: 1) / ($this->form->total_points ?: 1)) * 100, 1)
         );

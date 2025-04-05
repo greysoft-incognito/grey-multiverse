@@ -134,35 +134,30 @@ class FormField extends Model
      */
     public function expectedValueType(): Attribute
     {
-        // Define the expected types based on element and type
-        $typeMapping = [
-            'select' => 'string',
-            'checkboxgroup' => 'array',
-            'radiogroup' => 'string',
-            'locale' => 'string',
-            'input' => [
-                'text' => 'string',
-                'number' => 'integer',
-                'email' => 'string',
-                'password' => 'string',
-                'checkbox' => 'boolean',
-                'date' => 'string', // or Carbon instance depending on your use case
-            ],
-        ];
+        return Attribute::make(function () {
+            $typeMapping = [
+                'select' => 'string',
+                'checkboxgroup' => 'array',
+                'radiogroup' => 'string',
+                'locale' => 'string',
+                'input' => [
+                    'text' => 'string',
+                    'number' => 'integer',
+                    'email' => 'string',
+                    'password' => 'string',
+                    'checkbox' => 'boolean',
+                    'date' => 'string', // Consider 'date' => 'string|Carbon' if you parse dates
+                ],
+            ];
 
-        return Attribute::make(function () use ($typeMapping) {
             // Handle specific elements
-            if (isset($typeMapping[$this->element])) {
-                if (is_array($typeMapping[$this->element])) {
-                    // Handle input type mapping
-                    return $typeMapping[$this->element][$this->type] ?? 'mixed';
-                }
-
-                return $typeMapping[$this->element];
+            if (isset($typeMapping[$this->element]) && is_array($typeMapping[$this->element])) {
+                // Handle input type mapping
+                return $typeMapping[$this->element][$this->type] ?? 'mixed';
             }
 
-            // Default to string if no mapping is found
-            return 'string';
+            // Handle other elements
+            return $typeMapping[$this->element] ?? 'string';
         });
     }
 
@@ -183,7 +178,7 @@ class FormField extends Model
      */
     public function isGrouped(): Attribute
     {
-        return Attribute::make(fn () => $this->groups()->exists() || $this->form->fieldGroups()->doesntExist());
+        return Attribute::make(fn() => $this->groups()->exists() || $this->form->fieldGroups()->doesntExist());
     }
 
     public function subValues(): Attribute
@@ -191,12 +186,12 @@ class FormField extends Model
         $name = $this->name ?? 'value';
 
         return Attribute::make(
-            fn () => FormData::query()
+            fn() => FormData::query()
                 ->select("data->{$name} as {$name}")
                 ->whereFormId($this->form_id)
                 ->groupBy($name)
                 ->pluck($name)
-                ->map(fn ($e) => valid_json($e ?? '') ? json_decode($e) : $e)
+                ->map(fn($e) => valid_json($e ?? '') ? json_decode($e) : $e)
                 ->flatten()
                 ->unique()
         );

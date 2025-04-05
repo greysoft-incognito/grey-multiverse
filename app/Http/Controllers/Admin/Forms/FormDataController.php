@@ -71,7 +71,7 @@ class FormDataController extends Controller
             $query->latest();
         }
 
-        $query->with(['form', 'user']);
+        $query->with(['form', 'user', 'form.fields']);
         $data = $query->paginate($request->get('limit', 30))->withQueryString();
 
         return (new FormDataCollection($data))->additional([
@@ -101,6 +101,7 @@ class FormDataController extends Controller
         \Gate::authorize('usable', 'formdata.list');
 
         $query = FormData::query();
+        $query->with(['form', 'user', 'form.fields']);
 
         if ($user->hasExactRoles(['reviewer'])) {
             $query->forReviewer($user);
@@ -137,6 +138,8 @@ class FormDataController extends Controller
     public function show(Form $form, FormData $data)
     {
         \Gate::authorize('usable', 'formdata.show');
+
+        $data->load(['form', 'user', 'form.fields']);
 
         return (new FormDataResource($data))->additional([
             'form' => [
@@ -205,6 +208,7 @@ class FormDataController extends Controller
     public function update(Request $request, Form $form, FormData $data)
     {
         \Gate::authorize('usable', 'formdata.update');
+        $data->load(['form', 'user', 'form.fields']);
 
         [
             'status' => $status,
