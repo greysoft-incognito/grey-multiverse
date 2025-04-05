@@ -303,6 +303,7 @@ class FormData extends Model
                 }
 
                 try {
+                    return "$phone ";
                     // return $phone ? new PhoneNumber($phone, [$this->phone_country ?: 'NG', 'INTERNATIONAL']) : null;
                 } catch (NumberParseException) {
                     return $phone;

@@ -128,25 +128,6 @@ class FormPointsCalculator
     }
 
     /**
-     * Generates a color for Chart.js datasets based on index.
-     *
-     * @param int $index The index of the dataset (0-4 for top 5).
-     * @param float $alpha The alpha transparency (default 0.5 for fill, 1 for border).
-     * @return string RGBA color string.
-     */
-    private function getColor(int $index, float $alpha = 0.5): string
-    {
-        $colors = [
-            'rgba(255, 99, 132, ALPHA)',  // Red
-            'rgba(54, 162, 235, ALPHA)',  // Blue
-            'rgba(255, 206, 86, ALPHA)',  // Yellow
-            'rgba(75, 192, 192, ALPHA)',  // Teal
-            'rgba(153, 102, 255, ALPHA)', // Purple
-        ];
-        return str_replace('ALPHA', $alpha, $colors[$index % 5]);
-    }
-
-    /**
      *
      * @param Form $form
      * @param integer $take
