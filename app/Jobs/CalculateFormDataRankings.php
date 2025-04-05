@@ -4,12 +4,12 @@ namespace App\Jobs;
 
 use App\Models\Form;
 use App\Services\FormPointsCalculator;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+// use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\SerializesModels;
 
-class CalculateFormDataRankings implements ShouldQueue, ShouldBeUnique
+class CalculateFormDataRankings implements ShouldQueue //, ShouldBeUnique
 {
     use Queueable, SerializesModels;
 
@@ -25,7 +25,7 @@ class CalculateFormDataRankings implements ShouldQueue, ShouldBeUnique
      */
     public function handle(): void
     {
-        $calculator = new \App\Services\FormPointsCalculator();
+        $calculator = new FormPointsCalculator();
 
         /**
          * Sync the form total points
