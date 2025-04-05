@@ -251,10 +251,12 @@ class FormExtraController extends Controller
             });
         }
 
-        $chart_data[] = array_merge(
-            ['cols' => 12, 'type' => 'bar', 'title' => 'Response Patterns'],
-            (new FormPointsCalculator())->questionsChartData($form)
-        );
+        if (isset($form->config['questions_chart']) && $form->config['questions_chart'] === true) {
+            $chart_data[] = array_merge(
+                ['cols' => 12, 'type' => 'bar', 'title' => 'Response Patterns'],
+                (new FormPointsCalculator())->questionsChartData($form)
+            );
+        }
 
         return Providers::response()->success([
             'data' => $data->values(),
