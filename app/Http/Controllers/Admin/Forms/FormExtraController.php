@@ -64,6 +64,7 @@ class FormExtraController extends Controller
 
             'base_url' => ['nullable', 'url'],
             'extended_access' => ['nullable', 'boolean'],
+            'questions_chart' =>  ['nullable', 'boolean'],
             'auto_assign_reviewers' => ['nullable', 'boolean'],
         ]);
 
