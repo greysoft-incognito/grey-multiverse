@@ -3,14 +3,19 @@
 # Default values
 USER=""
 NUMPROCS=8
-DRIVER="redis"
+DRIVER="sqs"
 AUTO_YES=0
+REMOVE_EXISTING=0
 
 # Parse arguments
 while [ "$#" -gt 0 ]; do
     case "$1" in
     -y)
         AUTO_YES=1
+        shift
+        ;;
+    -r)
+        REMOVE_EXISTING=1
         shift
         ;;
     *)
@@ -24,7 +29,7 @@ while [ "$#" -gt 0 ]; do
             DRIVER_SET=1
         else
             echo "Error: Too many arguments provided."
-            echo "Usage: $0 [-y] <user> [numprocs] [driver]"
+            echo "Usage: $0 [-y] [-r] <user> [numprocs] [driver]"
             exit 1
         fi
         shift
@@ -35,7 +40,7 @@ done
 # Check if user argument is provided
 if [ -z "$USER" ]; then
     echo "Error: User argument is required."
-    echo "Usage: $0 [-y] <user> [numprocs] [driver]"
+    echo "Usage: $0 [-y] [-r] <user> [numprocs] [driver]"
     exit 1
 fi
 
@@ -101,35 +106,46 @@ else
     exit 1
 fi
 
-# Check if the file exists in /etc/supervisor/conf.d/ and prompt to copy
+# Check if the file exists in /etc/supervisor/conf.d/ and handle copying/removal
 SUPERVISOR_DIR="/etc/supervisor/conf.d"
 SUPERVISOR_FILE="$SUPERVISOR_DIR/$PROGRAM_NAME.conf"
 
-if [ -d "$SUPERVISOR_DIR" ] && [ ! -f "$SUPERVISOR_FILE" ]; then
-    if [ "$AUTO_YES" -eq 1 ]; then
-        COPY_CONFIRM="y"
-    else
-        echo "Do you want to copy $CONFIG_FILE to $SUPERVISOR_FILE? (y/n)"
-        read -r COPY_CONFIRM
-    fi
-
-    if [ "$COPY_CONFIRM" = "y" ] || [ "$COPY_CONFIRM" = "Y" ]; then
-        # Copy the file (requires sudo if not root)
-        if sudo cp "$CONFIG_FILE" "$SUPERVISOR_FILE"; then
-            echo "File copied successfully to $SUPERVISOR_FILE"
-            echo "Run 'sudo supervisorctl reread && sudo supervisorctl update' to apply changes."
-            echo "You may/should also run 'sudo supervisorctl start \"$PROGRAM_NAME:*\"' to start the worker."
+if [ -d "$SUPERVISOR_DIR" ]; then
+    if [ -f "$SUPERVISOR_FILE" ] && [ "$REMOVE_EXISTING" -eq 1 ]; then
+        if sudo rm "$SUPERVISOR_FILE"; then
+            echo "Existing config removed from $SUPERVISOR_FILE"
         else
-            echo "Error: Failed to copy the file to $SUPERVISOR_FILE. Check permissions."
+            echo "Error: Failed to remove existing config at $SUPERVISOR_FILE. Check permissions."
             exit 1
         fi
+    fi
+
+    if [ ! -f "$SUPERVISOR_FILE" ]; then
+        if [ "$AUTO_YES" -eq 1 ]; then
+            COPY_CONFIRM="y"
+        else
+            echo "Do you want to copy $CONFIG_FILE to $SUPERVISOR_FILE? (y/n)"
+            read -r COPY_CONFIRM
+        fi
+
+        if [ "$COPY_CONFIRM" = "y" ] || [ "$COPY_CONFIRM" = "Y" ]; then
+            # Copy the file (requires sudo if not root)
+            if sudo cp "$CONFIG_FILE" "$SUPERVISOR_FILE"; then
+                echo "File copied successfully to $SUPERVISOR_FILE"
+                echo "Run 'sudo supervisorctl reread && sudo supervisorctl update' to apply changes."
+                echo "You may/should also run 'sudo supervisorctl start \"$PROGRAM_NAME:*\"' to start the worker."
+            else
+                echo "Error: Failed to copy the file to $SUPERVISOR_FILE. Check permissions."
+                exit 1
+            fi
+        else
+            echo "File not copied. You can manually move it to $SUPERVISOR_DIR if needed."
+        fi
     else
-        echo "File not copied. You can manually move it to $SUPERVISOR_DIR if needed."
+        if [ "$REMOVE_EXISTING" -eq 0 ]; then
+            echo "File $SUPERVISOR_FILE already exists and -r flag not provided. Skipping copy."
+        fi
     fi
 else
-    if [ ! -d "$SUPERVISOR_DIR" ]; then
-        echo "Supervisor directory $SUPERVISOR_DIR does not exist. File not copied."
-    else
-        echo "File $SUPERVISOR_FILE already exists. Skipping copy."
-    fi
+    echo "Supervisor directory $SUPERVISOR_DIR does not exist. File not copied."
 fi
