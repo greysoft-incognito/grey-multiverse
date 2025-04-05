@@ -253,7 +253,7 @@ class FormExtraController extends Controller
 
         $chart_data[] = array_merge(
             ['cols' => 12, 'type' => 'bar', 'title' => 'Response Patterns'],
-            (new FormPointsCalculator())->questionsChartData($this->form)
+            (new FormPointsCalculator())->questionsChartData($form)
         );
 
         return Providers::response()->success([
