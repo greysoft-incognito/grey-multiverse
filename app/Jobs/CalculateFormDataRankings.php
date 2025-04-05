@@ -48,9 +48,5 @@ class CalculateFormDataRankings implements ShouldQueue //, ShouldBeUnique
                 'rank' => $rank
             ]);
         }
-
-        if (app()->runningInConsole()) {
-            echo "FormPointsCalculator Proccessed.";
-        }
     }
 }
