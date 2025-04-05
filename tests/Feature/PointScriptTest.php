@@ -17,9 +17,9 @@ class PointScriptTest extends TestCase
 
             // Invalid script (overlapping conditions)
             $script = <<<EOL
-                if (count(options >= 4)) return 3
-                if (count(options >= 5)) return 7  # Unreachable due to >=4 above
-                return 0
+                if (count(options >= 4)) give 3
+                if (count(options >= 5)) give 7  # Unreachable due to >=4 above
+                give 0
             EOL;
 
             $validator->validate($script); // Throws exception
@@ -35,10 +35,10 @@ class PointScriptTest extends TestCase
 
         // Valid script
         $script = <<<EOL
-            if (count(options >= 5)) return 7
-            if (count(options >= 4)) return 3
-            if (count(options == 1)) return 1
-            return 0
+            if (count(options >= 5)) give 7
+            if (count(options >= 4)) give 3
+            if (count(options == 1)) give 1
+            give 0
         EOL;
 
         $validator->validate($script);
@@ -54,10 +54,10 @@ class PointScriptTest extends TestCase
         $parser = new \App\Services\PointsScript\PointsScriptParser();
 
         $script = <<<EOL
-            if (count(options >= 5)) return 7
-            if (count(options >= 4)) return 3
-            if (count(options == 1)) return 1
-            return 0
+            if (count(options >= 5)) give 7
+            if (count(options >= 4)) give 3
+            if (count(options == 1)) give 1
+            give 0
         EOL;
 
         $run = $parser->evaluate($script, ['Yes', 'No', "Free", "non"]);
@@ -73,9 +73,9 @@ class PointScriptTest extends TestCase
         $parser = new \App\Services\PointsScript\PointsScriptParser();
 
         $script = <<<EOL
-            if (contains("good")) return 5
-            if (!contains("bad")) return 3
-            return 0
+            if (contains("good")) give 5
+            if (!contains("bad")) give 3
+            give 0
         EOL;
 
         $run = $parser->evaluate($script, "John is a good boy");
@@ -91,9 +91,9 @@ class PointScriptTest extends TestCase
         $parser = new \App\Services\PointsScript\PointsScriptParser();
 
         $script = <<<EOL
-            if (!contains("bad")) return 30
-            if (contains("good")) return 5
-            return 0
+            if (!contains("bad")) give 30
+            if (contains("good")) give 5
+            give 0
         EOL;
 
         $run = $parser->evaluate($script, "John is a gold boy");
@@ -109,9 +109,9 @@ class PointScriptTest extends TestCase
         $parser = new \App\Services\PointsScript\PointsScriptParser();
 
         $script = <<<EOL
-            if (!contains("bad")) return 30
-            if (contains("good")) return 5
-            return 0
+            if (!contains("bad")) give 30
+            if (contains("good")) give 5
+            give 0
         EOL;
 
         $run = $parser->evaluate($script, "John is a bad boy");

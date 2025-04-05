@@ -21,7 +21,7 @@ class PointsScriptParser
             }
 
             // Match if or else if statements
-            if (preg_match('/(else\s+)?if\s*\((.*?)\)\s*return\s*(\d+)/i', $line, $matches)) {
+            if (preg_match('/(else\s+)?if\s*\((.*?)\)\s*give\s*(\d+)/i', $line, $matches)) {
                 $isElse = !empty($matches[1]);
                 $condition = trim($matches[2]);
                 $points = (int) $matches[3];
@@ -37,7 +37,7 @@ class PointsScriptParser
                 }
             }
             // Match default return
-            elseif (preg_match('/return\s*(\d+)/i', $line, $matches)) {
+            elseif (preg_match('/give\s*(\d+)/i', $line, $matches)) {
                 $defaultPoints = (int) $matches[1];
             }
         }

@@ -23,7 +23,7 @@ class PointsScriptValidator
                 continue;
             }
 
-            if (preg_match('/(else\s+)?if\s*\((.*?)\)\s*return\s*(\d+)/i', $line, $matches)) {
+            if (preg_match('/(else\s+)?if\s*\((.*?)\)\s*give\s*(\d+)/i', $line, $matches)) {
                 $isElse = !empty($matches[1]);
                 $condition = trim($matches[2]);
                 $points = (int) $matches[3];
@@ -41,13 +41,13 @@ class PointsScriptValidator
                 }
 
                 $hasIf = true;
-            } elseif (preg_match('/return\s*(\d+)/i', $line, $matches)) {
+            } elseif (preg_match('/give\s*(\d+)/i', $line, $matches)) {
                 $points = (int) $matches[1];
                 if ($points < 0) {
                     throw new InvalidArgumentException("Points must be non-negative in line " . ($lineNumber + 1) . ": '$points'");
                 }
                 if ($hasReturn) {
-                    throw new InvalidArgumentException("Multiple default returns detected at line " . ($lineNumber + 1) . ".");
+                    throw new InvalidArgumentException("Multiple default gives detected at line " . ($lineNumber + 1) . ".");
                 }
                 $hasReturn = true;
             } else {
@@ -56,7 +56,7 @@ class PointsScriptValidator
         }
 
         if (!$hasReturn && empty($countConditions)) {
-            throw new InvalidArgumentException("No default return statement found, and no conditions cover all cases.");
+            throw new InvalidArgumentException("No default give statement found, and no conditions cover all cases.");
         }
 
         return true;
