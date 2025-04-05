@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Facades\DB;
 use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
 use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
 use ToneflixCode\LaravelFileable\Traits\Fileable;
@@ -115,7 +116,7 @@ class Form extends Model
     protected function bannerUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->images['banner'],
+            get: fn() => $this->images['banner'],
         );
     }
 
@@ -147,7 +148,7 @@ class Form extends Model
     protected function dataEmails(): Attribute
     {
         return Attribute::make(
-            get: fn ($a) => str($a ?? '')->explode(',')->map(fn ($e) => str($e)->trim()),
+            get: fn($a) => str($a ?? '')->explode(',')->map(fn($e) => str($e)->trim()),
         );
     }
 
@@ -193,7 +194,7 @@ class Form extends Model
     protected function logoUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->images['logo'],
+            get: fn() => $this->images['logo'],
         );
     }
 
@@ -222,39 +223,34 @@ class Form extends Model
     {
         return Attribute::make(
             get: function () {
-                return $this->fields->sum(function ($field): int {
-                    $fieldPoints = (int) $field->points;
-                    $optionsPoints = 0;
+                $result = DB::table('form_fields')
+                    ->selectRaw('SUM(points) as total_field_points')
+                    ->selectRaw('COALESCE(SUM(opt.option_points), 0) as total_option_points')
+                    ->leftJoin(
+                        DB::raw("JSON_TABLE(options, '$[*]' COLUMNS (option_points INT PATH '$.points')) AS opt"),
+                        fn($join) => $join->on(DB::raw('1'), '=', DB::raw('1'))
+                    )
+                    ->where('form_id', $this->id)
+                    ->first();
 
-                    // Calculate options points if options exist
-                    if (! empty($field->options)) {
-                        foreach ($field->options as $opt) {
-                            if (isset($opt['points']) && ((int) $opt['points']) > 0) {
-                                $optionsPoints += (int) $opt['points'];
-                            }
-                        }
-                    }
-
-                    // Add points only if there's a contribution
-                    return $optionsPoints > 0 ? $fieldPoints + $optionsPoints : $fieldPoints;
-                });
+                return (int) $result->total_field_points + (int) $result->total_option_points;
             },
         );
     }
 
     public function socials(): Attribute
     {
-        $parser = static fn ($value, $name) => [
+        $parser = static fn($value, $name) => [
             'url' => str($value)->before('?')->toString(),
             'icon' => "fas fa-$name",
             'name' => $name,
-            'label' => '@'.str(str($value)->explode('/')->last())->before('?'),
+            'label' => '@' . str(str($value)->explode('/')->last())->before('?'),
         ];
 
         return Attribute::make(
-            get: fn ($value) => collect($value)->map(function ($value, $name) use ($parser) {
+            get: fn($value) => collect($value)->map(function ($value, $name) use ($parser) {
                 if (json_validate($value)) {
-                    return collect(json_decode($value))->map(fn ($v, $n) => $parser($v, $n))->values();
+                    return collect(json_decode($value))->map(fn($v, $n) => $parser($v, $n))->values();
                 }
 
                 return $parser($value, $name);
@@ -286,6 +282,6 @@ class Form extends Model
             $user = $user->id;
         }
 
-        $query->whereHas('reviewers', fn ($q) => $q->where('users.id', $user));
+        $query->whereHas('reviewers', fn($q) => $q->where('users.id', $user));
     }
 }
