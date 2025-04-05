@@ -48,6 +48,7 @@ Route::middleware(['auth:sanctum', $permissionMiddlewares])->prefix('admin')->na
         Route::get('all/data', [FormDataController::class, 'all'])->name('data.all');
         Route::get('{form}/stats', [FormExtraController::class, 'stats'])->name('stats');
         Route::post('{form}/config', [FormExtraController::class, 'config'])->name('config');
+        Route::post('{form}/sync', [FormExtraController::class, 'sync'])->name('sync');
 
         Route::apiResource('/{form}/reviewers', ReviewerController::class)
             ->except(['show', 'update'])

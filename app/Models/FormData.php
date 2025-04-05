@@ -143,47 +143,7 @@ class FormData extends Model
      */
     protected function calculatePoints(): int
     {
-        return $this->form->fields->reduce(function (int $total, $field): int {
-            $thisData = !empty($this->data) ? $this->data : $this->draft;
-            $fieldValue = $thisData[$field->name] ?? null;
-
-            // Skip if no value exists
-            if ($fieldValue === null) {
-                return $total;
-            }
-
-            $fieldPoints = (int) $field->points;
-            $optionsPoints = 0;
-
-            // Calculate options points if options exist
-            if (! empty($field->options)) {
-                if (is_array($fieldValue)) {
-                    $optionsPoints = array_reduce(
-                        $field->options,
-                        function (int $sum, $opt) use ($fieldValue): int {
-                            return $sum + (isset($opt['value'], $opt['points']) &&
-                                in_array($opt['value'], $fieldValue, true)
-                                ? (int) $opt['points']
-                                : 0);
-                        },
-                        0
-                    );
-                } else {
-                    foreach ($field->options as $opt) {
-                        if (
-                            isset($opt['value'], $opt['points']) &&
-                            $opt['value'] === $fieldValue
-                        ) {
-                            $optionsPoints = (int) $opt['points'];
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // Add points only if there's a contribution
-            return $total + ($optionsPoints > 0 ? $fieldPoints + $optionsPoints : $fieldPoints);
-        }, 0);
+        return (new FormPointsCalculator())->calculatePoints($this);
     }
 
     /**

@@ -14,6 +14,7 @@ use App\Traits\TimeTools;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use App\Jobs\CalculateFormDataRankings;
 
 class FormExtraController extends Controller
 {
@@ -76,6 +77,22 @@ class FormExtraController extends Controller
             'status' => 'success',
             'statusCode' => HttpStatus::ACCEPTED,
         ])->response()->setStatusCode(HttpStatus::ACCEPTED->value);
+    }
+
+    /**
+     * Display the stats for the resources resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function sync(Form $form)
+    {
+        CalculateFormDataRankings::dispatch($form);
+
+        return (new FormResource($form))->additional([
+            'message' => __("Sync tasks for this form has been dispatched."),
+            'status' => 'success',
+            'statusCode' => HttpStatus::CREATED,
+        ])->response()->setStatusCode(HttpStatus::CREATED->value);
     }
 
     /**
