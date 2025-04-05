@@ -3,6 +3,7 @@
 # Default values
 USER=""
 NUMPROCS=8
+DRIVER="redis"
 AUTO_YES=0
 
 # Parse arguments
@@ -18,9 +19,12 @@ while [ "$#" -gt 0 ]; do
         elif [ -z "$NUMPROCS_SET" ]; then
             NUMPROCS="$1"
             NUMPROCS_SET=1
+        elif [ -z "$DRIVER_SET" ]; then
+            DRIVER="$1"
+            DRIVER_SET=1
         else
             echo "Error: Too many arguments provided."
-            echo "Usage: $0 [-y] <user> [numprocs]"
+            echo "Usage: $0 [-y] <user> [numprocs] [driver]"
             exit 1
         fi
         shift
@@ -31,13 +35,19 @@ done
 # Check if user argument is provided
 if [ -z "$USER" ]; then
     echo "Error: User argument is required."
-    echo "Usage: $0 [-y] <user> [numprocs]"
+    echo "Usage: $0 [-y] <user> [numprocs] [driver]"
     exit 1
 fi
 
 # Validate numprocs is a positive integer
 if ! [[ "$NUMPROCS" =~ ^[0-9]+$ ]] || [ "$NUMPROCS" -lt 1 ]; then
     echo "Error: numprocs must be a positive integer. Got: $NUMPROCS"
+    exit 1
+fi
+
+# Validate driver (optional, could add more checks if needed)
+if [ -z "$DRIVER" ]; then
+    echo "Error: Driver cannot be empty."
     exit 1
 fi
 
@@ -71,7 +81,7 @@ CONFIG_FILE="$CURRENT_DIR/$PROGRAM_NAME.conf"
 cat <<EOF >"$CONFIG_FILE"
 [program:$PROGRAM_NAME]
 process_name=%(program_name)s_%(process_num)02d
-command=php $APP_DIR/artisan queue:work sqs --sleep=3 --tries=3 --max-time=3600
+command=php $APP_DIR/artisan queue:work $DRIVER --sleep=3 --tries=3 --max-time=3600
 autostart=true
 autorestart=true
 stopasgroup=true
