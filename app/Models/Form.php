@@ -222,19 +222,21 @@ class Form extends Model
     protected function totalPoints(): Attribute
     {
         return Attribute::make(
-            get: function () {
-                $result = DB::table('form_fields')
-                    ->selectRaw('SUM(points) as total_field_points')
-                    ->selectRaw('COALESCE(SUM(opt.option_points), 0) as total_option_points')
-                    ->leftJoin(
-                        DB::raw("JSON_TABLE(options, '$[*]' COLUMNS (option_points INT PATH '$.points')) AS opt"),
-                        fn($join) => $join->on(DB::raw('1'), '=', DB::raw('1'))
-                    )
-                    ->where('form_id', $this->id)
-                    ->first();
+            get: fn() => $this->fields->sum(function ($field): int {
+                $fieldPoints = (int) $field->points;
+                $optionsPoints = 0;
 
-                return (int) $result->total_field_points + (int) $result->total_option_points;
-            },
+                if (!empty($field->options) && is_array($field->options)) {
+                    $positiveOptions = collect($field->options)
+                        ->filter(fn($opt) => isset($opt['points']) && (int) $opt['points'] > 0);
+
+                    $optionsPoints = $field->expected_value_type === 'array'
+                        ? $positiveOptions->sum(fn($opt) => (int) $opt['points']) // Sum for multi-select
+                        : $positiveOptions->max(fn($opt) => (int) $opt['points']) ?? 0; // Max for single-select
+                }
+
+                return $fieldPoints + $optionsPoints;
+            }),
         );
     }
 
