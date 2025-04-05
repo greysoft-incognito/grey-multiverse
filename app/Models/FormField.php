@@ -17,6 +17,24 @@ class FormField extends Model
     use HasFactory, HasJsonRelationships, \App\Traits\Logger;
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'points_script',
+    ];
+
+    /**
+     * The model's attributes.
+     *
+     * @var array<string, string|null>
+     */
+    protected $attributes = [
+        'points_script' => null,
+    ];
+
+    /**
      * The attributes that should be cast.
      *
      * @var array
@@ -26,6 +44,7 @@ class FormField extends Model
         'options' => 'array',
         'restricted' => 'boolean',
         'required' => 'boolean',
+        'points_script' => 'string',
     ];
 
     public static function booted(): void

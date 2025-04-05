@@ -69,6 +69,7 @@ class FormFieldController extends Controller
             'required' => 'nullable|boolean',
             'required_if' => 'nullable|string',
             'restricted' => 'nullable|boolean',
+            'points_script' => ['nullable', 'string', new \App\Services\PointsScript\Rules\PointsScript()],
             'expected_value' => 'nullable|string',
             'priority' => 'numeric|nullable',
             'key' => 'nullable|string',
@@ -96,6 +97,7 @@ class FormFieldController extends Controller
         $field->required = $request->boolean('required');
         $field->required_if = $request->required_if;
         $field->restricted = $request->boolean('restricted');
+        $field->points_script = $request->points_script;
         $field->expected_value = $request->expected_value;
         $field->key = $request->key;
         $field->min = $request->min;
@@ -152,6 +154,7 @@ class FormFieldController extends Controller
             'data.*.required' => 'nullable|boolean',
             'data.*.required_if' => 'nullable|string',
             'data.*.restricted' => 'nullable|boolean',
+            'data.*.points_script' => ['nullable', 'string', new \App\Services\PointsScript\Rules\PointsScript()],
             'data.*.expected_value' => 'nullable|string',
             'data.*.key' => 'alpha_num',
             'data.*.min' => 'numeric',
@@ -174,6 +177,7 @@ class FormFieldController extends Controller
             'data.*.required' => '#:index Required',
             'data.*.required_if' => '#:index Required If',
             'data.*.restricted' => '#:index Restricted',
+            'data.*.points_script' => '#:index Points Script',
             'data.*.key' => '#:index Key',
             'data.*.min' => '#:index Min',
             'data.*.max' => '#:index Max',
@@ -205,6 +209,7 @@ class FormFieldController extends Controller
             $field->required = $data['required'] ?? false;
             $field->required_if = $data['required_if'] ?? null;
             $field->restricted = $data['restricted'] ?? false;
+            $field->points_script = $data['points_script'] ?? null;
             $field->expected_value = $data['expected_value'] ?? null;
             $field->key = $data['key'] ?? $field->key ?? null;
             $field->min = $data['min'] ?? $field->min ?? null;
@@ -255,6 +260,7 @@ class FormFieldController extends Controller
             'required' => 'nullable|boolean',
             'required_if' => 'nullable|string',
             'restricted' => 'nullable|boolean',
+            'points_script' => ['nullable', 'string', new \App\Services\PointsScript\Rules\PointsScript()],
             'expected_value' => 'nullable|string',
             'key' => 'required|string',
             'min' => ['numeric', Rule::requiredIf($request->compare && $request->type === 'date' && ! $request->max)],
@@ -279,6 +285,7 @@ class FormFieldController extends Controller
         $field->required = $request->required;
         $field->required_if = $request->required_if;
         $field->restricted = $request->restricted;
+        $field->points_script = $request->points_script;
         $field->expected_value = $request->expected_value;
         $field->key = $request->key;
         $field->min = $request->min;

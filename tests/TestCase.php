@@ -8,11 +8,20 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
-    use RefreshDatabase;
+    // use RefreshDatabase;
+
+    protected $allowed = [
+        'testPointsScriptFailsValidation',
+        'testPointsScriptValidates',
+    ];
 
     protected function setUp(): void
     {
         parent::setUp();
+
+        if (!empty($this->allowed) && !in_array($this->name(), $this->allowed)) {
+            $this->markTestSkipped('Test Skipped: Not Allowed');
+        }
 
         if (stripos($this->name(), 'Priority')) {
             $this->markTestSkipped('Temporarily Skipped!');

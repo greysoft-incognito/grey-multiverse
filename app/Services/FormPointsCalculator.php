@@ -244,6 +244,14 @@ class FormPointsCalculator
     {
         return  $form->fields->sum(function ($field): int {
             $fieldPoints = (int) $field->points;
+            $parser = new \App\Services\PointsScript\PointsScriptParser();
+
+            if ($field->points_script) {
+                // Simulate max answer to get highest possible points
+                $maxAnswer = $parser->getMaxAnswer($field);
+                return $parser->evaluate($field, $maxAnswer);
+            }
+
             $optionsPoints = 0;
 
             if (!empty($field->options) && is_array($field->options)) {

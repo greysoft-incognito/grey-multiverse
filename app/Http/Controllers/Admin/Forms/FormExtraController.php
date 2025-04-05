@@ -86,6 +86,9 @@ class FormExtraController extends Controller
      */
     public function sync(Form $form)
     {
+        $calculator = new \App\Services\FormPointsCalculator();
+        dd($calculator->calculateFormTotalPoints($form));
+
         CalculateFormDataRankings::dispatch($form);
 
         return (new FormResource($form))->additional([
