@@ -2,38 +2,37 @@
 
 namespace App\Services\PointsScript;
 
-use App\Models\FormField;
-
 class PointsScriptParser
 {
-    /**
-     * Parse and evaluate a PointsScript string for a given FormField and user answer.
-     *
-     * @param FormField $field The FormField with points_script
-     * @param mixed $userAnswer The user's answer from FormData->data
-     * @return int The calculated points
-     */
-    public function evaluate(FormField $field, $userAnswer): int
+    public function evaluate(string $points_script, $userAnswer): int
     {
-        if (empty($field->points_script)) {
-            return 0; // No script, no points
+        if (empty($points_script)) {
+            return 0;
         }
 
-        $lines = explode("\n", trim($field->points_script));
+        $lines = explode("\n", trim($points_script));
         $defaultPoints = 0;
+        $conditionMet = false;
 
         foreach ($lines as $line) {
             $line = trim($line);
             if (empty($line) || str_starts_with($line, '#')) {
-                continue; // Skip empty lines and comments
+                continue;
             }
 
-            // Match if statements
-            if (preg_match('/if\s*\((.*?)\)\s*return\s*(\d+)/i', $line, $matches)) {
-                $condition = trim($matches[1]);
-                $points = (int) $matches[2];
+            // Match if or else if statements
+            if (preg_match('/(else\s+)?if\s*\((.*?)\)\s*return\s*(\d+)/i', $line, $matches)) {
+                $isElse = !empty($matches[1]);
+                $condition = trim($matches[2]);
+                $points = (int) $matches[3];
 
-                if ($this->evaluateCondition($condition, $field, $userAnswer)) {
+                // Skip if an earlier condition was met and this is an else if
+                if ($isElse && $conditionMet) {
+                    continue;
+                }
+
+                if ($this->evaluateCondition($condition, $userAnswer)) {
+                    $conditionMet = true;
                     return $points;
                 }
             }
@@ -46,15 +45,7 @@ class PointsScriptParser
         return $defaultPoints;
     }
 
-    /**
-     * Evaluate a condition from the PointsScript.
-     *
-     * @param string $condition The condition string (e.g., "count(options >= 5)" or "contains(\"good\")")
-     * @param FormField $field The FormField
-     * @param mixed $userAnswer The user's answer
-     * @return bool Whether the condition is true
-     */
-    private function evaluateCondition(string $condition, FormField $field, $userAnswer): bool
+    private function evaluateCondition(string $condition, $userAnswer): bool
     {
         // Handle count() conditions
         if (preg_match('/count\(options\s*([=<>!]+)\s*(\d+)\)/i', $condition, $matches)) {
@@ -73,40 +64,17 @@ class PointsScriptParser
             };
         }
 
-        // Handle contains() conditions
-        if (preg_match('/contains\("([^"]*)"\)/i', $condition, $matches)) {
-            $substring = $matches[1];
+        // Handle contains() and !contains() conditions
+        if (preg_match('/(!)?contains\("([^"]*)"\)/i', $condition, $matches)) {
+            $negated = !empty($matches[1]); // True if !contains
+            $substring = $matches[2];
 
-            // Evaluate only if answer is a string
             if (is_string($userAnswer)) {
-                return stripos($userAnswer, $substring) !== false;
+                $contains = stripos($userAnswer, $substring) !== false;
+                return $negated ? !$contains : $contains;
             }
         }
 
-        return false; // Unknown condition
-    }
-
-    public function getMaxAnswer(FormField $field)
-    {
-        if ($field->expected_value_type === 'array') {
-            // For arrays, assume all options are selected
-            return collect($field->options)->pluck('value')->all();
-        }
-
-        if ($field->expected_value_type === 'string') {
-            // For strings, parse points_script to find all substrings and combine them
-            $substrings = [];
-            if ($field->points_script) {
-                foreach (explode("\n", $field->points_script) as $line) {
-                    if (preg_match('/contains\("([^"]*)"\)/i', $line, $matches)) {
-                        $substrings[] = $matches[1];
-                    }
-                }
-            }
-
-            return implode(' ', $substrings) ?: 'default'; // Combine substrings or fallback
-        }
-
-        return null;
+        return false;
     }
 }
