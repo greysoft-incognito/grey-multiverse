@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Support\Facades\DB;
 use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
 use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
 use ToneflixCode\LaravelFileable\Traits\Fileable;
@@ -25,6 +24,7 @@ use ToneflixCode\LaravelFileable\Traits\Fileable;
  * @property string $name
  * @property string $logo_url
  * @property string $logo_url
+ * @property integer $total_points
  * @property bool $dont_notify
  * @property \Carbon\Carbon $deadline
  * @property bool $require_auth
@@ -105,6 +105,10 @@ class Form extends Model
     {
         static::creating(function (self $model) {
             $model->slug ??= $model->generateUsername($model->title, 'slug', '-');
+        });
+
+        static::saving(function (self $model) {
+            $model->total_points = (new \App\Services\FormPointsCalculator())->calculateFormTotalPoints($model);
         });
     }
 
@@ -212,32 +216,6 @@ class Form extends Model
     public function roles(): HasMany
     {
         return $this->hasMany(FormRole::class);
-    }
-
-    /**
-     * Get the total points.
-     *
-     * @return string
-     */
-    protected function totalPoints(): Attribute
-    {
-        return Attribute::make(
-            get: fn() => $this->fields->sum(function ($field): int {
-                $fieldPoints = (int) $field->points;
-                $optionsPoints = 0;
-
-                if (!empty($field->options) && is_array($field->options)) {
-                    $positiveOptions = collect($field->options)
-                        ->filter(fn($opt) => isset($opt['points']) && (int) $opt['points'] > 0);
-
-                    $optionsPoints = $field->expected_value_type === 'array'
-                        ? $positiveOptions->sum(fn($opt) => (int) $opt['points']) // Sum for multi-select
-                        : $positiveOptions->max(fn($opt) => (int) $opt['points']) ?? 0; // Max for single-select
-                }
-
-                return $fieldPoints + $optionsPoints;
-            }),
-        );
     }
 
     public function socials(): Attribute

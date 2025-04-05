@@ -107,6 +107,7 @@ class FormPointsCalculator
      *
      * @param mixed $answer The user's answer from FormData->data.
      * @param string $expectedType The expected PHP type of the answer (e.g., 'string', 'integer').
+     *
      * @return bool True if the answer is valid, false otherwise.
      */
     private function isValidAnswer($answer, string $expectedType): bool
@@ -170,6 +171,9 @@ class FormPointsCalculator
      * counting how often each FormField is missing (i.e., not present as a key).
      * It returns the top 5 FormFields with the highest unanswered counts, sorted in descending order.
      *
+     * @param Form $form
+     * @param integer $take
+     *
      * @return Collection A collection of the 5 most unanswered FormFields, each with 'field' (FormField) and 'unanswered_count'.
      */
     public function questionStats(Form $form, int $take = 0): Collection
@@ -222,5 +226,36 @@ class FormPointsCalculator
             ->sortByDesc('unanswered_count')
             ->when($take, fn($e) => $e->take($take))
             ->values();
+    }
+
+    /**
+     * Get the total maximum achievable points for the form.
+     *
+     * This attribute calculates the maximum possible points by summing each field's base points
+     * and the maximum or sum of its option points, depending on the field's expected value type:
+     * - For fields with 'array' expectedValueType, sums all positive option points (multi-select).
+     * - For other fields (e.g., 'string', 'integer'), takes the highest option points (single-select).
+     * - Fields without options contribute only their base points.
+     *
+     * @param Form $form
+     * @return integer
+     */
+    public function calculateFormTotalPoints(Form $form): int
+    {
+        return  $form->fields->sum(function ($field): int {
+            $fieldPoints = (int) $field->points;
+            $optionsPoints = 0;
+
+            if (!empty($field->options) && is_array($field->options)) {
+                $positiveOptions = collect($field->options)
+                    ->filter(fn($opt) => isset($opt['points']) && (int) $opt['points'] > 0);
+
+                $optionsPoints = $field->expected_value_type === 'array'
+                    ? $positiveOptions->sum(fn($opt) => (int) $opt['points']) // Sum for multi-select
+                    : $positiveOptions->max(fn($opt) => (int) $opt['points']) ?? 0; // Max for single-select
+            }
+
+            return $fieldPoints + $optionsPoints;
+        });
     }
 }

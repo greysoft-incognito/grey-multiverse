@@ -25,12 +25,24 @@ class CalculateFormDataRankings implements ShouldQueue, ShouldBeUnique
      */
     public function handle(): void
     {
-        /** @var \Illuminate\Support\LazyCollection<int, \App\Models\FormData> */
+        $calculator = new \App\Services\FormPointsCalculator();
+
+        /**
+         * Sync the form total points
+         */
+        $this->form->total_points = $calculator->calculateFormTotalPoints($this->form);
+        $this->form->saveQuietly();
+
+        /**
+         * Sync the form data total points
+         *
+         * @var \Illuminate\Support\LazyCollection<int, \App\Models\FormData>
+         */
         $submissions = $this->form->data()->whereNot('status', 'pending')
             ->cursor();
 
         foreach ($submissions as $submission) {
-            $rank = (new FormPointsCalculator())->calculatePoints($submission);
+            $rank = $calculator->calculatePoints($submission);
 
             $submission->update([
                 'rank' => $rank

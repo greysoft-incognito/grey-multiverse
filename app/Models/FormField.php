@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
 
+/**
+ * @property array<int,array{points:int,label:string,value:string}> $options
+ */
 class FormField extends Model
 {
     use HasFactory, HasJsonRelationships, \App\Traits\Logger;
