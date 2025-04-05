@@ -157,18 +157,28 @@ class FormPointsCalculator
     {
         $questions = $this->questionStats($form, $take);
 
+        $labels = $questions->pluck('question')->all();
+        $answeredData = $questions->map(fn($item) => $item['submissions_count'] - $item['unanswered_count'])->all();
+        $unansweredData = $questions->pluck('unanswered_count')->all();
+
         return [
-            'labels' => ['Answered', 'Unanswered'], // Fixed labels for each bar
-            'datasets' => $questions->map(function ($item, $index) {
-                $answeredCount = $item['submissions_count'] - $item['unanswered_count'];
-                return [
-                    'label' => $item['question'],
-                    'data' => [$answeredCount, $item['unanswered_count']],
-                    'backgroundColor' => $this->getColor($index), // Dynamic color per question
-                    'borderColor' => $this->getColor($index, 1), // Solid border
+            'labels' => $labels,
+            'datasets' => [
+                [
+                    'label' => 'Answered',
+                    'data' => $answeredData,
+                    'backgroundColor' => 'rgba(54, 162, 235, 0.5)', // Blue-ish
+                    'borderColor' => 'rgba(54, 162, 235, 1)',
                     'borderWidth' => 1,
-                ];
-            })->all(),
+                ],
+                [
+                    'label' => 'Unanswered',
+                    'data' => $unansweredData,
+                    'backgroundColor' => 'rgba(255, 99, 132, 0.5)', // Red-ish
+                    'borderColor' => 'rgba(255, 99, 132, 1)',
+                    'borderWidth' => 1,
+                ],
+            ],
         ];
     }
 

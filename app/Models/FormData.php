@@ -191,13 +191,6 @@ class FormData extends Model
      */
     public function score(): Attribute
     {
-        // dump(
-        //     (new FormPointsCalculator())->calculatePoints($this),
-        //     (new FormPointsCalculator())->questionsChartData($this->form),
-        //     $this->calculatePoints(),
-        //     $this->calculatePoints(),
-        //     $this->form->total_points,
-        // );
         return Attribute::make(
             get: fn() => round((($this->rank ?: 1) / ($this->form->total_points ?: 1)) * 100, 1)
         );
