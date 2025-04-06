@@ -131,6 +131,9 @@ class Form extends Model
      */
     public function data(): HasMany
     {
+        if (request()->routeIs('admin.*.show')) {
+            return $this->hasMany(FormData::class)->withoutGlobalScope('submitted');
+        }
         return $this->hasMany(FormData::class);
     }
 
