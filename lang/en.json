@@ -1,5 +1,7 @@
 {
     "Sorry, this space is already booked up": "Sorry, this boot is already booked up",
     "Some spaces you selected are no longer available": "Some boots you selected are no longer available",
-    "spaces": "boots"
+    "spaces": "boots",
+    "Form data deleted successfully.": "Form data deleted successfully.",
+    "Submission status has successfully been changed to :0": "Submission status has successfully been changed to :0"
 }

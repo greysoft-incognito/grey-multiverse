@@ -228,7 +228,7 @@ class FormDataController extends Controller
         }
 
         return (new FormDataResource($data))->additional([
-            'message' => __('Submission status has successfully been changed to ":0"', [$status]),
+            'message' => __("Submission status has successfully been changed to :0", [$status]),
             'status' => 'success',
             'statusCode' => HttpStatus::ACCEPTED->value,
         ]);
