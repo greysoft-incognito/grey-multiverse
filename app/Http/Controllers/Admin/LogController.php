@@ -41,7 +41,7 @@ class LogController extends Controller
 
         $query->when($action, fn($q) => $q->whereAction($action));
 
-        $logs = $query->paginate($request->input('limit', 30));
+        $logs = $query->latest()->paginate($request->input('limit', 30));
 
         return (new LogCollection($logs))->additional([
             'status' => 'success',

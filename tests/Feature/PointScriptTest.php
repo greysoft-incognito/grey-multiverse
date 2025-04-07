@@ -49,7 +49,7 @@ class PointScriptTest extends TestCase
     /**
      * A basic feature test example.
      */
-    public function testPointsScriptCounter(): void
+    public function testArrayScoring(): void
     {
         $parser = new \App\Services\PointsScript\PointsScriptParser();
 
@@ -68,7 +68,7 @@ class PointScriptTest extends TestCase
     /**
      * A basic feature test example.
      */
-    public function testPointsScriptContains(): void
+    public function testStringScoring(): void
     {
         $parser = new \App\Services\PointsScript\PointsScriptParser();
 
@@ -86,7 +86,7 @@ class PointScriptTest extends TestCase
     /**
      * A basic feature test example.
      */
-    public function testPointsScriptDoesntContain(): void
+    public function testStringDoesntContain(): void
     {
         $parser = new \App\Services\PointsScript\PointsScriptParser();
 
@@ -104,7 +104,7 @@ class PointScriptTest extends TestCase
     /**
      * A basic feature test example.
      */
-    public function testPointsScriptDoesntContainButContains(): void
+    public function testStringDoesntContainButContains(): void
     {
         $parser = new \App\Services\PointsScript\PointsScriptParser();
 
