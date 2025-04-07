@@ -4,15 +4,21 @@ namespace App\Services\PointsScript;
 
 class PointsScriptParser
 {
-    public function evaluate(string $points_script, $userAnswer): int
+    /**
+     * Evaluate a PointsScript string against an input value.
+     *
+     * @param string $pointsScript The PointsScript to evaluate
+     * @param mixed $input The input data (string or array)
+     * @return int The calculated points
+     */
+    public function evaluate(string $pointsScript, $input): int
     {
-        if (empty($points_script)) {
+        if (empty(trim($pointsScript))) {
             return 0;
         }
 
-        $lines = explode("\n", trim($points_script));
+        $lines = explode("\n", trim($pointsScript));
         $defaultPoints = 0;
-        $conditionMet = false;
 
         foreach ($lines as $line) {
             $line = trim($line);
@@ -20,24 +26,14 @@ class PointsScriptParser
                 continue;
             }
 
-            // Match if or else if statements
-            if (preg_match('/(else\s+)?if\s*\((.*?)\)\s*give\s*(\d+)/i', $line, $matches)) {
-                $isElse = !empty($matches[1]);
-                $condition = trim($matches[2]);
-                $points = (int) $matches[3];
+            if (preg_match('/if\s*\((.*?)\)\s*give\s*(\d+)/i', $line, $matches)) {
+                $condition = trim($matches[1]);
+                $points = (int) $matches[2];
 
-                // Skip if an earlier condition was met and this is an else if
-                if ($isElse && $conditionMet) {
-                    continue;
-                }
-
-                if ($this->evaluateCondition($condition, $userAnswer)) {
-                    $conditionMet = true;
+                if ($this->evaluateCondition($condition, $input)) {
                     return $points;
                 }
-            }
-            // Match default return
-            elseif (preg_match('/give\s*(\d+)/i', $line, $matches)) {
+            } elseif (preg_match('/give\s*(\d+)/i', $line, $matches)) {
                 $defaultPoints = (int) $matches[1];
             }
         }
@@ -45,13 +41,19 @@ class PointsScriptParser
         return $defaultPoints;
     }
 
-    private function evaluateCondition(string $condition, $userAnswer): bool
+    /**
+     * Evaluate a condition against the input.
+     *
+     * @param string $condition The condition to check
+     * @param mixed $input The input data
+     * @return bool Whether the condition is true
+     */
+    private function evaluateCondition(string $condition, $input): bool
     {
-        // Handle count() conditions
         if (preg_match('/count\(options\s*([=<>!]+)\s*(\d+)\)/i', $condition, $matches)) {
             $operator = $matches[1];
             $value = (int) $matches[2];
-            $count = is_array($userAnswer) ? count($userAnswer) : 0;
+            $count = is_array($input) ? count($input) : 0;
 
             return match ($operator) {
                 '==' => $count == $value,
@@ -64,13 +66,12 @@ class PointsScriptParser
             };
         }
 
-        // Handle contains() and !contains() conditions
         if (preg_match('/(!)?contains\("([^"]*)"\)/i', $condition, $matches)) {
-            $negated = !empty($matches[1]); // True if !contains
+            $negated = !empty($matches[1]);
             $substring = $matches[2];
 
-            if (is_string($userAnswer)) {
-                $contains = stripos($userAnswer, $substring) !== false;
+            if (is_string($input)) {
+                $contains = stripos($input, $substring) !== false;
                 return $negated ? !$contains : $contains;
             }
         }

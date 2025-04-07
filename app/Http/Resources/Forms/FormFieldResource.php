@@ -38,6 +38,7 @@ class FormFieldResource extends JsonResource
             'requiredIf' => $this->required_if,
             'restricted' => $this->restricted,
             'required' => $this->required,
+            'points' => $this->points,
             'priority' => $this->priority,
             'points_script' => $this->when($request->routeIs('admin.*'), fn() => $this->points_script),
             'key' => $this->key,

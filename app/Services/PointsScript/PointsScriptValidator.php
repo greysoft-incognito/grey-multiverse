@@ -6,16 +6,22 @@ use InvalidArgumentException;
 
 class PointsScriptValidator
 {
-    public function validate(string $script): bool
+    /**
+     * Validate a PointsScript string.
+     *
+     * @param string $pointsScript The PointsScript to validate
+     * @throws InvalidArgumentException If the script is invalid
+     * @return bool True if valid
+     */
+    public function validate(string $pointsScript): bool
     {
-        if (empty(trim($script))) {
+        if (empty(trim($pointsScript))) {
             throw new InvalidArgumentException("PointsScript cannot be empty.");
         }
 
-        $lines = explode("\n", trim($script));
-        $hasReturn = false;
+        $lines = explode("\n", trim($pointsScript));
+        $hasGive = false;
         $countConditions = [];
-        $hasIf = false;
 
         foreach ($lines as $lineNumber => $line) {
             $line = trim($line);
@@ -23,14 +29,9 @@ class PointsScriptValidator
                 continue;
             }
 
-            if (preg_match('/(else\s+)?if\s*\((.*?)\)\s*give\s*(\d+)/i', $line, $matches)) {
-                $isElse = !empty($matches[1]);
-                $condition = trim($matches[2]);
-                $points = (int) $matches[3];
-
-                if ($isElse && !$hasIf) {
-                    throw new InvalidArgumentException("Else if without a preceding if in line " . ($lineNumber + 1) . ".");
-                }
+            if (preg_match('/if\s*\((.*?)\)\s*give\s*(\d+)/i', $line, $matches)) {
+                $condition = trim($matches[1]);
+                $points = (int) $matches[2];
 
                 if (!$this->validateCondition($condition, $countConditions)) {
                     throw new InvalidArgumentException("Invalid condition in line " . ($lineNumber + 1) . ": '$condition'");
@@ -39,24 +40,22 @@ class PointsScriptValidator
                 if ($points < 0) {
                     throw new InvalidArgumentException("Points must be non-negative in line " . ($lineNumber + 1) . ": '$points'");
                 }
-
-                $hasIf = true;
             } elseif (preg_match('/give\s*(\d+)/i', $line, $matches)) {
                 $points = (int) $matches[1];
                 if ($points < 0) {
                     throw new InvalidArgumentException("Points must be non-negative in line " . ($lineNumber + 1) . ": '$points'");
                 }
-                if ($hasReturn) {
-                    throw new InvalidArgumentException("Multiple default gives detected at line " . ($lineNumber + 1) . ".");
+                if ($hasGive) {
+                    throw new InvalidArgumentException("Multiple default give statements detected at line " . ($lineNumber + 1) . ".");
                 }
-                $hasReturn = true;
+                $hasGive = true;
             } else {
-                throw new InvalidArgumentException("Invalid syntax in line " . ($lineNumber + 1) . ": '$line'");
+                throw new InvalidArgumentException("Invalid PointsScript syntax in line " . ($lineNumber + 1) . ": '$line'");
             }
         }
 
-        if (!$hasReturn && empty($countConditions)) {
-            throw new InvalidArgumentException("No default give statement found, and no conditions cover all cases.");
+        if (!$hasGive && empty($countConditions)) {
+            throw new InvalidArgumentException("No default give statement found in PointsScript, and no conditions cover all cases.");
         }
 
         return true;
