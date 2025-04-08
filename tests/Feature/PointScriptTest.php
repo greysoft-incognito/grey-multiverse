@@ -308,4 +308,85 @@ class PointScriptTest extends TestCase
         $this->assertEquals(3, $this->parser->evaluate($script, "yes")); // OR equals "yes"
         $this->assertEquals(0, $this->parser->evaluate($script, "Hi bad")); // Neither
     }
+    public function testMaxAnswerArrayWithMatches()
+    {
+        $script = <<<EOL
+            if (matches("a", "c", >= 2)) give 5
+            if (count(options >= 1)) give 3
+            give 0
+        EOL;
+        $options = [['value' => 'a'], ['value' => 'b']];
+        $result = $this->parser->getMaxAnswer($script, 'array', $options);
+        $this->assertEquals(['a', 'b', 'c'], $result);
+        $this->assertEquals(5, $this->parser->evaluate($script, $result));
+    }
+
+    public function testMaxAnswerArrayWithCount()
+    {
+        $script = <<<EOL
+            if (count(options >= 5)) give 7
+            if (count(options >= 3)) give 4
+            give 0
+        EOL;
+        $options = [['value' => 'a'], ['value' => 'b']];
+        $result = $this->parser->getMaxAnswer($script, 'array', $options);
+        $this->assertEquals(['a', 'b', 'x', 'x', 'x'], $result);
+        $this->assertEquals(7, $this->parser->evaluate($script, $result));
+    }
+
+    public function testMaxAnswerStringWithLengthAndContains()
+    {
+        $script = <<<EOL
+            if (length(>= 10) and contains("good")) give 5
+            if (equals("yes")) give 3
+            give 0
+        EOL;
+        $result = $this->parser->getMaxAnswer($script, 'string', []);
+        $this->assertEquals('goodxxxxxx', $result); // 10 chars: "good" + 6 x's
+        $this->assertEquals(5, $this->parser->evaluate($script, $result));
+    }
+
+    public function testMaxAnswerStringWithEquals()
+    {
+        $script = <<<EOL
+            if (equals("yes")) give 3
+            if (contains("good")) give 2
+            give 0
+        EOL;
+        $result = $this->parser->getMaxAnswer($script, 'string', []);
+        $this->assertEquals('yes', $result);
+        $this->assertEquals(3, $this->parser->evaluate($script, $result));
+    }
+
+    public function testMaxAnswerEmptyScript()
+    {
+        $resultArray = $this->parser->getMaxAnswer('', 'array', [['value' => 'a']]);
+        $this->assertEquals([], $resultArray);
+
+        $resultString = $this->parser->getMaxAnswer('', 'string', []);
+        $this->assertEquals('', $resultString);
+    }
+
+    public function testMaxAnswerDefaultOnly()
+    {
+        $script = "give 5";
+        $resultArray = $this->parser->getMaxAnswer($script, 'array', [['value' => 'a']]);
+        $this->assertEquals([], $resultArray);
+        $this->assertEquals(5, $this->parser->evaluate($script, $resultArray));
+
+        $resultString = $this->parser->getMaxAnswer($script, 'string', []);
+        $this->assertEquals('', $resultString);
+        $this->assertEquals(5, $this->parser->evaluate($script, $resultString));
+    }
+
+    public function testMaxAnswerWithNoMatchingCondition()
+    {
+        $script = <<<EOL
+            if (length(< 5)) give 2
+            give 0
+        EOL;
+        $result = $this->parser->getMaxAnswer($script, 'string', []);
+        $this->assertEquals('', $result);
+        $this->assertEquals(2, $this->parser->evaluate($script, $result)); // length(0) < 5 is true
+    }
 }
