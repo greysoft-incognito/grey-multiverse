@@ -252,12 +252,30 @@ class PointScriptTest extends TestCase
     public function testMatchesAtLeast()
     {
         $script = <<<EOL
-            if (matches("Proprietary tech/IP", "cost reduction", "exclusive partnerships", >= 2)) give 3
+            if (matches("Proprietary tech/IP", "cost reduction", "exclusive partnerships", > 2)) give 5
+            if (matches("Proprietary tech/IP", "cost reduction", "exclusive partnerships", == 2)) give 3
+            if (matches("Proprietary tech/IP", "cost reduction", "exclusive partnerships", == 1)) give 1
             give 0
         EOL;
-        $this->assertEquals(3, $this->parser->evaluate($script, ["Proprietary tech/IP", "cost reduction", "exclusive partnerships"]));
+        $this->assertEquals(5, $this->parser->evaluate($script, ["Proprietary tech/IP", "cost reduction", "exclusive partnerships"]));
         $this->assertEquals(3, $this->parser->evaluate($script, ["Proprietary tech/IP", "cost reduction"]));
-        $this->assertEquals(0, $this->parser->evaluate($script, ["Proprietary tech/IP"]));
+        $this->assertEquals(1, $this->parser->evaluate($script, ["Proprietary tech/IP"]));
+        $this->assertEquals(0, $this->parser->evaluate($script, "No clear advantage"));
+    }
+
+    public function testProprietaryMatchesAtLeast()
+    {
+        $script = <<<EOL
+            if (matches("Proprietary technology/IP", "25%+ cost reduction vs. alternatives", "Exclusive partnerships", == 3)) give 10
+            if (matches("Proprietary technology/IP", "25%+ cost reduction vs. alternatives", "Exclusive partnerships", == 2)) give 7
+            if (matches("Proprietary technology/IP", "25%+ cost reduction vs. alternatives", "Exclusive partnerships", == 1)) give 5
+            if (equals("No clear advantage")) give 0
+            give 0
+        EOL;
+
+        $this->assertEquals(10, $this->parser->evaluate($script, ["Proprietary technology/IP", "25%+ cost reduction vs. alternatives", "Exclusive partnerships"]));
+        $this->assertEquals(7, $this->parser->evaluate($script, ["Proprietary technology/IP", "25%+ cost reduction vs. alternatives"]));
+        $this->assertEquals(5, $this->parser->evaluate($script, ["Proprietary technology/IP"]));
         $this->assertEquals(0, $this->parser->evaluate($script, "No clear advantage"));
     }
 
