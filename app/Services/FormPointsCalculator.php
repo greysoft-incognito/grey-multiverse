@@ -257,7 +257,7 @@ class FormPointsCalculator
             // Simulate max answer to get highest possible points
             $maxAnswer = $parser->getMaxAnswer(
                 $field->points_script,
-                $field->expected_value_type,
+                $field->has_options ? 'array' : $field->expected_value_type,
                 $field->options,
             );
 

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Staudenmeir\EloquentJsonRelations\HasJsonRelationships;
 
 /**
+ * @property bool $has_options
  * @property array<int,array{points:int,label:string,value:string}> $options
  */
 class FormField extends Model
@@ -193,6 +194,18 @@ class FormField extends Model
 
             // Handle other elements
             return $typeMapping[$this->element] ?? 'string';
+        });
+    }
+
+    /**
+     * Determine the formfield has options
+     *
+     * @return string
+     */
+    public function hasOptions(): Attribute
+    {
+        return Attribute::make(function () {
+            return in_array($this->element, ['select', 'checkboxgroup', 'radiogroup']);
         });
     }
 
