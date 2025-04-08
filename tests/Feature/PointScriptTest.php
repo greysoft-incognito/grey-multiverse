@@ -339,6 +339,33 @@ class PointScriptTest extends TestCase
         $this->assertEquals(5, $this->parser->evaluate($script, $result));
     }
 
+    public function testProprietaryMaxAnswerArrayWithMatches()
+    {
+        $script = <<<EOL
+            if (matches("Proprietary technology/IP", "25%+ cost reduction vs. alternatives", "Exclusive partnerships", == 3)) give 10
+            if (matches("Proprietary technology/IP", "25%+ cost reduction vs. alternatives", "Exclusive partnerships", == 2)) give 7
+            if (matches("Proprietary technology/IP", "25%+ cost reduction vs. alternatives", "Exclusive partnerships", == 1)) give 5
+            if (equals("No clear advantage")) give 0
+            give 0
+        EOL;
+
+        $options = [
+            ['value' => 'Proprietary technology/IP'],
+            ['value' => '25%+ cost reduction vs. alternatives'],
+            ['value' => 'Exclusive partnerships'],
+            ['value' => 'No clear advantage'],
+        ];
+
+        $result = $this->parser->getMaxAnswer($script, 'array', $options);
+        $this->assertEquals([
+            'Proprietary technology/IP',
+            '25%+ cost reduction vs. alternatives',
+            'Exclusive partnerships',
+            'No clear advantage'
+        ], $result);
+        $this->assertEquals(10, $this->parser->evaluate($script, $result));
+    }
+
     public function testMaxAnswerArrayWithCount()
     {
         $script = <<<EOL
