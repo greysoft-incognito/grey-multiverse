@@ -50,26 +50,6 @@ class SimpleDataExporter
         )->map(fn($e) => str($e));
     }
 
-    /**
-     * Dispatch the exported data to the data_emails
-     */
-    private function dispatchMails(
-        Form|Company|Appointment|User $dataset,
-        string $title,
-        int $batch = 1,
-    ): void {
-        $this->data_emails
-            ->unique()
-            ->filter(fn($e) => $e->isNotEmpty() && ! $e->is('[]'))
-            ->each(function ($email) use ($dataset, $batch, $title) {
-                RateLimiter::attempt(
-                'send-report:' . $email . $batch,
-                    5,
-                fn() => Mail::to($email->toString())->send(new ReportGenerated($dataset, $batch, $title))
-                );
-            });
-    }
-
     private function exportCompanies()
     {
         if (Company::count() > 0) {
@@ -169,8 +149,6 @@ class SimpleDataExporter
                 ? collect($this->emails)->map(fn($e) => str($e))
                 : $form->data_emails;
 
-            $this->dispatchMails($form, $form->title ?? $form->name, 0);
-
 
             if ($this->queue) {
                 (new FormDataExports(
@@ -184,7 +162,7 @@ class SimpleDataExporter
                         $form,
                         $this->data_emails,
                         $form->name . ' Data',
-                        0
+                        $batch
                     )
                 ]);
             } else {
@@ -200,7 +178,7 @@ class SimpleDataExporter
                     $form,
                     $this->data_emails,
                     $form->name . ' Data',
-                    0
+                    $batch
                 );
             }
         }
