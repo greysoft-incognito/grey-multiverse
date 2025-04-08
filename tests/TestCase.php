@@ -11,12 +11,12 @@ abstract class TestCase extends BaseTestCase
     // use RefreshDatabase;
 
     protected $allowed = [
-        'testPointsScriptCounter',
-        'testPointsScriptContains',
+        'testArrayScoring',
+        'testStringScoring',
+        'testStringDoesntContain',
         'testPointsScriptValidates',
-        'testPointsScriptDoesntContain',
         'testPointsScriptFailsValidation',
-        'testPointsScriptDoesntContainButContains',
+        'testStringDoesntContainButContains',
     ];
 
     protected function setUp(): void

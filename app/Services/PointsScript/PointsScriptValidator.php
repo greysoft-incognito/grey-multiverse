@@ -22,6 +22,8 @@ class PointsScriptValidator
         $lines = explode("\n", trim($pointsScript));
         $hasGive = false;
         $countConditions = [];
+        $lengthConditions = [];
+        $matchesConditions = [];
 
         foreach ($lines as $lineNumber => $line) {
             $line = trim($line);
@@ -33,7 +35,7 @@ class PointsScriptValidator
                 $condition = trim($matches[1]);
                 $points = (int) $matches[2];
 
-                if (!$this->validateCondition($condition, $countConditions)) {
+                if (!$this->validateCondition($condition, $countConditions, $lengthConditions, $matchesConditions)) {
                     throw new InvalidArgumentException("Invalid condition in line " . ($lineNumber + 1) . ": '$condition'");
                 }
 
@@ -54,48 +56,94 @@ class PointsScriptValidator
             }
         }
 
-        if (!$hasGive && empty($countConditions)) {
+        if (!$hasGive && empty($countConditions) && empty($lengthConditions) && empty($matchesConditions)) {
             throw new InvalidArgumentException("No default give statement found in PointsScript, and no conditions cover all cases.");
         }
 
         return true;
     }
 
-    private function validateCondition(string $condition, array &$countConditions): bool
+    private function validateCondition(string $condition, array &$countConditions, array &$lengthConditions, array &$matchesConditions): bool
     {
-        if (preg_match('/count\(options\s*([=<>!]+)\s*(\d+)\)/i', $condition, $matches)) {
-            $operator = $matches[1];
-            $value = (int) $matches[2];
-
-            if (!in_array($operator, ['==', '>=', '<=', '>', '<', '!='])) {
-                return false;
-            }
-
-            if ($value < 0) {
-                return false;
-            }
-
-            foreach ($countConditions as $prev) {
-                if ($this->isCountOverlap($prev['operator'], $prev['value'], $operator, $value)) {
-                    throw new InvalidArgumentException("Condition '$condition' overlaps with previous condition 'count(options {$prev['operator']} {$prev['value']})', making later rules unreachable.");
+        $orParts = preg_split('/\s+or\s+/i', $condition);
+        foreach ($orParts as $orPart) {
+            $andParts = preg_split('/\s+and\s+/i', trim($orPart));
+            foreach ($andParts as $expression) {
+                if (!$this->validateExpression(trim($expression), $countConditions, $lengthConditions, $matchesConditions)) {
+                    return false;
                 }
             }
-            $countConditions[] = ['operator' => $operator, 'value' => $value];
+        }
+        return true;
+    }
+
+    private function validateExpression(string $expression, array &$countConditions, array &$lengthConditions, array &$matchesConditions): bool
+    {
+        if (preg_match('/count\(options\s*([=<>!]+)\s*(\d+)\)/i', $expression, $matches)) {
+            $operator = $matches[1];
+            $value = (int) $matches[2];
+            return $this->validateComparison($operator, $value, $countConditions, "count");
+        }
+
+        if (preg_match('/(!)?length\(([=<>!]+)\s*(\d+)\)/i', $expression, $matches)) {
+            $operator = $matches[2];
+            $value = (int) $matches[3];
+            return $this->validateComparison($operator, $value, $lengthConditions, "length");
+        }
+
+        if (preg_match('/(!)?contains\("([^"]*)"\)/i', $expression, $matches)) {
+            $substring = $matches[2];
+            return !empty($substring);
+        }
+
+        if (preg_match('/(!)?equals\("([^"]*)"\)/i', $expression, $matches)) {
+            $value = $matches[2];
+            return !empty($value);
+        }
+
+        if (preg_match('/matches\((.*?),\s*([=<>!]+)\s*(\d+)\)/i', $expression, $matches)) {
+            $valuesString = trim($matches[1]);
+            $operator = $matches[2];
+            $value = (int) $matches[3];
+            preg_match_all('/"([^"]*)"/', $valuesString, $valueMatches);
+            $values = $valueMatches[1];
+            if (empty($values)) {
+                return false;
+            }
+            return $this->validateComparison($operator, $value, $matchesConditions, "matches", count($values));
+        }
+
+        if (preg_match('/missing\(\)/i', $expression)) {
             return true;
         }
 
-        if (preg_match('/(!)?contains\("([^"]*)"\)/i', $condition, $matches)) {
-            $substring = $matches[2];
-            if (empty($substring)) {
-                return false;
-            }
+        if (preg_match('/nothing\(\)/i', $expression)) {
             return true;
         }
 
         return false;
     }
 
-    private function isCountOverlap(string $prevOperator, int $prevValue, string $operator, int $value): bool
+    private function validateComparison(string $operator, int $value, array &$conditions, string $type, ?int $maxValue = null): bool
+    {
+        if (!in_array($operator, ['==', '>=', '<=', '>', '<', '!='])) {
+            return false;
+        }
+
+        if ($value < 0 || ($maxValue !== null && $value > $maxValue)) {
+            return false;
+        }
+
+        foreach ($conditions as $prev) {
+            if ($this->isOverlap($prev['operator'], $prev['value'], $operator, $value)) {
+                throw new InvalidArgumentException("Condition '$type($operator $value)' overlaps with previous condition '$type({$prev['operator']} {$prev['value']})', making later rules unreachable.");
+            }
+        }
+        $conditions[] = ['operator' => $operator, 'value' => $value];
+        return true;
+    }
+
+    private function isOverlap(string $prevOperator, int $prevValue, string $operator, int $value): bool
     {
         if ($prevOperator === '>=' && $operator === '>=' && $value >= $prevValue) {
             return true;
