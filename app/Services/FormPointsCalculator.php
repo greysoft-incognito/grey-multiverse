@@ -242,28 +242,34 @@ class FormPointsCalculator
      */
     public function calculateFormTotalPoints(Form $form): int
     {
-        return  $form->fields->sum(function ($field): int {
-            $fieldPoints = (int) $field->points;
+        return  $form->fields->sum(function (FormField $field): int {
+            return $this->calculateFieldTotalPoints($field);
+        });
+    }
+
+    public function calculateFieldTotalPoints(FormField $field): int
+    {
+        $fieldPoints = (int) $field->points;
+
+        if ($field->points_script) {
             $parser = new \App\Services\PointsScript\PointsScriptParser();
 
-            if ($field->points_script) {
-                // Simulate max answer to get highest possible points
-                $maxAnswer = $parser->getMaxAnswer($field);
-                return $parser->evaluate($field->points_script, $maxAnswer);
-            }
+            // Simulate max answer to get highest possible points
+            $maxAnswer = $parser->getMaxAnswer($field);
+            return $parser->evaluate($field->points_script, $maxAnswer);
+        }
 
-            $optionsPoints = 0;
+        $optionsPoints = 0;
 
-            if (!empty($field->options) && is_array($field->options)) {
-                $positiveOptions = collect($field->options)
-                    ->filter(fn($opt) => isset($opt['points']) && (int) $opt['points'] > 0);
+        if (!empty($field->options) && is_array($field->options)) {
+            $positiveOptions = collect($field->options)
+                ->filter(fn($opt) => isset($opt['points']) && (int) $opt['points'] > 0);
 
-                $optionsPoints = $field->expected_value_type === 'array'
-                    ? $positiveOptions->sum(fn($opt) => (int) $opt['points']) // Sum for multi-select
-                    : $positiveOptions->max(fn($opt) => (int) $opt['points']) ?? 0; // Max for single-select
-            }
+            $optionsPoints = $field->expected_value_type === 'array'
+                ? $positiveOptions->sum(fn($opt) => (int) $opt['points']) // Sum for multi-select
+                : $positiveOptions->max(fn($opt) => (int) $opt['points']) ?? 0; // Max for single-select
+        }
 
-            return $fieldPoints + $optionsPoints;
-        });
+        return $fieldPoints + $optionsPoints;
     }
 }

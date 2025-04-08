@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\FormPointsCalculator;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -146,6 +147,18 @@ class FormField extends Model
                 'boolean' => (bool) $val,
                 default => $val,
             } : null;
+        });
+    }
+
+    /**
+     * Calculate the total points for the field.
+     *
+     * @return string
+     */
+    public function totalPoints(): Attribute
+    {
+        return Attribute::make(function () {
+            return (new FormPointsCalculator())->calculateFieldTotalPoints($this);
         });
     }
 
