@@ -86,6 +86,8 @@ class FormExtraController extends Controller
      */
     public function sync(Form $form)
     {
+        $form->syncing = true;
+        $form->saveQuietly();
         CalculateFormDataRankings::dispatch($form);
 
         return (new FormResource($form))->additional([

@@ -31,6 +31,7 @@ class CalculateFormDataRankings implements ShouldQueue //, ShouldBeUnique
          * Sync the form total points
          */
         $this->form->total_points = $calculator->calculateFormTotalPoints($this->form);
+        $this->form->syncing = false;
         $this->form->saveQuietly();
 
         /**

@@ -74,6 +74,7 @@ class Form extends Model
         return [
             'config' => \Illuminate\Database\Eloquent\Casts\AsCollection::class,
             'socials' => 'array',
+            'syncing' => 'boolean',
             'deadline' => 'datetime',
             'dont_notify' => 'boolean',
             'require_auth' => 'boolean',

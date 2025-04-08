@@ -23,6 +23,7 @@ class FormResource extends JsonResource
             'name' => $this->name,
             'slug' => $this->slug,
             'title' => $this->title,
+            'syncing' => $this->syncing,
             'external_link' => $this->external_link,
             'logo' => $this->files['logo'],
             'banner' => $this->files['banner'],
