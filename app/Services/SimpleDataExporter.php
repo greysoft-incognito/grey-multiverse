@@ -6,6 +6,7 @@ use App\Exports\AppointmentDataExports;
 use App\Exports\CompanyDataExports;
 use App\Exports\FormDataExports;
 use App\Exports\UserDataExports;
+use App\Jobs\DispatchExportsNotifications;
 use App\Mail\ReportGenerated;
 use App\Models\BizMatch\Appointment;
 use App\Models\BizMatch\Company;
@@ -32,6 +33,7 @@ class SimpleDataExporter
      * @param array<int,string> $dataset
      * @param array<int,string> $emails
      * @param array<int,string|int> $formIds
+     * @param boolean $queue
      */
     public function __construct(
         protected int $perPage = 50,
@@ -40,6 +42,8 @@ class SimpleDataExporter
         protected array $dataset = [],
         protected array $emails = [],
         protected array $formIds = [],
+        protected ?string $rank = null,
+        protected bool $queue = false,
     ) {
         $this->data_emails = collect(
             ! empty($emails) ? $emails : dbconfig('notifiable_emails', collect([]))
@@ -71,8 +75,25 @@ class SimpleDataExporter
         if (Company::count() > 0) {
             $path = 'exports/companies-dataset/data-batch-0.xlsx';
             (new CompanyDataExports($this->perPage))->store($path);
+            if ($this->queue) {
+                (new CompanyDataExports($this->perPage))->queue($path)->chain([
+                    new DispatchExportsNotifications(
+                        Company::first(),
+                        $this->data_emails,
+                        'Companies Data',
+                        0
+                    )
+                ]);
+            } else {
+                (new CompanyDataExports($this->perPage))->store($path);
 
-            $this->dispatchMails(new Company(), 'Companies Data', 0);
+                DispatchExportsNotifications::dispatch(
+                    Company::first(),
+                    $this->data_emails,
+                    'Companies Data',
+                    0
+                );
+            }
         }
     }
 
@@ -80,9 +101,26 @@ class SimpleDataExporter
     {
         if (User::count() > 0) {
             $path = 'exports/users-dataset/data-batch-0.xlsx';
-            (new UserDataExports($this->perPage))->store($path);
 
-            $this->dispatchMails(new User(), 'User Data', 0);
+            if ($this->queue) {
+                (new UserDataExports($this->perPage))->queue($path)->chain([
+                    new DispatchExportsNotifications(
+                        User::first(),
+                        $this->data_emails,
+                        'User Data',
+                        0
+                    )
+                ]);
+            } else {
+                (new UserDataExports($this->perPage))->store($path);
+
+                DispatchExportsNotifications::dispatch(
+                    User::first(),
+                    $this->data_emails,
+                    'User Data',
+                    0
+                );
+            }
         }
     }
 
@@ -90,9 +128,26 @@ class SimpleDataExporter
     {
         if (Appointment::count() > 0) {
             $path = 'exports/appointments-dataset/data-batch-0.xlsx';
-            (new AppointmentDataExports($this->perPage))->store($path);
 
-            $this->dispatchMails(new Appointment(), 'Appointment Data', 0);
+            if ($this->queue) {
+                (new AppointmentDataExports($this->perPage))->queue($path)->chain([
+                    new DispatchExportsNotifications(
+                        Appointment::first(),
+                        $this->data_emails,
+                        'Appointment Data',
+                        0
+                    )
+                ]);
+            } else {
+                (new AppointmentDataExports($this->perPage))->store($path);
+
+                DispatchExportsNotifications::dispatch(
+                    Appointment::first(),
+                    $this->data_emails,
+                    'Appointment Data',
+                    0
+                );
+            }
         }
     }
 
@@ -110,18 +165,44 @@ class SimpleDataExporter
 
             $path = "exports/{$name}/data-batch-{$batch}.xlsx";
 
-            (new FormDataExports(
-                form: $form,
-                scanned: $this->scanned,
-                perPage: $this->perPage,
-                draft: $this->draft,
-            ))->store($path);
-
             $this->data_emails = ! empty($this->emails)
                 ? collect($this->emails)->map(fn($e) => str($e))
                 : $form->data_emails;
 
             $this->dispatchMails($form, $form->title ?? $form->name, 0);
+
+
+            if ($this->queue) {
+                (new FormDataExports(
+                    form: $form,
+                    scanned: $this->scanned,
+                    perPage: $this->perPage,
+                    draft: $this->draft,
+                    rank: $this->rank,
+                ))->queue($path)->chain([
+                    new DispatchExportsNotifications(
+                        $form,
+                        $this->data_emails,
+                        $form->name . ' Data',
+                        0
+                    )
+                ]);
+            } else {
+                (new FormDataExports(
+                    form: $form,
+                    scanned: $this->scanned,
+                    perPage: $this->perPage,
+                    draft: $this->draft,
+                    rank: $this->rank,
+                ))->store($path);
+
+                DispatchExportsNotifications::dispatch(
+                    $form,
+                    $this->data_emails,
+                    $form->name . ' Data',
+                    0
+                );
+            }
         }
     }
 

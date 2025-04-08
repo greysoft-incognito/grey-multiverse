@@ -19,6 +19,7 @@ class ExportFormData extends Command
                             {--M|modern : Use the modern export interface}
                             {--Q|queue : Queue the process for later}
                             {--d|draft : Export only items in draft, if provided, only FormData will be exported.}
+                            {--r|rank= : Export form data by rank (top|least).}
                             {--P|per_page=50 : Number of results to add to each sheet}
                             {--e|emails=* : Email addresses that should get exported data notification}
                             {--f|forms=* : Form IDs to export, if provided, only FormData will be exported.}
@@ -46,6 +47,8 @@ class ExportFormData extends Command
                 emails: $this->option('emails'),
                 formIds: $this->option('forms') ?? [],
                 dataset: $this->argument('dataset'),
+                rank: $this->option('rank'),
+                queue: $this->option('queue'),
             );
         } else {
             if ($this->option('queue')) {

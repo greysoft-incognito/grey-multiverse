@@ -37,6 +37,7 @@ class FormDataExports implements WithMultipleSheets, WithProperties
         protected int $perPage = 50,
         protected bool $pending = false,
         protected bool $draft = false,
+        protected ?string $rank = null,
     ) {
     }
 
@@ -44,7 +45,7 @@ class FormDataExports implements WithMultipleSheets, WithProperties
     {
         $formData = $this->draft
             ? $this->form->drafts()
-            : $this->form->data();
+            : $this->form->data()->when($this->rank, fn($q) => $q->ranked($this->rank));
 
         $formData->orderBy('rank', 'DESC');
 
