@@ -219,12 +219,9 @@ class Form extends Model
     public function formKey(): Attribute
     {
         return Attribute::make(
-            get: fn() =>
-            $this->fields->firstWhere(function ($field) {
-                return $field->key === true ||
-                    str($field->name)->contains('email', true) ||
-                    $field->id !== null;
-            })?->name
+            get: fn() =>  $this->fields->firstWhere(function ($field) {
+                return $field->key === true || str($field->name)->contains('email', true);
+            })?->name ?? $this->fields->firstWhere('id', '!=')?->name
         );
     }
 

@@ -165,7 +165,10 @@ class FormDataController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(SaveFormdataRequest $request, Form $form, $id) {}
+    public function update(SaveFormdataRequest $request, Form $form, $id)
+    {
+        // return $this->store($request, $form);
+    }
 
     /**
      * Update the specified resource in storage.
@@ -193,7 +196,7 @@ class FormDataController extends Controller
 
         $form = ! $id
             ? $query->latest()->firstOrNew()
-            : $query->findOrFail($id);
+            : $query->where('id', (int)$id)->orWhere('key', $id)->firstOrFail();
 
         $content['draft_form_data'] = true;
 

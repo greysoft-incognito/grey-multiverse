@@ -42,7 +42,7 @@ class FormDataResource extends JsonResource
                 'form_id' => $this->form_id,
                 'email' => $this->whenNotNull($this->email),
                 'phone' => $this->whenNotNull($this->phone),
-                'qr' => $this->when($this->id, fn () => route('form.data.qr', ['form', $this->id]), null),
+                'qr' => $this->when($this->id, fn() => route('form.data.qr', ['form', $this->id]), null),
                 'scan_date' => $form->scan_date,
                 'status' => $this->status ?? 'pending',
                 'rank' => $this->rank,
@@ -52,7 +52,7 @@ class FormDataResource extends JsonResource
                 'updated_at' => $this->updated_at,
                 'fields' => $form->fields,
                 'status_reason' => $this->status_reason,
-                'reviewer' => $this->when($this->reviewer, fn () => [
+                'reviewer' => $this->when($this->reviewer, fn() => [
                     'id' => $this->reviewer->id,
                     'name' => $this->reviewer->name,
                 ]),

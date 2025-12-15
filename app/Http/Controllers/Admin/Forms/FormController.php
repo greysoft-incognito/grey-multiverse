@@ -93,7 +93,7 @@ class FormController extends Controller
         ]);
 
         $form = new Form();
-        $form->name = $request->name;
+        $form->name = str($request->name)->slug(stripos($request->name, '-') !== false ? '-' : '_');
         $form->title = $request->title;
         $form->external_link = $request->external_link;
         $form->logo = $request->logo;
@@ -166,7 +166,7 @@ class FormController extends Controller
             'data_emails.*' => 'required|email',
         ]);
 
-        $form->name = $request->name;
+        $form->name = str($request->name)->slug(stripos($request->name, '-') !== false ? '-' : '_');
         $form->title = $request->title;
         $form->external_link = $request->external_link;
         $form->logo = $request->logo;
@@ -209,7 +209,7 @@ class FormController extends Controller
                 }
 
                 return false;
-            })->filter(fn ($i) => $i !== false)->count();
+            })->filter(fn($i) => $i !== false)->count();
 
             return Providers::response()->info([
                 'data' => [],
