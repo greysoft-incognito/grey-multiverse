@@ -132,7 +132,7 @@ class FormData extends Model
     {
         return $this
             ->withDraft()
-            ->where('id', $value)
+            ->where('id', (int)$value)
             ->orWhere('key', $value)
             ->firstOrFail();
     }
