@@ -23,7 +23,7 @@ class PortalUserController extends Controller
     public function register(Request $request, Portal $portal)
     {
         $request->validate([
-            'email' => 'required|email|unique:'.$portal->registration_model.',email',
+            'email' => 'required|email|unique:' . $portal->registration_model . ',email',
             'password' => 'required|string|confirmed',
         ]);
 
@@ -45,7 +45,7 @@ class PortalUserController extends Controller
 
         event(new Registered($user));
 
-        $key = $portal->regForm->fields->firstWhere('key', true)->name ?? $portal->regForm->fields->first()->name;
+        $key = $portal->regForm->form_key;
         $formdata = GenericFormData::create([
             'form_id' => $portal->reg_form_id,
             'user_id' => $user->id ?? null,
@@ -56,7 +56,7 @@ class PortalUserController extends Controller
         $formdata->notify(new FormSubmitedSuccessfully());
 
         $dev = new DeviceDetector($request->userAgent());
-        $device = $dev->getBrandName() ? ($dev->getBrandName().$dev->getDeviceName()) : $request->userAgent();
+        $device = $dev->getBrandName() ? ($dev->getBrandName() . $dev->getDeviceName()) : $request->userAgent();
 
         $token = $user->createToken($device)->plainTextToken;
         (new RegisteredUserController)->setUserData($user);
@@ -81,7 +81,7 @@ class PortalUserController extends Controller
             $request->authenticateGuest($portal);
 
             $dev = new DeviceDetector($request->userAgent());
-            $device = $dev->getBrandName() ? ($dev->getBrandName().$dev->getDeviceName()) : $request->userAgent();
+            $device = $dev->getBrandName() ? ($dev->getBrandName() . $dev->getDeviceName()) : $request->userAgent();
 
             $user = $request->user();
 

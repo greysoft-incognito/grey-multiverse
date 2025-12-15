@@ -362,7 +362,8 @@ class SaveFormdataRequest extends FormRequest
      */
     protected function passedValidation(): void
     {
-        $key = $this->fields->firstWhere('key', true)->name ?? '';
+        $user = auth('sanctum')->user();
+        $key = $this->form->form_key ?? $user->email ?? $user->id ?? $this->user_id ?? '';
         $data = $this->validated('data');
 
         if ($this->hasMultipleEntries()) {
@@ -371,7 +372,7 @@ class SaveFormdataRequest extends FormRequest
                 'status' => 'submitted',
                 'draft' => ['draft_form_data' => false],
                 'data' => $data[$i],
-                'key' => $data[$i][$key] ?? '',
+                'key' => $data[$i][$this->form->form_key] ?? '',
             ]);
         } else {
             $output = collect([[

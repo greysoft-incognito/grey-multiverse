@@ -21,6 +21,7 @@ use ToneflixCode\LaravelFileable\Traits\Fileable;
  * @property \Illuminate\Database\Eloquent\Collection<int,FormInfo> $infos
  * @property \Illuminate\Database\Eloquent\Collection<int,LearningPath> $learningPaths
  * @property \Illuminate\Support\Collection<int,\Illuminate\Support\Stringable> $data_emails
+ * @property string $form_key
  * @property string $name
  * @property string $logo_url
  * @property string $logo_url
@@ -221,7 +222,8 @@ class Form extends Model
             get: fn() =>
             $this->fields->firstWhere(function ($field) {
                 return $field->key === true ||
-                    str($field->name)->contains('email', true);
+                    str($field->name)->contains('email', true) ||
+                    $field->id !== null;
             })?->name
         );
     }

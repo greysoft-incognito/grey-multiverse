@@ -177,7 +177,7 @@ class FormDataController extends Controller
     {
         $field_names = $form->fields->pluck('name');
         $user = $request->user('sanctum');
-        $key = $form->fields->firstWhere('key', true)?->name;
+        $key = $form->form_key;
 
         ['data' => $content] = $this->validate($request, [
             'data' => ['required', 'array'],

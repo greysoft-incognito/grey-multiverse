@@ -73,7 +73,7 @@ class FormDataController extends Controller
             return $field;
         });
 
-        $custom_messages = $form->fields->filter(fn ($f) => $f->custom_error)->mapWithKeys(function ($field, $key) {
+        $custom_messages = $form->fields->filter(fn($f) => $f->custom_error)->mapWithKeys(function ($field, $key) {
             if ($field->required_if) {
                 return ["data.$field->name.required_if" => $field->custom_error];
             } elseif ($field->required) {
@@ -82,7 +82,7 @@ class FormDataController extends Controller
         })->toArray();
 
         $custom_attributes = $form->fields->mapWithKeys(function ($field, $key) {
-            return ['data.'.$field->name => $field->label];
+            return ['data.' . $field->name => $field->label];
         })->toArray();
 
         $validation_rules = $form->fields->mapWithKeys(function ($field, $key) {
@@ -96,7 +96,7 @@ class FormDataController extends Controller
             if ($field->required_if) {
                 $rules[] = 'nullable';
                 foreach (explode(',', $field->required_if) as $k => $r) {
-                    $rules[] = 'required_if:data.'.str($r)->replace('=', ',');
+                    $rules[] = 'required_if:data.' . str($r)->replace('=', ',');
                 }
             } elseif ($field->required) {
                 $rules[] = 'required';
@@ -119,10 +119,10 @@ class FormDataController extends Controller
                 $rules[] = 'email';
             }
             if ($field->options) {
-                $rules[] = 'in:'.collect($field->options)->pluck('value')->implode(',');
+                $rules[] = 'in:' . collect($field->options)->pluck('value')->implode(',');
             }
 
-            return ['data.'.$field->name => $rules];
+            return ['data.' . $field->name => $rules];
         })->toArray();
 
         foreach ($request->get('data', []) as $key => $value) {
@@ -141,18 +141,18 @@ class FormDataController extends Controller
                     $diff = $date->diffInYears($compare);
 
                     if ($field->min && $diff < $field->min) {
-                        $errors->push(['data.'.$key => __('The minimum :1 requirement for this application is :0, your :2 puts you at :3 by :4.', [$field->max, $field->alias, $field->label, $diff, $compare])]);
+                        $errors->push(['data.' . $key => __('The minimum :1 requirement for this application is :0, your :2 puts you at :3 by :4.', [$field->max, $field->alias, $field->label, $diff, $compare])]);
                     }
 
                     if ($field->max && $diff > $field->max) {
-                        $errors->push(['data.'.$key => __('The :1 limit for this application is :0, your :2 puts you at :3 by :4.', [$field->max, $field->alias, $field->label, $diff, $compare])]);
+                        $errors->push(['data.' . $key => __('The :1 limit for this application is :0, your :2 puts you at :3 by :4.', [$field->max, $field->alias, $field->label, $diff, $compare])]);
                     }
                 }
 
                 if ($field->key) {
                 }
                 if ($field->key && GenericFormData::whereJsonContains("data->{$key}", $value)->exists()) {
-                    $errors->push(['data.'.$key => __('The :0 has already been taken.', [$field->label])]);
+                    $errors->push(['data.' . $key => __('The :0 has already been taken.', [$field->label])]);
                 }
             }
         }
@@ -167,7 +167,7 @@ class FormDataController extends Controller
         });
         $validator->validate();
 
-        $key = $form->fields->firstWhere('key', true)->name ?? $form->fields->first()->name;
+        $key = $form->form_key;
         $data = $request->get('data');
 
         if (! $data) {
