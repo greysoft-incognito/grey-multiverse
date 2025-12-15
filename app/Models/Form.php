@@ -41,6 +41,7 @@ class Form extends Model
      * @var array
      */
     protected $appends = [
+        'form_key',
         'banner_url',
         'logo_url',
     ];
@@ -212,6 +213,17 @@ class Form extends Model
     public function permissions(): HasMany
     {
         return $this->hasMany(FormPermission::class);
+    }
+
+    public function formKey(): Attribute
+    {
+        return Attribute::make(
+            get: fn() =>
+            $this->fields->firstWhere(function ($field) {
+                return $field->key === true ||
+                    str($field->name)->contains('email', true);
+            })?->name
+        );
     }
 
     /**

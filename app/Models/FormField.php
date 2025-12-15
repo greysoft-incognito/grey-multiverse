@@ -42,6 +42,7 @@ class FormField extends Model
      * @var array
      */
     protected $casts = [
+        'key' => 'boolean',
         'points' => 'integer',
         'options' => 'array',
         'restricted' => 'boolean',

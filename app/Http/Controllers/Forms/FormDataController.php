@@ -77,9 +77,10 @@ class FormDataController extends Controller
             $query = $form->data()->withDraft();
         }
 
+        /** @var \Illuminate\Database\Eloquent\Builder<FormData> $query */
+
         $query->with(['form', 'form.fields']);
 
-        /** @var \Illuminate\Database\Eloquent\Builder $query */
         if ($request->hasMultipleEntries() || (! $request->user_id && ! $request->user('sanctum'))) {
             $formdata = $query->createMany($data);
         } else {
@@ -164,9 +165,7 @@ class FormDataController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(SaveFormdataRequest $request, Form $form, $id)
-    {
-    }
+    public function update(SaveFormdataRequest $request, Form $form, $id) {}
 
     /**
      * Update the specified resource in storage.

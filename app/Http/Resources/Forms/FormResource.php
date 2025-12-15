@@ -20,6 +20,7 @@ class FormResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'key' => $this->form_key,
             'name' => $this->name,
             'slug' => $this->slug,
             'title' => $this->title,
@@ -31,7 +32,7 @@ class FormResource extends JsonResource
             'banner_info' => $this->banner_info,
             'template' => $this->template,
             'total_points' => $this->total_points,
-            'data_emails' => $this->data_emails->filter(fn ($e) => $e != ''),
+            'data_emails' => $this->data_emails->filter(fn($e) => $e != ''),
             'dont_notify' => $this->dont_notify,
             'socials' => $this->socials,
             'deadline' => $this->deadline?->format('Y/m/d H:i:s'),
